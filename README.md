@@ -1,14 +1,44 @@
 # Software Rasterizer
 
-
-# 概要
+## 概要
 
 - GPUを使用しないラスタライザーの実装
 - ３Ｄモデルを描画
 - GUIに Win32 API を使用
 
 
-# やり残したこと
+## 処理の流れ
+
+頂点データ  
+↓  
+（インプットアセンブリ）  
+float4に変換  
+↓  
+（頂点シェーダー）  
+クリップ座標系に変換  
+↓  
+（プリミティブアセンブリ）  
+プリミティブに変換  
+↓  
+クリップ  
+クリップ空間の外側をクリップ  
+↓  
+W除算  
+正規化デバイス座標に変換  
+↓  
+フェイスカリング  
+↓  
+（ラスタライズ）  
+フラグメントに変換  
+↓  
+早期デプステスト  
+↓  
+（フラグメントシェーダー）  
+フラグメントのカラーを決定  
+
+
+
+## やり残したこと
 
 - ラスタライザの左上ルール（left top rule）
 - バイリニアフィルタ
@@ -16,18 +46,18 @@
 
 ## 参考資料
 
-Sutherland-Hodgman algorithm
-Ivan Sutherland, Gary W. Hodgman: Reentrant Polygon Clipping. Communications of the ACM, vol. 17, pp. 32-42, 1974
+Sutherland-Hodgman algorithm  
+Ivan Sutherland, Gary W. Hodgman: Reentrant Polygon Clipping.   Communications of the ACM, vol. 17, pp. 32-42, 1974  
 凸形状によるクリップのアルゴリズム
 
-CLIPPING USING HOMOGENEOUS COORDINATES
-Blinn & Newell（1978）Clipping Using Homogeneous Coordinates - section 2. CLIPPING
-SIGGRAPH '78: Proceedings of the 5th annual conference on Computer graphics and interactive techniques Pages 245 - 251
+CLIPPING USING HOMOGENEOUS COORDINATES  
+Blinn & Newell（1978）Clipping Using Homogeneous Coordinates - section 2. CLIPPING  
+SIGGRAPH '78: Proceedings of the 5th annual conference on Computer graphics and interactive techniques Pages 245 - 251  
 クリップ空間でのクリップについて
 
-A Parallel Algorithm for Polygon Rasterization 
-Juan Pineda 1988 
-ラスタライズの並列化、あと重心座標も
+A Parallel Algorithm for Polygon Rasterization  
+Juan Pineda 1988   
+ラスタライズの並列化、重心座標  
 
 
 ## メモ(知らなかったこと)
