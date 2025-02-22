@@ -334,10 +334,10 @@ namespace MyApp
         {
 #ifndef NDEBUG
             //float lazyW = std::abs(clippingPoint->position.w) + 0.00001f;
-#endif
             //assert(-lazyW <= clippingPoint->position.x && clippingPoint->position.x <= lazyW);
             //assert(-lazyW <= clippingPoint->position.y && clippingPoint->position.y <= lazyW);
             //assert(-lazyW <= clippingPoint->position.z && clippingPoint->position.z <= lazyW);
+#endif
 
             float w = clippingPoint->position.w;
             assert(w != 0.0f);
@@ -346,10 +346,8 @@ namespace MyApp
             Vector4 ndcPosition = clippingPoint->position / w;
 
             // ビューポート変換
-
             screenPoint->position.x = (ndcPosition.x + 1.0f) * ((float)(_viewportWidth) / 2.0f);
             screenPoint->position.y = (ndcPosition.y + 1.0f) * ((float)(_viewportHeight) / 2.0f);
-
             //assert(screenPoint->position.z == ndcPosition.z);
             //assert(screenPoint->position.w == 1.0f);
 
@@ -361,36 +359,29 @@ namespace MyApp
             //assert(0 <= y && y < height);
 
             screenPoint->position.z = ndcPosition.z;
-            screenPoint->position.w = 1.0f / w;
+            screenPoint->position.w = 1.0f;
+#ifdef TEST_PERSPECTIVE_CORRECT_VARYING_VARIABLES
+            screenPoint->position.w /= w;
+#endif
 
+            // 補間値はW除算（パースペクティブコレクト）
             for (int i = 0; i < _varyingVariablesCount; ++i)
             {
                 screenPoint->varyingVariables[i] = clippingPoint->varyingVariables[i];
 #ifdef TEST_PERSPECTIVE_CORRECT_VARYING_VARIABLES
-                screenPoint->varyingVariables[i] = screenPoint->varyingVariables[i] / w;
+                screenPoint->varyingVariables[i] /= w;
 #endif
             }
         }
 
-
-
-
-        static bool faceCulling(const ClippingPoint* clippingPoints)
+        static bool faceCulling(const Vector2* ndcPositions)
         {
             // glEnable(GL_CULL_FACE)
             // glFrontFace(GL_CCW)
 
-            // クリップ処理後は多角形になっていることがあるので最初の２辺で判定
-            Vector2 ndcPosition[3] =
-            {
-                (Vector2)clippingPoints[0].position / clippingPoints[0].position.w,
-                (Vector2)clippingPoints[1].position / clippingPoints[1].position.w,
-                (Vector2)clippingPoints[2].position / clippingPoints[2].position.w,
-            };
-
-            const Vector2& a = ndcPosition[0];
-            const Vector2& b = ndcPosition[1];
-            const Vector2& c = ndcPosition[2];
+            const Vector2& a = ndcPositions[0];
+            const Vector2& b = ndcPositions[1];
+            const Vector2& c = ndcPositions[2];
             float n = (b - a).cross(c - a);
 
             if (false)// CW

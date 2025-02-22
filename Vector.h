@@ -160,6 +160,16 @@ namespace MyApp
         Vector4(const Vector2& v2, float z, float w) : x(v2.x), y(v2.y), z(z), w(w) {}
         Vector4(const Vector3& v3, float w) : x(v3.x), y(v3.y), z(v3.z), w(w) {}
 
+        Vector2 GetXY() const
+        {
+            return Vector2(x, y);
+        }
+
+        Vector3 GetXYZ() const
+        {
+            return Vector3(x, y, z);
+        }
+
         float getComponent(int index) const
         {
             switch (index)
@@ -170,18 +180,6 @@ namespace MyApp
             case 3: return w;
             default: throw std::out_of_range("Index out of range.");
             }
-        }
-
-        // Vector2への暗黙的なキャスト演算子をオーバーロード
-        operator Vector2() const
-        {
-            return Vector2(x, y);
-        }
-
-        // Vector3への暗黙的なキャスト演算子をオーバーロード
-        operator Vector3() const
-        {
-            return Vector3(x, y, z);
         }
 
         // 加算演算子のオーバーロード
@@ -206,6 +204,26 @@ namespace MyApp
         Vector4 operator/(float scalar) const
         {
             return Vector4(x / scalar, y / scalar, z / scalar, w / scalar);
+        }
+
+        // 掛け算の代入演算子オーバーロード
+        Vector4& operator*=(float scalar)
+        {
+            x *= scalar;
+            y *= scalar;
+            z *= scalar;
+            w *= scalar;
+            return *this;
+        }
+
+        // 割り算の代入演算子オーバーロード
+        Vector4& operator/=(float scalar)
+        {
+            x /= scalar;
+            y /= scalar;
+            z /= scalar;
+            w /= scalar;
+            return *this;
         }
 
         // フレンド関数として左項にfloatを持つ乗算演算子のオーバーロード

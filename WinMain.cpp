@@ -94,7 +94,7 @@ namespace MyApp
     void MeshPixelShaderMain(const PixelShaderInput* input, PixelShaderOutput* output)
     {
         const UniformBlock* uniformBlock = (const UniformBlock*)input->uniformBlock;
-        const Vector4& uv = input->varyingVariables[0];
+        const Vector2 uv = input->varyingVariables[0].GetXY();
 
         output->fragColor = sampleTexture(uniformBlock->meshTexture, uv);
     }
@@ -242,7 +242,7 @@ namespace MyApp
         {
             if (isDragging)
             {
-                POINT currentMousePos;
+                POINT currentMousePos = {};
                 currentMousePos.x = LOWORD(lParam);
                 currentMousePos.y = HIWORD(lParam);
 
@@ -354,13 +354,13 @@ namespace MyApp
                 int screenHeight = clientRect.bottom - clientRect.top;
                 renderer.setViewport(0, 0, screenWidth, screenHeight);
 
-                ColorFrameBuffer colorFrameBuffer;
+                ColorFrameBuffer colorFrameBuffer = {};
                 colorFrameBuffer.addr = dibSection.dsBm.bmBits;
                 colorFrameBuffer.width = dibSection.dsBm.bmWidth;
                 colorFrameBuffer.height = dibSection.dsBm.bmHeight;
                 colorFrameBuffer.widthBytes = dibSection.dsBm.bmWidthBytes;
 
-                DepthFrameBuffer depthFrameBuffer;
+                DepthFrameBuffer depthFrameBuffer = {};
                 depthFrameBuffer.addr = g_depthBuffer;
                 depthFrameBuffer.width = dibSection.dsBm.bmWidth;
                 depthFrameBuffer.height = dibSection.dsBm.bmHeight;

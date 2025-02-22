@@ -12,7 +12,8 @@ namespace MyApp
         // glClear()
 
         // glClearColor(r, g, b, a) (Default all 0)
-        std::memset(_colorFrameBuffer->addr, 0, _colorFrameBuffer->widthBytes * _colorFrameBuffer->height);
+        size_t size = _colorFrameBuffer->widthBytes * _colorFrameBuffer->height;
+        std::memset(_colorFrameBuffer->addr, 0, size);
         //uint32_t* firstColor = (uint32_t*)_colorFrameBuffer->addr;
         //uint32_t* lastColor = ((uint32_t*)_colorFrameBuffer->addr) + (_colorFrameBuffer->height * _colorFrameBuffer->width);
         //std::fill(firstColor, lastColor, 0x00000000);
@@ -96,17 +97,17 @@ namespace MyApp
 
 #ifndef NDEBUG
         //float lazyW = std::abs(clippedPoints[0].position.w) + 0.00001f;
-#endif
         //assert(-lazyW <= clippedPoints[0].position.x && clippedPoints[0].position.x <= lazyW);
         //assert(-lazyW <= clippedPoints[0].position.y && clippedPoints[0].position.y <= lazyW);
         //assert(-lazyW <= clippedPoints[0].position.z && clippedPoints[0].position.z <= lazyW);
+#endif
 
 #ifndef NDEBUG
         //lazyW = std::abs(clippedPoints[1].position.w) + 0.00001f;
-#endif
         //assert(-lazyW <= clippedPoints[1].position.x && clippedPoints[1].position.x <= lazyW);
         //assert(-lazyW <= clippedPoints[1].position.y && clippedPoints[1].position.y <= lazyW);
         //assert(-lazyW <= clippedPoints[1].position.z && clippedPoints[1].position.z <= lazyW);
+#endif
     }
 
     void Renderer::clipPrimitiveTriangle(const VertexShaderOutput* primitiveVertices, ClippingPoint* clippingPoints, int* clippingPointsCount)
@@ -271,9 +272,6 @@ namespace MyApp
         float t = acLengthClosest / ab.getLength();
         t = clamp(t, 0.0f, 1.0f);
 
-        float invW = lerp(p0.w, p1.w, t);
-        assert(0.0f != invW);
-
         float ndcZ = lerp(p0.z, p1.z, t);
 
         // glDepthRange(nearVal, farVal) (Default 0, 1)
@@ -288,13 +286,17 @@ namespace MyApp
             return;
         }
 
-        // 残りの補間値も求める
+        float invW = lerp(p0.w, p1.w, t);
+        assert(0.0f != invW);
+        float w = 1.0f / invW;
+
+        // 　補間値も求める
         Vector4 interpolators[kVaryingVariablesNum] = {};
         for (int i = 0; i < _varyingVariablesCount; ++i)
         {
             interpolators[i] = Vector4::Lerp(screenPoint0->varyingVariables[i], screenPoint1->varyingVariables[i], t);
 #ifdef TEST_PERSPECTIVE_CORRECT_VARYING_VARIABLES
-            interpolators[i] = interpolators[i] / invW;
+            interpolators[i] *= w;
 #endif
         }
 
@@ -386,7 +388,7 @@ namespace MyApp
         const Vector4& p1 = screenPoint1->position;
         const Vector4& p2 = screenPoint2->position;
 
-        const auto Denom = edgeFunction(p0, p1, p2);// Denom は denominator らしい、変えたほうがよい
+        const auto Denom = edgeFunction(p0.GetXY(), p1.GetXY(), p2.GetXY());// Denom は denominator らしい、変えたほうがよい
         if (Denom <= 0.0f)
         {
             return;
@@ -419,11 +421,11 @@ namespace MyApp
                 Vector2 p(x + 0.5f, y + 0.5f);
 
                 // ピクセルの中心を内外判定
-                auto b0 = edgeFunction(p1, p2, p);
+                auto b0 = edgeFunction(p1.GetXY(), p2.GetXY(), p);
                 if (b0 < 0.0f) continue;
-                auto b1 = edgeFunction(p2, p0, p);
+                auto b1 = edgeFunction(p2.GetXY(), p0.GetXY(), p);
                 if (b1 < 0.0f) continue;
-                auto b2 = edgeFunction(p0, p1, p);
+                auto b2 = edgeFunction(p0.GetXY(), p1.GetXY(), p);
                 if (b2 < 0.0f) continue;
 
                 // 重心座標
@@ -432,9 +434,6 @@ namespace MyApp
                 b2 /= Denom;
 
                 // 補間値を重心座標で求める
-
-                float invW = ((b0 * p0.w) + (b1 * p1.w) + (b2 * p2.w));
-                assert(0.0f != invW);
 
                 float ndcZ = ((b0 * p0.z) + (b1 * p1.z) + (b2 * p2.z));
 
@@ -452,6 +451,10 @@ namespace MyApp
                     continue;
                 }
 
+                float invW = ((b0 * p0.w) + (b1 * p1.w) + (b2 * p2.w));
+                assert(0.0f != invW);
+                float w = 1.0f / invW;
+
                 // 残りの補間値も求める
                 Vector4 varyingVariables[kVaryingVariablesNum] = {};
                 for (int i = 0; i < _varyingVariablesCount; ++i)
@@ -461,7 +464,7 @@ namespace MyApp
                     const Vector4& v2 = screenPoint2->varyingVariables[i];
                     varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2));
 #ifdef TEST_PERSPECTIVE_CORRECT_VARYING_VARIABLES
-                    varyingVariables[i] = varyingVariables[i] / invW;
+                    varyingVariables[i] *= w;
 #endif
                 }
 
@@ -530,10 +533,19 @@ namespace MyApp
 
         // NDC
 
-        if (!faceCulling(clippingPoints))
+        // クリップ処理後は多角形になっていることがあるので最初の２辺で判定
+        const Vector2 ndcPositions[3] =
+        {
+            clippingPoints[0].position.GetXY() / clippingPoints[0].position.w,
+            clippingPoints[1].position.GetXY() / clippingPoints[1].position.w,
+            clippingPoints[2].position.GetXY() / clippingPoints[2].position.w,
+        };
+
+        if (!faceCulling(ndcPositions))
         {
             return;
         }
+
 
         // VIEWPORT
 
