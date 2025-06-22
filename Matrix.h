@@ -180,25 +180,25 @@ namespace MyApp
             return shear;
         }
 
-        Matrix4x4 operator*(const Matrix4x4& other) const
+        Matrix4x4 operator*(const Matrix4x4& r) const
         {
             Matrix4x4 ret;
-            ret.m00 = m00 * other.m00 + m01 * other.m10 + m02 * other.m20 + m03 * other.m30;
-            ret.m01 = m00 * other.m01 + m01 * other.m11 + m02 * other.m21 + m03 * other.m31;
-            ret.m02 = m00 * other.m02 + m01 * other.m12 + m02 * other.m22 + m03 * other.m32;
-            ret.m03 = m00 * other.m03 + m01 * other.m13 + m02 * other.m23 + m03 * other.m33;
-            ret.m10 = m10 * other.m00 + m11 * other.m10 + m12 * other.m20 + m13 * other.m30;
-            ret.m11 = m10 * other.m01 + m11 * other.m11 + m12 * other.m21 + m13 * other.m31;
-            ret.m12 = m10 * other.m02 + m11 * other.m12 + m12 * other.m22 + m13 * other.m32;
-            ret.m13 = m10 * other.m03 + m11 * other.m13 + m12 * other.m23 + m13 * other.m33;
-            ret.m20 = m20 * other.m00 + m21 * other.m10 + m22 * other.m20 + m23 * other.m30;
-            ret.m21 = m20 * other.m01 + m21 * other.m11 + m22 * other.m21 + m23 * other.m31;
-            ret.m22 = m20 * other.m02 + m21 * other.m12 + m22 * other.m22 + m23 * other.m32;
-            ret.m23 = m20 * other.m03 + m21 * other.m13 + m22 * other.m23 + m23 * other.m33;
-            ret.m30 = m30 * other.m00 + m31 * other.m10 + m32 * other.m20 + m33 * other.m30;
-            ret.m31 = m30 * other.m01 + m31 * other.m11 + m32 * other.m21 + m33 * other.m31;
-            ret.m32 = m30 * other.m02 + m31 * other.m12 + m32 * other.m22 + m33 * other.m32;
-            ret.m33 = m30 * other.m03 + m31 * other.m13 + m32 * other.m23 + m33 * other.m33;
+            ret.m00 = m00 * r.m00 + m01 * r.m10 + m02 * r.m20 + m03 * r.m30;
+            ret.m01 = m00 * r.m01 + m01 * r.m11 + m02 * r.m21 + m03 * r.m31;
+            ret.m02 = m00 * r.m02 + m01 * r.m12 + m02 * r.m22 + m03 * r.m32;
+            ret.m03 = m00 * r.m03 + m01 * r.m13 + m02 * r.m23 + m03 * r.m33;
+            ret.m10 = m10 * r.m00 + m11 * r.m10 + m12 * r.m20 + m13 * r.m30;
+            ret.m11 = m10 * r.m01 + m11 * r.m11 + m12 * r.m21 + m13 * r.m31;
+            ret.m12 = m10 * r.m02 + m11 * r.m12 + m12 * r.m22 + m13 * r.m32;
+            ret.m13 = m10 * r.m03 + m11 * r.m13 + m12 * r.m23 + m13 * r.m33;
+            ret.m20 = m20 * r.m00 + m21 * r.m10 + m22 * r.m20 + m23 * r.m30;
+            ret.m21 = m20 * r.m01 + m21 * r.m11 + m22 * r.m21 + m23 * r.m31;
+            ret.m22 = m20 * r.m02 + m21 * r.m12 + m22 * r.m22 + m23 * r.m32;
+            ret.m23 = m20 * r.m03 + m21 * r.m13 + m22 * r.m23 + m23 * r.m33;
+            ret.m30 = m30 * r.m00 + m31 * r.m10 + m32 * r.m20 + m33 * r.m30;
+            ret.m31 = m30 * r.m01 + m31 * r.m11 + m32 * r.m21 + m33 * r.m31;
+            ret.m32 = m30 * r.m02 + m31 * r.m12 + m32 * r.m22 + m33 * r.m32;
+            ret.m33 = m30 * r.m03 + m31 * r.m13 + m32 * r.m23 + m33 * r.m33;
             return ret;
         }
 
@@ -439,22 +439,24 @@ namespace MyApp
         }
 
 
-
-
-        // OpenGL系は手前が z プラス
+        // OpenGL系は手前方向に z プラス
         static Matrix4x4 createLockAt(const Vector3& eye, const Vector3& center, const Vector3& up)
         {
             // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
 
+            // f=forward, s=side
+
             Vector3 f = center - eye;
             Vector3 f2 = f.normalize();
             Vector3 up2 = up.normalize();
-            // khronos.org の式がちょっと間違ってる
+
+            // khronos.org の式は s が正規化されてない
             //Vector3 s = f2.cross(up2);
             //Vector3 u = s.normalize().cross(f2);
             Vector3 s = f2.cross(up2).normalize();
             Vector3 u = s.cross(f2);
-#if 0// 転置を使う場合
+
+#if 0// 最適化（転置を使う場合）
             Matrix4x4 r;
             r.m00 = s.x; r.m01 = s.y; r.m02 = s.z; r.m03 = 0.0f;
             r.m10 = u.x; r.m11 = u.y; r.m12 = u.z; r.m13 = 0.0f;
@@ -494,12 +496,12 @@ namespace MyApp
             return view;
         }
 
-        // OpenGL系は z が [-1, 1]
+        // OpenGL系は z [-1, 1]
         static Matrix4x4 createFrustum(float left, float right, float bottom, float top, float near, float far)
         {
             // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
 
-#if !0// 直書きする場合
+#if 0// 最適化（直書きする場合）
             Matrix4x4 frust;
             float a = (right + left) / (right - left);
             float b = (top + bottom) / (top - bottom);
@@ -510,15 +512,33 @@ namespace MyApp
             frust.m20 = 0.0f; frust.m21 = 0.0f; frust.m22 = c; frust.m23 = d;
             frust.m30 = 0.0f; frust.m31 = 0.0f; frust.m32 = -1.0f; frust.m33 = 0.0f;
             return frust;
-#else// TODO
-            Matrix4x4 shear = createShear(0.0f, 0.0f, 0.0f, 0.0f, (left + right) / (2.0f * near), (top + bottom) / (2.0f * near));
-            Matrix4x4 scale = createScale(2.0f / (right - left), 2.0f / (top - bottom), 2.0f / (far - near));
-            Matrix4x4 perspective;
-            perspective.m00 = near; perspective.m01 = 0.0f; perspective.m02 = 0.0f; perspective.m03 = 0.0f;
-            perspective.m10 = 0.0f; perspective.m11 = near; perspective.m12 = 0.0f; perspective.m13 = 0.0f;
-            perspective.m20 = 0.0f; perspective.m21 = 0.0f; perspective.m22 = (far + near) / 2.0f; perspective.m23 = far * near;
-            perspective.m30 = 0.0f; perspective.m31 = 0.0f; perspective.m32 = -1.0f; perspective.m33 = 1.0f;
-            return shear * scale * perspective;
+#else
+
+            // TODO
+            Matrix4x4 persZ;
+            float a = -(far + near) / (far - near);
+            float b = -(2.0f * far * near) / (far - near);
+            Matrix4x4& p = persZ;
+            p.m00 = 1.0f; p.m01 = 0.0f; p.m02 = 0.0f;  p.m03 = 0.0f;
+            p.m10 = 0.0f; p.m11 = 1.0f; p.m12 = 0.0f;  p.m13 = 0.0f;
+            p.m20 = 0.0f; p.m21 = 0.0f; p.m22 = a;     p.m23 = b;
+
+            // 透視除算の w 成分
+            //  mv = v' のときに v'w = -vz にするには３行目を ( 0, 0, -1, 0 ) にする
+            //  v'w = m30 * vx + m31 * vy + m32 * vz + m33 * vw
+            //      = 0 * vx + 0 * vy + -1 * vz + 0 * vw
+            //      = -1 * vz
+            p.m30 = 0.0f; p.m31 = 0.0f; p.m32 = -1.0f; p.m33 = 0.0f;
+
+            // 視体積のニアクリップ平面のXY範囲を [-near, near] に収まるようにスケール
+            Matrix4x4 scaleXY = createScale((2.0f / (right - left)) * near, (2.0f / (top - bottom)) * near, 1.0f);
+
+            // 視体積の中心がZ軸を通るように補正（変形）
+            float zx = (right + left) / (right - left);
+            float zy = (top + bottom) / (top - bottom);
+            Matrix4x4 shearXY = createShear(0.0f, 0.0f, 0.0f, 0.0f, zx, zy);
+
+            return persZ * scaleXY * shearXY;
 #endif
         }
 
@@ -526,7 +546,7 @@ namespace MyApp
         {
             // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
 
-#if 0// 直書きする場合
+#if 0// 最適化（直書きする場合）
             Matrix4x4 proj = Matrix4x4::kIdentity;
             float f = 1.0f / tan(fovy / 2.0f);
             proj.m00 = f / aspect;

@@ -8,7 +8,6 @@
 #include "Algorithm.h"
 #include "Vector.h"
 #include "Matrix.h"
-#include "VertexProcessedFlags.h" 
 
 namespace MyApp
 {
