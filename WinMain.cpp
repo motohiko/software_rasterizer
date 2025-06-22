@@ -145,7 +145,7 @@ namespace MyApp
             renderer->setVertexBufferElementsCount(2);
             renderer->setIndexBuffer(kDefaultIndices, 2);
             renderer->setVertexShaderProgram(LineVertexShaderMain);
-            renderer->setVaryingVariablesCount(1);
+            renderer->setVaryingVariableCount(1);
             renderer->setPixelShaderProgram(LinePixelShaderMain);
             renderer->drawIndexed();
 
@@ -184,7 +184,7 @@ namespace MyApp
             renderer->setVertexBufferElementsCount(2);
             renderer->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
             renderer->setVertexShaderProgram(LineVertexShaderMain);
-            renderer->setVaryingVariablesCount(1);
+            renderer->setVaryingVariableCount(1);
             renderer->setPixelShaderProgram(LinePixelShaderMain);
             renderer->drawIndexed();
         }
@@ -199,7 +199,7 @@ namespace MyApp
             renderer->setVertexBufferElementsCount(2);
             renderer->setIndexBuffer(kDefaultIndices, 3);
             renderer->setVertexShaderProgram(LineVertexShaderMain);// 流用
-            renderer->setVaryingVariablesCount(1);
+            renderer->setVaryingVariableCount(1);
             renderer->setPixelShaderProgram(LinePixelShaderMain);// 流用
             renderer->drawIndexed();
         }
@@ -219,7 +219,7 @@ namespace MyApp
             renderer->setVertexBufferElementsCount(2);
             renderer->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
             renderer->setVertexShaderProgram(MeshVertexShaderMain);
-            renderer->setVaryingVariablesCount(1);
+            renderer->setVaryingVariableCount(1);
             renderer->setPixelShaderProgram(MeshPixelShaderMain);
             renderer->setPrimitiveTopologyType(PrimitiveTopologyType::TriangleList);
             renderer->drawIndexed();

@@ -24,9 +24,61 @@ namespace MyApp
         std::fill(firstDepth, lastDepth, 1.0f);
     }
 
-    void Renderer::InputAssembly(int index, Vector4* elements)
+
+    void Renderer::drawIndexed()
     {
-        for (int i = 0; i < _vertexBufferElementsCount; ++i)
+        VertexShaderOutput vertexShaderOutputs[3] = {};
+        int vertexShaderOutputCount = 0;
+
+        for (int i = 0; i < _indexBufferIndexCount; ++i)
+        {
+            uint16_t index = _indexBufferIndices[i];
+
+            {
+                //
+                // Input Assembly stage
+                //
+
+                VertexShaderInput vertexShaderInput = {};
+                vertexShaderInput.uniformBlock = _uniformBlock;
+
+                inputAssembly(index, vertexShaderInput.elements);
+
+                //
+                // Vertex Shader stage
+                // (transform clipping coordinates)
+                //
+
+                assert(vertexShaderOutputCount < std::size(vertexShaderOutputs));
+                VertexShaderOutput* vertexShaderOutput = &(vertexShaderOutputs[vertexShaderOutputCount]);
+                vertexShaderOutputCount++;
+
+                _vertexShaderMainFunc(&vertexShaderInput, vertexShaderOutput);
+            }
+
+            switch (_primitiveTopologyType)
+            {
+            case PrimitiveTopologyType::LineList:
+                if (2 == vertexShaderOutputCount)
+                {
+                    outputPrimitiveLine(vertexShaderOutputs, 2);
+                    vertexShaderOutputCount = 0;
+                }
+                break;
+            case PrimitiveTopologyType::TriangleList:
+                if (3 == vertexShaderOutputCount)
+                {
+                    outputPrimitiveTriangle(vertexShaderOutputs, 3);
+                    vertexShaderOutputCount = 0;
+                }
+                break;
+            }
+        }
+    }
+
+    void Renderer::inputAssembly(int index, Vector4* elements)
+    {
+        for (int i = 0; i < _vertexBufferElementCount; ++i)
         {
             if (nullptr == _vertexElements[i].buffer)
             {
@@ -48,32 +100,150 @@ namespace MyApp
         }
     }
 
-
-    // メモ：（クリップ空間座標系の）w はソースの z（を符号反転したもの）が入っているので、xyz と一緒に線形補間する
-
-    void Renderer::clipPrimitiveLine(const VertexShaderOutput* primitiveVertices, ClippingPoint* clippedPoints, int* clippingPointsCount)
+    void Renderer::outputPrimitiveLine(const VertexShaderOutput* vertexShaderOutputs, int vertexShaderOutputCount)
     {
-        for (int j = 0; j < 2; ++j)
+        assert(vertexShaderOutputCount == 2);
+        if (vertexShaderOutputCount != 2)
         {
-            clippedPoints[j].position = primitiveVertices[j].position;
-            for (int i = 0; i < _varyingVariablesCount; ++i)
+            return;
+        }
+
+        //
+        // Clipping
+        //
+
+        ClippedPrimitiveVertex clippedPrimitiveVertices[2];
+        int clippedPrimitiveVertexCount = 0;
+
+        clipPrimitiveLine(vertexShaderOutputs, vertexShaderOutputCount, clippedPrimitiveVertices, &clippedPrimitiveVertexCount);
+        if (clippedPrimitiveVertexCount != 2)
+        {
+            return;
+        }
+
+
+        //
+        // Rasterize stage
+        //
+
+        RasterizationPopint rasterizationPopint[2] = {};
+
+        for (int i = 0; i < 2; ++i)
+        {
+            makeRasterizationPopint(&clippedPrimitiveVertices[i], &rasterizationPopint[i]);
+        }
+
+        rasterizeLine(&rasterizationPopint[0], &rasterizationPopint[1]);
+    }
+
+    void Renderer::outputPrimitiveTriangle(const VertexShaderOutput* vertexShaderOutputs, int vertexShaderOutputCount)
+    {
+        assert(vertexShaderOutputCount == 3);
+        if (vertexShaderOutputCount != 3)
+        {
+            return;
+        }
+
+        //
+        // Clipping
+        //
+
+        ClippedPrimitiveVertex clippedPrimitiveVertices[kTriangleClippingPointMaxNum];
+        int clippedPrimitiveVertiexCount = 0;
+
+        clipPrimitiveTriangle(vertexShaderOutputs, vertexShaderOutputCount, clippedPrimitiveVertices, &clippedPrimitiveVertiexCount);
+        if (clippedPrimitiveVertiexCount < 3)
+        {
+            return;
+        }
+
+
+        //
+        // Face Culling
+        //
+
+        {
+            // glFrontFace(GL_CCW) // OpenGL default
+            // glEnable(GL_CULL_FACE)
+
+            // 先頭の三角形で判定
+            // ※クリップ処理後は多角形の可能性がある
+            const Vector2 ndcPositions[3] =
             {
-                clippedPoints[j].varyingVariables[i] = primitiveVertices[j].varyingVariables[i];
+                clippedPrimitiveVertices[0].position.GetXY() / clippedPrimitiveVertices[0].position.w,
+                clippedPrimitiveVertices[1].position.GetXY() / clippedPrimitiveVertices[1].position.w,
+                clippedPrimitiveVertices[2].position.GetXY() / clippedPrimitiveVertices[2].position.w,
+            };
+            const Vector2& p0 = ndcPositions[0];
+            const Vector2& p1 = ndcPositions[1];
+            const Vector2& p2 = ndcPositions[2];
+
+            // TODO
+            float n = (p1 - p0).cross(p2 - p0);// CCW
+            if (n <= 0.0f)// GL_CULL_FACE
+            {
+                return;
             }
         }
 
-        for (int k = 0; k < kClippingPlaneNum; ++k)
+
+        //
+        // Rasterize stage
+        //
+
+        RasterizationPopint rasterizationPoints[kTriangleClippingPointMaxNum] = {};
+        int rasterizationPointsCount = clippedPrimitiveVertiexCount;
+
+        for (int i = 0; i < clippedPrimitiveVertiexCount; ++i)
+        {
+            makeRasterizationPopint(&clippedPrimitiveVertices[i], &rasterizationPoints[i]);
+        }
+
+        for (int i = 0; i < rasterizationPointsCount - 2; ++i)
+        {
+            const RasterizationPopint* p0 = &rasterizationPoints[0];// always indexed at 0.
+            const RasterizationPopint* p1 = &rasterizationPoints[i + 1];
+            const RasterizationPopint* p2 = &rasterizationPoints[i + 2];
+
+            rasterizeTriangleFaceOnly(p0, p1, p2);// CCW
+            rasterizeTriangleFaceOnly(p2, p1, p0);// CW
+
+            // debug code
+            //rasterizeLine(p0, p1);
+            //rasterizeLine(p1, p2);
+            //rasterizeLine(p2, p0);
+        }
+    }
+
+    void Renderer::clipPrimitiveLine(const VertexShaderOutput* primitiveVertices, int primitiveVertexCount, ClippedPrimitiveVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount)
+    {
+        assert(primitiveVertexCount == 2);
+        if (primitiveVertexCount != 2)
+        {
+            return;
+        }
+
+        for (int j = 0; j < 2; ++j)
+        {
+            clippedPrimitiveVertices[j].position = primitiveVertices[j].position;
+            for (int i = 0; i < _varyingVariableCount; ++i)
+            {
+                clippedPrimitiveVertices[j].varyingVariables[i] = primitiveVertices[j].varyingVariables[i];
+            }
+        }
+
+        for (int i = 0; i < kClippingPlaneNum; ++i)
         {
             // 境界座標系に変換
-            float d0 = transformClippingBoundaryCoordinate(clippedPoints[0].position, &kClippingPlaneParameters[k]);
-            float d1 = transformClippingBoundaryCoordinate(clippedPoints[1].position, &kClippingPlaneParameters[k]);
+            float d0 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[0].position, &kClippingPlaneParameters[i]);
+            float d1 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[1].position, &kClippingPlaneParameters[i]);
             if (0.0f < d0)
             {
                 if (d1 < 0.0f)
                 {
                     // d0: indide, d1: outside
                     const float t = d0 / (d0 - d1);
-                    lerpClippingPoint(&clippedPoints[1], clippedPoints[0], clippedPoints[1], t);
+                    lerpPrimitiveVertex(&clippedPrimitiveVertices[1], clippedPrimitiveVertices[0], clippedPrimitiveVertices[1], t);
                 }
                 else
                 {
@@ -84,7 +254,7 @@ namespace MyApp
             {
                 // d0: outside, d1: inside
                 const float t = d0 / (d0 - d1);
-                lerpClippingPoint(&clippedPoints[0], clippedPoints[0], clippedPoints[1], t);
+                lerpPrimitiveVertex(&clippedPrimitiveVertices[0], clippedPrimitiveVertices[0], clippedPrimitiveVertices[1], t);
             }
             else
             {
@@ -93,24 +263,22 @@ namespace MyApp
             }
         }
 
-        *clippingPointsCount = 2;
+        *clippedPrimitiveVertiexCount = 2;
 
 #ifndef NDEBUG
-        //float lazyW = std::abs(clippedPoints[0].position.w) + 0.00001f;
-        //assert(-lazyW <= clippedPoints[0].position.x && clippedPoints[0].position.x <= lazyW);
-        //assert(-lazyW <= clippedPoints[0].position.y && clippedPoints[0].position.y <= lazyW);
-        //assert(-lazyW <= clippedPoints[0].position.z && clippedPoints[0].position.z <= lazyW);
-#endif
+        float lazyW = std::abs(clippedPrimitiveVertices[0].position.w) + 0.00001f;
+        assert(-lazyW <= clippedPrimitiveVertices[0].position.x && clippedPrimitiveVertices[0].position.x <= lazyW);
+        assert(-lazyW <= clippedPrimitiveVertices[0].position.y && clippedPrimitiveVertices[0].position.y <= lazyW);
+        assert(-lazyW <= clippedPrimitiveVertices[0].position.z && clippedPrimitiveVertices[0].position.z <= lazyW);
 
-#ifndef NDEBUG
-        //lazyW = std::abs(clippedPoints[1].position.w) + 0.00001f;
-        //assert(-lazyW <= clippedPoints[1].position.x && clippedPoints[1].position.x <= lazyW);
-        //assert(-lazyW <= clippedPoints[1].position.y && clippedPoints[1].position.y <= lazyW);
-        //assert(-lazyW <= clippedPoints[1].position.z && clippedPoints[1].position.z <= lazyW);
+        lazyW = std::abs(clippedPrimitiveVertices[1].position.w) + 0.00001f;
+        assert(-lazyW <= clippedPrimitiveVertices[1].position.x && clippedPrimitiveVertices[1].position.x <= lazyW);
+        assert(-lazyW <= clippedPrimitiveVertices[1].position.y && clippedPrimitiveVertices[1].position.y <= lazyW);
+        assert(-lazyW <= clippedPrimitiveVertices[1].position.z && clippedPrimitiveVertices[1].position.z <= lazyW);
 #endif
     }
 
-    void Renderer::clipPrimitiveTriangle(const VertexShaderOutput* primitiveVertices, ClippingPoint* clippingPoints, int* clippingPointsCount)
+    void Renderer::clipPrimitiveTriangle(const VertexShaderOutput* primitiveVertices, int primitiveVertexCount, ClippedPrimitiveVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount)
     {
         // Sutherland-Hodgman algorithm
         // Ivan Sutherland, Gary W. Hodgman: Reentrant Polygon Clipping. Communications of the ACM, vol. 17, pp. 32-42, 1974
@@ -145,17 +313,23 @@ namespace MyApp
         //    done
         //
 
-        ClippingPoint inputList[kTriangleClippingPointMaxNum] = {};
+        assert(primitiveVertexCount == 3);
+        if (primitiveVertexCount != 3)
+        {
+            return;
+        }
+
+        ClippedPrimitiveVertex inputList[kTriangleClippingPointMaxNum] = {};
         int inputListCount = 0;
 
-        ClippingPoint outputList[kTriangleClippingPointMaxNum] = {};
+        ClippedPrimitiveVertex outputList[kTriangleClippingPointMaxNum] = {};
         int outputListCount = 0;
 
         // List outputList = subjectPolygon;
         for (int j = 0; j < 3; ++j)
         {
             outputList[outputListCount].position = primitiveVertices[j].position;
-            for (int i = 0; i < _varyingVariablesCount; ++i)
+            for (int i = 0; i < _varyingVariableCount; ++i)
             {
                 outputList[outputListCount].varyingVariables[i] = primitiveVertices[j].varyingVariables[i];
             }
@@ -179,17 +353,17 @@ namespace MyApp
             {
                 // Point current_point = inputList[i];
                 // Point prev_point = inputList[(i - 1) % inputList.count];
-                ClippingPoint& currentPoint = inputList[j];
-                ClippingPoint& prevPoint = inputList[((j - 1) + inputListCount) % inputListCount];// (0 - 1) % n = -1 になるので、 n を足してから余剰を求める
+                ClippedPrimitiveVertex& currentPoint = inputList[j];
+                ClippedPrimitiveVertex& prevPoint = inputList[((j - 1) + inputListCount) % inputListCount];// (0 - 1) % n = -1 になるので、 n を足してから余剰を求める
 
-                ClippingPoint& p0 = prevPoint;
-                ClippingPoint& p1 = currentPoint;
+                ClippedPrimitiveVertex& p0 = prevPoint;
+                ClippedPrimitiveVertex& p1 = currentPoint;
 
                 // 境界座標系に変換（0 <= d のとき indide）
                 float d0 = transformClippingBoundaryCoordinate(p0.position, &kClippingPlaneParameters[k]);
                 float d1 = transformClippingBoundaryCoordinate(p1.position, &kClippingPlaneParameters[k]);
 
-                ClippingPoint intersectingPoint;
+                ClippedPrimitiveVertex intersectingPoint;
 
                 // current_point inside clipEdge
                 if (0.0f <= d1)
@@ -199,7 +373,7 @@ namespace MyApp
                     {
                         // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
                         float t = d1 / (d1 - d0);
-                        lerpClippingPoint(&intersectingPoint, p1, p0, t);
+                        lerpPrimitiveVertex(&intersectingPoint, p1, p0, t);
 
                         // outputList.add(Intersecting_point);
                         assert(outputListCount < kTriangleClippingPointMaxNum);
@@ -225,7 +399,7 @@ namespace MyApp
                 {
                     // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
                     float t = d1 / (d1 - d0);
-                    lerpClippingPoint(&intersectingPoint, p1, p0, t);
+                    lerpPrimitiveVertex(&intersectingPoint, p1, p0, t);
 
                     // outputList.add(Intersecting_point);
                     assert(outputListCount < kTriangleClippingPointMaxNum);
@@ -241,93 +415,56 @@ namespace MyApp
 
         for (int j = 0; j < outputListCount; ++j)
         {
-            clippingPoints[j].position = outputList[j].position;
-            for (int i = 0; i < _varyingVariablesCount; ++i)
+            clippedPrimitiveVertices[j].position = outputList[j].position;
+            for (int i = 0; i < _varyingVariableCount; ++i)
             {
-                clippingPoints[j].varyingVariables[i] = outputList[j].varyingVariables[i];
+                clippedPrimitiveVertices[j].varyingVariables[i] = outputList[j].varyingVariables[i];
             }
         }
-        *clippingPointsCount = outputListCount;
+        *clippedPrimitiveVertiexCount = outputListCount;
     }
 
-    void Renderer::rasterizeLinePixel(const ScreenPoint* screenPoint0, const ScreenPoint* screenPoint1, int x, int y)
+    void Renderer::makeRasterizationPopint(const ClippedPrimitiveVertex* clippedPrimitiveVertices, RasterizationPopint* rasterizationPopint)
     {
-        int width = _colorFrameBuffer->width;
-        int height = _colorFrameBuffer->height;
-        if (x < 0 || width <= x || y < 0 || height <= y)
-        {
-            return;
-        }
-
-        const Vector4& p0 = screenPoint0->position;
-        const Vector4& p1 = screenPoint1->position;
-
-        Vector2 a(p0.x, p0.y);
-        Vector2 b(p1.x, p1.y);
-        Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
-        Vector2 ab = (b - a);
-        Vector2 ac = (c - a);
-        float acLengthClosest = ab.normalize().dot(ac);
-
-        float t = acLengthClosest / ab.getLength();
-        t = clamp(t, 0.0f, 1.0f);
-
-        float ndcZ = lerp(p0.z, p1.z, t);
-
-        // glDepthRange(nearVal, farVal) (Default 0, 1)
-        float depth = remapDepth(ndcZ, -1.0f, 1.0f, 0.0f, 1.0f);
-
-        //
-        // Early Fragment Test (Early Depth Test) 
-        //
-        bool pass = depthTest(x, y, depth);
-        if (!pass)
-        {
-            return;
-        }
-
-        float invW = lerp(p0.w, p1.w, t);
-        assert(0.0f != invW);
-        float w = 1.0f / invW;
-
-        // 　補間値も求める
-        Vector4 interpolators[kVaryingVariablesNum] = {};
-        for (int i = 0; i < _varyingVariablesCount; ++i)
-        {
-            interpolators[i] = Vector4::Lerp(screenPoint0->varyingVariables[i], screenPoint1->varyingVariables[i], t);
-#ifdef TEST_PERSPECTIVE_CORRECT_VARYING_VARIABLES
-            interpolators[i] *= w;
+#ifndef NDEBUG
+        float lazyW = std::abs(clippedPrimitiveVertices->position.w) + 0.00001f;
+        assert(-lazyW <= clippedPrimitiveVertices->position.x && clippedPrimitiveVertices->position.x <= lazyW);
+        assert(-lazyW <= clippedPrimitiveVertices->position.y && clippedPrimitiveVertices->position.y <= lazyW);
+        assert(-lazyW <= clippedPrimitiveVertices->position.z && clippedPrimitiveVertices->position.z <= lazyW);
 #endif
+
+        assert(clippedPrimitiveVertices->position.w != 0.0f);
+
+        // 正規化デバイス座標へ変換（w除算）
+        Vector4 ndcPosition = clippedPrimitiveVertices->position / clippedPrimitiveVertices->position.w;
+        // ※誤差で捕まるのでassertはコメントアウト
+        //assert(-1.0f <= ndcPosition.x && ndcPosition.x <= 1.0f);
+        //assert(-1.0f <= ndcPosition.y && ndcPosition.y <= 1.0f);
+        //assert(-1.0f <= ndcPosition.z && ndcPosition.z <= 1.0f);
+        rasterizationPopint->ndcPosition = ndcPosition;
+
+        // ビューポート変換
+        rasterizationPopint->screenPosition.x = (ndcPosition.x + 1.0f) * ((float)(_viewportWidth) / 2.0f);
+        rasterizationPopint->screenPosition.y = (ndcPosition.y + 1.0f) * ((float)(_viewportHeight) / 2.0f);
+
+        // 補間値のパースペクティブコレクト仕込み
+        float perspectiveCorrectW = clippedPrimitiveVertices->position.w;
+        for (int i = 0; i < _varyingVariableCount; ++i)
+        {
+            rasterizationPopint->varyingVariablesDividedByW[i] = clippedPrimitiveVertices->varyingVariables[i] / perspectiveCorrectW;
         }
-
-        //
-        // pixel shader stage
-        //
-
-        PixelShaderInput input = {};
-        input.uniformBlock = _uniformBlock;
-        input.varyingVariables = interpolators;
-
-        PixelShaderOutput output = {};
-
-        _pixelShaderMainFunc(&input, &output);
-
-        //
-        // color blend stage ?
-        //
-
-        setPixel(x, y, output.fragColor, depth);
+        rasterizationPopint->perspectiveCorrectInvW = 1.0f / perspectiveCorrectW;
     }
 
-    void Renderer::rasterizeLine(const ScreenPoint* screenPoint0, const ScreenPoint* screenPoint1)
+    void Renderer::rasterizeLine(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1)
     {
-        const Vector4& p0 = screenPoint0->position;
-        const Vector4& p1 = screenPoint1->position;
+        const RasterizationPopint* p0 = rasterizationPopint0;
+        const RasterizationPopint* p1 = rasterizationPopint1;
 
-        int x0 = (int)std::floor(p0.x);// 切り捨て
-        int y0 = (int)std::floor(p0.y);
-        int x1 = (int)std::floor(p1.x);
-        int y1 = (int)std::floor(p1.y);
+        int x0 = (int)std::floor(p0->screenPosition.x);// 切り捨て
+        int y0 = (int)std::floor(p0->screenPosition.y);
+        int x1 = (int)std::floor(p1->screenPosition.x);
+        int y1 = (int)std::floor(p1->screenPosition.y);
 
         //
         // Bresenham's line algorithm
@@ -354,7 +491,7 @@ namespace MyApp
         {
             for (int i = 0; i < dstX; ++i)
             {
-                rasterizeLinePixel(screenPoint0, screenPoint1, x, y);
+                rasterizeLinePixel(p0, p1, x, y);
 
                 x += addX;
                 ctr += dstY;
@@ -369,7 +506,7 @@ namespace MyApp
         {
             for (int i = 0; i < dstY; ++i)
             {
-                rasterizeLinePixel(screenPoint0, screenPoint1, x, y);
+                rasterizeLinePixel(p0, p1, x, y);
 
                 y += addY;
                 ctr += dstX;
@@ -382,31 +519,128 @@ namespace MyApp
         }
     }
 
-    void Renderer::rasterizeTriangle(const ScreenPoint* screenPoint0, const ScreenPoint* screenPoint1, const ScreenPoint* screenPoint2)
+    void Renderer::rasterizeLinePixel(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, int x, int y)
     {
-        const Vector4& p0 = screenPoint0->position;
-        const Vector4& p1 = screenPoint1->position;
-        const Vector4& p2 = screenPoint2->position;
+        const RasterizationPopint* p0 = rasterizationPopint0;
+        const RasterizationPopint* p1 = rasterizationPopint1;
 
-        const auto Denom = edgeFunction(p0.GetXY(), p1.GetXY(), p2.GetXY());// Denom は denominator らしい、変えたほうがよい
-        if (Denom <= 0.0f)
+        int width = _colorFrameBuffer->width;
+        int height = _colorFrameBuffer->height;
+        if (x < 0 || width <= x || y < 0 || height <= y)
+        {
+            return;
+        }
+
+        Vector2 a(p0->screenPosition.x, p0->screenPosition.y);
+        Vector2 b(p1->screenPosition.x, p1->screenPosition.y);
+        Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
+        Vector2 ab = (b - a);
+        Vector2 ac = (c - a);
+        float acLengthClosest = ab.normalize().dot(ac);
+
+        float t = acLengthClosest / ab.getLength();
+        t = clamp(t, 0.0f, 1.0f);
+
+
+        //
+        // Early Fragment Test (Early Depth Test) 
+        //
+
+        float z = lerp(p0->ndcPosition.z, p1->ndcPosition.z, t);
+
+        // glDepthRange(nearVal, farVal) (Default 0, 1)
+        float depth = remapDepth(z, -1.0f, 1.0f, 0.0f, 1.0f);
+
+        bool pass = depthTest(x, y, depth);
+        if (!pass)
+        {
+            return;
+        }
+
+
+        //
+        // 　補間値を求める
+        //
+
+        float perspectiveCorrectInvW = lerp(p0->perspectiveCorrectInvW, p1->perspectiveCorrectInvW, t);
+        assert(0.0f != perspectiveCorrectInvW);
+        float perspectiveCorrectW = 1.0f / perspectiveCorrectInvW;
+
+        Vector4 interpolators[kVaryingVariableNum] = {};
+        for (int i = 0; i < _varyingVariableCount; ++i)
+        {
+            const Vector4& v0 = p0->varyingVariablesDividedByW[i];
+            const Vector4& v1 = p1->varyingVariablesDividedByW[i];
+            interpolators[i] = Vector4::Lerp(v0, v1, t) * perspectiveCorrectW;
+        }
+
+        //
+        // pixel shader stage
+        //
+
+        PixelShaderInput input = {};
+        input.uniformBlock = _uniformBlock;
+        input.varyingVariables = interpolators;
+
+        PixelShaderOutput output = {};
+
+        _pixelShaderMainFunc(&input, &output);
+
+        //
+        // color blend stage ?
+        //
+
+        setPixel(x, y, output.fragColor, depth);
+    }
+
+    void Renderer::rasterizeTriangleFaceOnly(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, const RasterizationPopint* rasterizationPopint2)
+    {
+        //
+        // see Juan Pineda 1988 A Parallel Algorithm for Polygon Rasterization. 
+        //
+
+        const RasterizationPopint* p0 = rasterizationPopint0;
+        const RasterizationPopint* p1 = rasterizationPopint1;
+        const RasterizationPopint* p2 = rasterizationPopint2;
+
+        // 三角形の表裏判定
+        const float a = edgeFunction(p0->screenPosition, p1->screenPosition, p2->screenPosition);
+        if (a <= 0.0f)
         {
             return;
         }
 
         // 処理が重すぎるので範囲を絞り込む
-        BoundingBox boundingBox = {};
+        struct BoundingBox2d
+        {
+            float minX;
+            float minY;
+            float maxX;
+            float maxY;
+            void Init()
+            {
+                minX = FLT_MAX;
+                minY = FLT_MAX;
+                maxX = -FLT_MAX;
+                maxY = -FLT_MAX;
+            }
+            void addPoint(const Vector2& p)
+            {
+                minX = std::min(minX, p.x);
+                minY = std::min(minY, p.y);
+                maxX = std::max(maxX, p.x);
+                maxY = std::max(maxY, p.y);
+            }
+        };
+        BoundingBox2d boundingBox = {};
         boundingBox.Init();
-        boundingBox.addPoint(screenPoint0->position);
-        boundingBox.addPoint(screenPoint1->position);
-        boundingBox.addPoint(screenPoint2->position);
-
+        boundingBox.addPoint(p0->screenPosition);
+        boundingBox.addPoint(p1->screenPosition);
+        boundingBox.addPoint(p2->screenPosition);
         int minX = (int)std::floor(boundingBox.minX);// 切り捨て
         int minY = (int)std::floor(boundingBox.minY);
         int maxX = (int)std::ceil(boundingBox.maxX);// 切り上げ
         int maxY = (int)std::ceil(boundingBox.maxY);
-
-        // clipping
         int width = _colorFrameBuffer->width;
         int height = _colorFrameBuffer->height;
         minX = clamp(minX, 0, width - 1);
@@ -414,36 +648,45 @@ namespace MyApp
         maxX = clamp(maxX, 0, width - 1);
         maxY = clamp(maxY, 0, height - 1);
 
+
         for (int y = minY; y <= maxY; ++y)
         {
             for (int x = minX; x <= maxX; ++x)
             {
-                Vector2 p(x + 0.5f, y + 0.5f);
+                Vector2 p(x + 0.5f, y + 0.5f);// ピクセルの中心
 
                 // ピクセルの中心を内外判定
-                auto b0 = edgeFunction(p1.GetXY(), p2.GetXY(), p);
-                if (b0 < 0.0f) continue;
-                auto b1 = edgeFunction(p2.GetXY(), p0.GetXY(), p);
-                if (b1 < 0.0f) continue;
-                auto b2 = edgeFunction(p0.GetXY(), p1.GetXY(), p);
-                if (b2 < 0.0f) continue;
+                float b0 = edgeFunction(p1->screenPosition, p2->screenPosition, p);
+                if (b0 < 0.0f)
+                {
+                    continue;
+                }
+                float b1 = edgeFunction(p2->screenPosition, p0->screenPosition, p);
+                if (b1 < 0.0f)
+                {
+                    continue;
+                }
+                float b2 = edgeFunction(p0->screenPosition, p1->screenPosition, p);
+                if (b2 < 0.0f)
+                {
+                    continue;
+                }
 
-                // 重心座標
-                b0 /= Denom;
-                b1 /= Denom;
-                b2 /= Denom;
-
-                // 補間値を重心座標で求める
-
-                float ndcZ = ((b0 * p0.z) + (b1 * p1.z) + (b2 * p2.z));
-
-                // glDepthRange(nearVal, farVal) (Default 0, 1)
-                float depth = remapDepth(ndcZ, -1.0f, 1.0f, 0.0f, 1.0f);
+                // 重心座標の重みを求める
+                // ※edgeFunction（外積）は三角形の面積の２倍を返す
+                b0 /= a;
+                b1 /= a;
+                b2 /= a;
 
 
                 //
                 // Early Fragment Test (Early Depth Test) 
                 //
+
+                float z = ((b0 * p0->ndcPosition.z) + (b1 * p1->ndcPosition.z) + (b2 * p2->ndcPosition.z));
+
+                // glDepthRange(nearVal, farVal) (Default 0, 1)
+                float depth = remapDepth(z, -1.0f, 1.0f, 0.0f, 1.0f);
 
                 bool pass = depthTest(x, y, depth);
                 if (!pass)
@@ -451,21 +694,25 @@ namespace MyApp
                     continue;
                 }
 
-                float invW = ((b0 * p0.w) + (b1 * p1.w) + (b2 * p2.w));
-                assert(0.0f != invW);
-                float w = 1.0f / invW;
 
-                // 残りの補間値も求める
-                Vector4 varyingVariables[kVaryingVariablesNum] = {};
-                for (int i = 0; i < _varyingVariablesCount; ++i)
+                //
+                // 補間値を求める
+                //
+                
+                float invW0 = p0->perspectiveCorrectInvW;
+                float invW1 = p1->perspectiveCorrectInvW;
+                float invW2 = p2->perspectiveCorrectInvW;
+                float perspectiveCorrectInvW = ((b0 * invW0) + (b1 * invW1) + (b2 * invW2));
+                assert(0.0f != perspectiveCorrectInvW);
+                float perspectiveCorrectW = 1.0f / perspectiveCorrectInvW;
+
+                Vector4 varyingVariables[kVaryingVariableNum] = {};
+                for (int i = 0; i < _varyingVariableCount; ++i)
                 {
-                    const Vector4& v0 = screenPoint0->varyingVariables[i];
-                    const Vector4& v1 = screenPoint1->varyingVariables[i];
-                    const Vector4& v2 = screenPoint2->varyingVariables[i];
-                    varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2));
-#ifdef TEST_PERSPECTIVE_CORRECT_VARYING_VARIABLES
-                    varyingVariables[i] *= w;
-#endif
+                    const Vector4& v0 = p0->varyingVariablesDividedByW[i];
+                    const Vector4& v1 = p1->varyingVariablesDividedByW[i];
+                    const Vector4& v2 = p2->varyingVariablesDividedByW[i];
+                    varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2)) * perspectiveCorrectW;
                 }
 
                 //
@@ -488,145 +735,4 @@ namespace MyApp
             }
         }
     }
-
-    void Renderer::outputPrimitiveLine(const VertexShaderOutput* vertexShaderOutputs)
-    {
-        //
-        // Clipping stage
-        //
-
-        ClippingPoint clippingPoints[2];
-        int clippingPointsCount = 0;
-        clipPrimitiveLine(vertexShaderOutputs, clippingPoints, &clippingPointsCount);
-        if (clippingPointsCount != 2)
-        {
-            return;
-        }
-
-        // NDC
-        // VIEWPORT
-
-        ScreenPoint screenPoints[2] = {};
-        transformScreenCoordinates(*this, &clippingPoints[0], &screenPoints[0]);
-        transformScreenCoordinates(*this, &clippingPoints[1], &screenPoints[1]);
-
-        //
-        // Rasterize stage
-        //
-
-        rasterizeLine(&screenPoints[0], &screenPoints[1]);
-    }
-
-    void Renderer::outputPrimitiveTriangle(const VertexShaderOutput* vertexShaderOutputs)
-    {
-        //
-        // Clipping stage
-        //
-
-        ClippingPoint clippingPoints[kTriangleClippingPointMaxNum];
-        int clippingPointsCount = 0;
-        clipPrimitiveTriangle(vertexShaderOutputs, clippingPoints, &clippingPointsCount);
-        if (clippingPointsCount < 3)
-        {
-            return;
-        }
-
-        // NDC
-
-        // クリップ処理後は多角形になっていることがあるので最初の２辺で判定
-        const Vector2 ndcPositions[3] =
-        {
-            clippingPoints[0].position.GetXY() / clippingPoints[0].position.w,
-            clippingPoints[1].position.GetXY() / clippingPoints[1].position.w,
-            clippingPoints[2].position.GetXY() / clippingPoints[2].position.w,
-        };
-
-        if (!faceCulling(ndcPositions))
-        {
-            return;
-        }
-
-
-        // VIEWPORT
-
-        ScreenPoint screenPoints[kTriangleClippingPointMaxNum] = {};
-        int screenPointsCount = clippingPointsCount;
-        for (int j = 0; j < clippingPointsCount; ++j)
-        {
-            transformScreenCoordinates(*this, &clippingPoints[j], &screenPoints[j]);
-        }
-
-
-        //
-        // Rasterize stage
-        //
-
-        for (int j = 0; j < screenPointsCount - 2; ++j)
-        {
-            // 表裏(もしくは裏表)をそれぞれラスタライズ
-            rasterizeTriangle(&screenPoints[0], &screenPoints[j + 1], &screenPoints[j + 2]);
-            rasterizeTriangle(&screenPoints[j + 2], &screenPoints[j + 1], &screenPoints[0]);
-
-            // debug code
-            //rasterizeLine(&screenPoints[0], &screenPoints[j + 1]);
-            //rasterizeLine(&screenPoints[j + 1], &screenPoints[j + 2]);
-            //rasterizeLine(&screenPoints[j + 2], &screenPoints[0]);
-        }
-    }
-
-
-    void Renderer::drawIndexed()
-    {
-        Renderer& renderingContext = *this;
-
-        VertexShaderOutput vertexShaderOutputs[3] = {};
-        int vertexShaderOutputsCount = 0;
-
-        for (int k = 0; k < _indexBufferIndicesNum; ++k)
-        {
-            uint16_t index = _indexBufferIndices[k];
-
-            {
-                //
-                // Input Assembly stage
-                //
-
-                VertexShaderInput vertexShaderInput = {};
-                vertexShaderInput.uniformBlock = _uniformBlock;
-
-                InputAssembly(index, vertexShaderInput.elements);
-
-                //
-                // Vertex Shader stage
-                // (transform clipping coordinates)
-                //
-
-                assert(vertexShaderOutputsCount < std::size(vertexShaderOutputs));
-                VertexShaderOutput* vertexShaderOutput = &(vertexShaderOutputs[vertexShaderOutputsCount]);
-                vertexShaderOutputsCount++;
-
-                _vertexShaderMainFunc(&vertexShaderInput, vertexShaderOutput);
-            }
-
-            switch (_primitiveTopologyType)
-            {
-            case PrimitiveTopologyType::LineList:
-                if (2 == vertexShaderOutputsCount)
-                {
-                    outputPrimitiveLine(vertexShaderOutputs);
-                    vertexShaderOutputsCount = 0;
-                }
-                break;
-            case PrimitiveTopologyType::TriangleList:
-                if (3 == vertexShaderOutputsCount)
-                {
-                    outputPrimitiveTriangle(vertexShaderOutputs);
-                    vertexShaderOutputsCount = 0;
-                }
-                break;
-            }
-        }
-    }
-
 }
-
