@@ -8,96 +8,141 @@
 namespace MyApp
 {
 
-    struct Matrix2x2
+    // m = | m00 m01 |
+    //     | m10 m11 |
+     struct Matrix2x2
     {
         float m00, m01;
         float m10, m11;
 
+        Matrix2x2() = default;
+
+        Matrix2x2(
+            float m00, float m01,
+            float m10, float m11
+        ) :
+            m00(m00), m01(m01),
+            m10(m10), m11(m11)
+        {
+        }
+
+        // 行列式
         float getDeterminant() const
         {
-            return m00 * m11 - m01 * m10;
+            float c00 = m11;
+            float c01 = m10 * -1.0f;
+            return m00 * c00 + m01 * c01;
         }
     };
 
+    //     | m00 m01 m02 |
+    // m = | m10 m11 m12 |
+    //     | m20 m21 m22 |
     struct Matrix3x3
     {
         float m00, m01, m02;
         float m10, m11, m12;
         float m20, m21, m22;
 
-        // 小行列/submatrix
-        // 特定の行および列を取り除いた行列
-        Matrix2x2 removeRowAndColumn(int row, int column) const
+        Matrix3x3() = default;
+
+        Matrix3x3(
+            float m00, float m01, float m02,
+            float m10, float m11, float m12,
+            float m20, float m21, float m22
+        ) :
+            m00(m00), m01(m01), m02(m02),
+            m10(m10), m11(m11), m12(m12),
+            m20(m20), m21(m21), m22(m22)
         {
-            Matrix2x2 sm;
-            switch (row)
+        }
+
+        // 特定の行および列を取り除いた小行列
+        Matrix2x2 removeRowAndColumn(int rowIndex, int columnIndex) const
+        {
+            switch (rowIndex)
             {
             case 0:
-                switch (column)
+                switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m11; sm.m01 = m12;
-                    sm.m10 = m21; sm.m11 = m22;
-                    return sm;
+                    return Matrix2x2(
+                        m11, m12,
+                        m21, m22
+                    );
                 case 1:
-                    sm.m00 = m10; sm.m01 = m12;
-                    sm.m10 = m20; sm.m11 = m22;
-                    return sm;
+                    return Matrix2x2(
+                        m10, m12,
+                        m20, m22
+                    );
                 case 2:
-                    sm.m00 = m10; sm.m01 = m11;
-                    sm.m10 = m20; sm.m11 = m21;
-                    return sm;
+                    return Matrix2x2(
+                        m10, m11,
+                        m20, m21
+                    );
                 }
                 break;
             case 1:
-                switch (column)
+                switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m01; sm.m01 = m02;
-                    sm.m10 = m21; sm.m11 = m22;
-                    return sm;
+                    return Matrix2x2(
+                        m01, m02,
+                        m21, m22
+                    );
                 case 1:
-                    sm.m00 = m00; sm.m01 = m02;
-                    sm.m10 = m20; sm.m11 = m22;
-                    return sm;
+                    return Matrix2x2(
+                        m00, m02,
+                        m20, m22
+                    );
                 case 2:
-                    sm.m00 = m00; sm.m01 = m01;
-                    sm.m10 = m20; sm.m11 = m21;
-                    return sm;
+                    return Matrix2x2(
+                        m00, m01,
+                        m20, m21
+                    );
                 }
                 break;
             case 2:
-                switch (column)
+                switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m01; sm.m01 = m02;
-                    sm.m10 = m11; sm.m11 = m12;
-                    return sm;
+                    return Matrix2x2(
+                        m01, m02,
+                        m11, m12
+                    );
                 case 1:
-                    sm.m00 = m00; sm.m01 = m02;
-                    sm.m10 = m10; sm.m11 = m12;
-                    return sm;
+                    return Matrix2x2(
+                        m00, m02,
+                        m10, m12
+                    );
                 case 2:
-                    sm.m00 = m00; sm.m01 = m01;
-                    sm.m10 = m10; sm.m11 = m11;
-                    return sm;
+                    return Matrix2x2(
+                        m00, m01,
+                        m10, m11
+                    );
                 }
                 break;
             }
+
             throw std::out_of_range("Index out of range");
+            return Matrix2x2(
+                0.0f, 0.0f,
+                0.0f, 0.0f
+            );
         }
 
         // 余因子
         float getCofactor(int row, int column) const
         {
-            return removeRowAndColumn(row, column).getDeterminant() * (float)std::pow(-1, row + column);// 偶数 +、奇数 -
+            Matrix2x2 subMatrix = removeRowAndColumn(row, column);
+            return subMatrix.getDeterminant() * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -
         }
 
         // 行列式
         float getDeterminant() const
         {
             float c00 = getCofactor(0, 0);
-            float c01 = getCofactor(0, 1);// *-1.0f;
+            float c01 = getCofactor(0, 1);
             float c02 = getCofactor(0, 2);
             return m00 * c00 + m01 * c01 + m02 * c02;
         }
@@ -118,112 +163,44 @@ namespace MyApp
 
         Matrix4x4() = default;
 
-        Matrix4x4(const Vector4& row0, const Vector4& row1, const Vector4& row2, const Vector4& row3)
+        Matrix4x4(
+            float m00, float m01, float m02, float m03,
+            float m10, float m11, float m12, float m13,
+            float m20, float m21, float m22, float m23,
+            float m30, float m31, float m32, float m33
+        ) :
+            m00(m00), m01(m01), m02(m02), m03(m03),
+            m10(m10), m11(m11), m12(m12), m13(m13),
+            m20(m20), m21(m21), m22(m22), m23(m23),
+            m30(m30), m31(m31), m32(m32), m33(m33)
         {
-            m00 = row0.x; m01 = row0.y; m02 = row0.z; m03 = row0.w;
-            m10 = row1.x; m11 = row1.y; m12 = row1.z; m13 = row1.w;
-            m20 = row2.x; m21 = row2.y; m22 = row2.z; m23 = row2.w;
-            m30 = row3.x; m31 = row3.y; m32 = row3.z; m33 = row3.w;
         }
 
-        static Matrix4x4 createIdentity()
+        void setRow(int index, const Vector4& row)
         {
-            Matrix4x4 id;
-            id.m00 = 1.0f; id.m01 = 0.0f; id.m02 = 0.0f; id.m03 = 0.0f;
-            id.m10 = 0.0f; id.m11 = 1.0f; id.m12 = 0.0f; id.m13 = 0.0f;
-            id.m20 = 0.0f; id.m21 = 0.0f; id.m22 = 1.0f; id.m23 = 0.0f;
-            id.m30 = 0.0f; id.m31 = 0.0f; id.m32 = 0.0f; id.m33 = 1.0f;
-            return id;
+            switch (index)
+            {
+            case 0: m00 = row.x; m01 = row.y; m02 = row.z; m03 = row.w; break;
+            case 1: m11 = row.x; m11 = row.y; m12 = row.z; m13 = row.w; break;
+            case 2: m20 = row.x; m21 = row.y; m22 = row.z; m23 = row.w; break;
+            case 3: m30 = row.x; m31 = row.y; m32 = row.z; m33 = row.w; break;
+            }
         }
 
-        static Matrix4x4 createRotationX(float angle)
+        Vector4 getRow(int index) const
         {
-            Matrix4x4 rot = Matrix4x4::kIdentity;
-            rot.m11 = cos(angle); rot.m12 = sin(angle);
-            rot.m21 = -sin(angle); rot.m22 = cos(angle);
-            return rot;
+            switch (index)
+            {
+            case 0: return Vector4(m00, m01, m02, m03);
+            case 1: return Vector4(m10, m11, m12, m13);
+            case 2: return Vector4(m20, m21, m22, m23);
+            case 3: return Vector4(m30, m31, m32, m33);
+            default:
+                throw std::out_of_range("Index out of range");
+            }
         }
 
-        static Matrix4x4 createRotationY(float angle)
-        {
-            Matrix4x4 rot = Matrix4x4::kIdentity;
-            rot.m00 = cos(angle); rot.m02 = -sin(angle);
-            rot.m20 = sin(angle); rot.m22 = cos(angle);
-            return rot;
-        }
-
-        // | x 0 0 0 |
-        // | 0 y 0 0 |
-        // | 0 0 z 0 |
-        // | 0 0 0 1 |
-        static Matrix4x4 createScale(float x, float y, float z)
-        {
-            Matrix4x4 scale;
-            scale.m00 = x;    scale.m01 = 0.0f; scale.m02 = 0.0f; scale.m03 = 0.0f;
-            scale.m10 = 0.0f; scale.m11 = y;    scale.m12 = 0.0f; scale.m13 = 0.0f;
-            scale.m20 = 0.0f; scale.m21 = 0.0f; scale.m22 = z;    scale.m23 = 0.0f;
-            scale.m30 = 0.0f; scale.m31 = 0.0f; scale.m32 = 0.0f; scale.m33 = 1.0f;
-            return scale;
-        }
-
-        // |  1 yx zx  0 |
-        // | xy  1 zy  0 |
-        // | xz yz  1  0 |
-        // |  0  0  0  1 |
-        static Matrix4x4 createShear(float xy, float xz, float yx, float yz, float zx, float zy)
-        {
-            Matrix4x4 shear;
-            shear.m00 = 1.0f; shear.m01 = yx;   shear.m02 = zx;   shear.m03 = 0.0f;
-            shear.m10 = xy;   shear.m11 = 1.0f; shear.m12 = zy;   shear.m13 = 0.0f;
-            shear.m20 = xz;   shear.m21 = yz;   shear.m22 = 1.0f; shear.m23 = 0.0f;
-            shear.m30 = 0.0f; shear.m31 = 0.0f; shear.m32 = 0.0f; shear.m33 = 1.0f;
-            return shear;
-        }
-
-        Matrix4x4 operator*(const Matrix4x4& r) const
-        {
-            Matrix4x4 ret;
-            ret.m00 = m00 * r.m00 + m01 * r.m10 + m02 * r.m20 + m03 * r.m30;
-            ret.m01 = m00 * r.m01 + m01 * r.m11 + m02 * r.m21 + m03 * r.m31;
-            ret.m02 = m00 * r.m02 + m01 * r.m12 + m02 * r.m22 + m03 * r.m32;
-            ret.m03 = m00 * r.m03 + m01 * r.m13 + m02 * r.m23 + m03 * r.m33;
-            ret.m10 = m10 * r.m00 + m11 * r.m10 + m12 * r.m20 + m13 * r.m30;
-            ret.m11 = m10 * r.m01 + m11 * r.m11 + m12 * r.m21 + m13 * r.m31;
-            ret.m12 = m10 * r.m02 + m11 * r.m12 + m12 * r.m22 + m13 * r.m32;
-            ret.m13 = m10 * r.m03 + m11 * r.m13 + m12 * r.m23 + m13 * r.m33;
-            ret.m20 = m20 * r.m00 + m21 * r.m10 + m22 * r.m20 + m23 * r.m30;
-            ret.m21 = m20 * r.m01 + m21 * r.m11 + m22 * r.m21 + m23 * r.m31;
-            ret.m22 = m20 * r.m02 + m21 * r.m12 + m22 * r.m22 + m23 * r.m32;
-            ret.m23 = m20 * r.m03 + m21 * r.m13 + m22 * r.m23 + m23 * r.m33;
-            ret.m30 = m30 * r.m00 + m31 * r.m10 + m32 * r.m20 + m33 * r.m30;
-            ret.m31 = m30 * r.m01 + m31 * r.m11 + m32 * r.m21 + m33 * r.m31;
-            ret.m32 = m30 * r.m02 + m31 * r.m12 + m32 * r.m22 + m33 * r.m32;
-            ret.m33 = m30 * r.m03 + m31 * r.m13 + m32 * r.m23 + m33 * r.m33;
-            return ret;
-        }
-
-        // フレンド関数として右項にベクトルを持つ乗算演算子のオーバーロード
-        friend Vector4 operator*(const Matrix4x4& mat, const Vector4& vec)
-        {
-            Vector4 ret;
-            ret.x = mat.m00 * vec.x + mat.m01 * vec.y + mat.m02 * vec.z + mat.m03 * vec.w;
-            ret.y = mat.m10 * vec.x + mat.m11 * vec.y + mat.m12 * vec.z + mat.m13 * vec.w;
-            ret.z = mat.m20 * vec.x + mat.m21 * vec.y + mat.m22 * vec.z + mat.m23 * vec.w;
-            ret.w = mat.m30 * vec.x + mat.m31 * vec.y + mat.m32 * vec.z + mat.m33 * vec.w;
-            return ret;
-        }
-
-        Matrix4x4 transpose() const
-        {
-            Matrix4x4 t;
-            t.m00 = m00; t.m01 = m10; t.m02 = m20; t.m03 = m30;
-            t.m10 = m01; t.m11 = m11; t.m12 = m21; t.m13 = m31;
-            t.m20 = m02; t.m21 = m12; t.m22 = m22; t.m23 = m32;
-            t.m30 = m03; t.m31 = m13; t.m32 = m23; t.m33 = m33;
-            return t;
-        }
-
-        void SetColumn(int index, const Vector4& column)
+        void setColumn(int index, const Vector4& column)
         {
             switch (index)
             {
@@ -254,125 +231,175 @@ namespace MyApp
             }
         }
 
-        Vector4 GetRow(int index) const
+        Matrix4x4 operator*(const Matrix4x4& r) const
         {
-            switch (index)
-            {
-            case 0: return Vector4(m00, m01, m02, m03);
-            case 1: return Vector4(m10, m11, m12, m13);
-            case 2: return Vector4(m20, m21, m22, m23);
-            case 3: return Vector4(m30, m31, m32, m33);
-            default:
-                throw std::out_of_range("Index out of range");
-            }
+            return  Matrix4x4(
+                // m00, m01, m02, m03
+                m00 * r.m00 + m01 * r.m10 + m02 * r.m20 + m03 * r.m30,
+                m00 * r.m01 + m01 * r.m11 + m02 * r.m21 + m03 * r.m31,
+                m00 * r.m02 + m01 * r.m12 + m02 * r.m22 + m03 * r.m32,
+                m00 * r.m03 + m01 * r.m13 + m02 * r.m23 + m03 * r.m33,
+
+                // m10, m11, m12, m13
+                m10 * r.m00 + m11 * r.m10 + m12 * r.m20 + m13 * r.m30,
+                m10 * r.m01 + m11 * r.m11 + m12 * r.m21 + m13 * r.m31,
+                m10 * r.m02 + m11 * r.m12 + m12 * r.m22 + m13 * r.m32,
+                m10 * r.m03 + m11 * r.m13 + m12 * r.m23 + m13 * r.m33,
+
+                // m20, m21, m22, m23
+                m20 * r.m00 + m21 * r.m10 + m22 * r.m20 + m23 * r.m30,
+                m20 * r.m01 + m21 * r.m11 + m22 * r.m21 + m23 * r.m31,
+                m20 * r.m02 + m21 * r.m12 + m22 * r.m22 + m23 * r.m32,
+                m20 * r.m03 + m21 * r.m13 + m22 * r.m23 + m23 * r.m33,
+
+                // m30, m31, m32, m33
+                m30 * r.m00 + m31 * r.m10 + m32 * r.m20 + m33 * r.m30,
+                m30 * r.m01 + m31 * r.m11 + m32 * r.m21 + m33 * r.m31,
+                m30 * r.m02 + m31 * r.m12 + m32 * r.m22 + m33 * r.m32,
+                m30 * r.m03 + m31 * r.m13 + m32 * r.m23 + m33 * r.m33 
+            );
         }
 
-        // 小行列
-        // submatrix
-        // 特定の行および列を取り除いた行列
+        // 右項にベクトルを持つ乗算演算子
+        friend Vector4 operator*(const Matrix4x4& mat, const Vector4& vec)
+        {
+            return Vector4(
+                mat.m00 * vec.x + mat.m01 * vec.y + mat.m02 * vec.z + mat.m03 * vec.w,
+                mat.m10 * vec.x + mat.m11 * vec.y + mat.m12 * vec.z + mat.m13 * vec.w,
+                mat.m20 * vec.x + mat.m21 * vec.y + mat.m22 * vec.z + mat.m23 * vec.w,
+                mat.m30 * vec.x + mat.m31 * vec.y + mat.m32 * vec.z + mat.m33 * vec.w
+            );
+        }
+
+        Matrix4x4 transpose() const
+        {
+            return Matrix4x4(
+                m00, m10, m20, m30,
+                m01, m11, m21, m31,
+                m02, m12, m22, m32,
+                m03, m13, m23, m33
+            );
+        }
+
+        // 特定の行および列を取り除いた小行列
         Matrix3x3 removeRowAndColumn(int rowIndex, int columnIndex) const
         {
-            Matrix3x3 sm;
             switch (rowIndex)
             {
             case 0:
                 switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m11; sm.m01 = m12; sm.m02 = m13;
-                    sm.m10 = m21; sm.m11 = m22; sm.m12 = m23;
-                    sm.m20 = m31; sm.m21 = m32; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m11, m12, m13,
+                        m21, m22, m23,
+                        m31, m32, m33
+                    );
                 case 1:
-                    sm.m00 = m10; sm.m01 = m12; sm.m02 = m13;
-                    sm.m10 = m20; sm.m11 = m22; sm.m12 = m23;
-                    sm.m20 = m30; sm.m21 = m32; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m10, m12, m13,
+                        m20, m22, m23,
+                        m30, m32, m33
+                    );
                 case 2:
-                    sm.m00 = m10; sm.m01 = m11; sm.m02 = m13;
-                    sm.m10 = m20; sm.m11 = m21; sm.m12 = m23;
-                    sm.m20 = m30; sm.m21 = m31; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m10, m11, m13,
+                        m20, m21, m23,
+                        m30, m31, m33
+                    );
                 case 3:
-                    sm.m00 = m10; sm.m01 = m11; sm.m02 = m12;
-                    sm.m10 = m20; sm.m11 = m21; sm.m12 = m22;
-                    sm.m20 = m30; sm.m21 = m31; sm.m22 = m32;
-                    return sm;
+                    return Matrix3x3(
+                        m10, m11, m12,
+                        m20, m21, m22,
+                        m30, m31, m32
+                    );
                 }
                 break;
             case 1:
                 switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m01; sm.m01 = m02; sm.m02 = m03;
-                    sm.m10 = m21; sm.m11 = m22; sm.m12 = m23;
-                    sm.m20 = m31; sm.m21 = m32; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m01, m02, m03,
+                        m21, m22, m23,
+                        m31, m32, m33
+                    );
                 case 1:
-                    sm.m00 = m00; sm.m01 = m02; sm.m02 = m03;
-                    sm.m10 = m20; sm.m11 = m22; sm.m12 = m23;
-                    sm.m20 = m30; sm.m21 = m32; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m02, m03,
+                        m20, m22, m23,
+                        m30, m32, m33
+                    );
                 case 2:
-                    sm.m00 = m00; sm.m01 = m01; sm.m02 = m03;
-                    sm.m10 = m20; sm.m11 = m21; sm.m12 = m23;
-                    sm.m20 = m30; sm.m21 = m31; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m01, m03,
+                        m20, m21, m23,
+                        m30, m31, m33
+                    );
                 case 3:
-                    sm.m00 = m00; sm.m01 = m01; sm.m02 = m02;
-                    sm.m10 = m20; sm.m11 = m21; sm.m12 = m22;
-                    sm.m20 = m30; sm.m21 = m31; sm.m22 = m32;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m01, m02,
+                        m20, m21, m22,
+                        m30, m31, m32
+                    );
                 }
                 break;
             case 2:
                 switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m01; sm.m01 = m02; sm.m02 = m03;
-                    sm.m10 = m11; sm.m11 = m12; sm.m12 = m13;
-                    sm.m20 = m31; sm.m21 = m32; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m01, m02, m03,
+                        m11, m12, m13,
+                        m31, m32, m33
+                    );
                 case 1:
-                    sm.m00 = m00; sm.m01 = m02; sm.m02 = m03;
-                    sm.m10 = m10; sm.m11 = m12; sm.m12 = m13;
-                    sm.m20 = m30; sm.m21 = m32; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m02, m03,
+                        m10, m12, m13,
+                        m30, m32, m33
+                    );
                 case 2:
-                    sm.m00 = m00; sm.m01 = m01; sm.m02 = m03;
-                    sm.m10 = m10; sm.m11 = m11; sm.m12 = m13;
-                    sm.m20 = m30; sm.m21 = m31; sm.m22 = m33;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m01, m03,
+                        m10, m11, m13,
+                        m30, m31, m33
+                    );
                 case 3:
-                    sm.m00 = m00; sm.m01 = m01; sm.m02 = m02;
-                    sm.m10 = m10; sm.m11 = m11; sm.m12 = m12;
-                    sm.m20 = m30; sm.m21 = m31; sm.m22 = m32;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m01, m02,
+                        m10, m11, m12,
+                        m30, m31, m32
+                    );
                 }
                 break;
             case 3:
                 switch (columnIndex)
                 {
                 case 0:
-                    sm.m00 = m01; sm.m01 = m02; sm.m02 = m03;
-                    sm.m10 = m11; sm.m11 = m12; sm.m12 = m13;
-                    sm.m20 = m21; sm.m21 = m22; sm.m22 = m23;
-                    return sm;
+                    return Matrix3x3(
+                        m01, m02, m03,
+                        m11, m12, m13,
+                        m21, m22, m23
+                    );
                 case 1:
-                    sm.m00 = m00; sm.m01 = m02; sm.m02 = m03;
-                    sm.m10 = m10; sm.m11 = m12; sm.m12 = m13;
-                    sm.m20 = m20; sm.m21 = m22; sm.m22 = m23;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m02, m03,
+                        m10, m12, m13,
+                        m20, m22, m23
+                    );
                 case 2:
-                    sm.m00 = m00; sm.m01 = m01; sm.m02 = m03;
-                    sm.m10 = m10; sm.m11 = m11; sm.m12 = m13;
-                    sm.m20 = m20; sm.m21 = m21; sm.m22 = m23;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m01, m03,
+                        m10, m11, m13,
+                        m20, m21, m23
+                    );
                 case 3:
-                    sm.m00 = m00; sm.m01 = m01; sm.m02 = m02;
-                    sm.m10 = m10; sm.m11 = m11; sm.m12 = m12;
-                    sm.m20 = m20; sm.m21 = m21; sm.m22 = m22;
-                    return sm;
+                    return Matrix3x3(
+                        m00, m01, m02,
+                        m10, m11, m12,
+                        m20, m21, m22
+                    );
                 }
                 break;
             }
@@ -382,188 +409,37 @@ namespace MyApp
         // 余因子
         float getCofactor(int row, int column) const
         {
-            return removeRowAndColumn(row, column).getDeterminant() * (float)std::pow(-1, row + column);// 偶数 +、奇数 -;
+            Matrix3x3 subMatrix = removeRowAndColumn(row, column);
+            return subMatrix.getDeterminant() * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -;
         }
 
         // 行列式
         float getDeterminant() const
         {
             float c00 = getCofactor(0, 0);
-            float c01 = getCofactor(0, 1);// *-1.0f;
+            float c01 = getCofactor(0, 1);
             float c02 = getCofactor(0, 2);
-            float c03 = getCofactor(0, 3);// * -1.0f;
+            float c03 = getCofactor(0, 3);
             return m00 * c00 + m01 * c01 + m02 * c02 + m03 * c03;
         }
 
+        // 余因子行列
+        Matrix4x4 getAdjugateMatrix() const;
+
         // 逆行列
-        Matrix4x4 inverse() const
-        {
-            float c00 = getCofactor(0, 0);
-            float c01 = getCofactor(0, 1);// * -1.0f;
-            float c02 = getCofactor(0, 2);
-            float c03 = getCofactor(0, 3);// * -1.0f;
-            float det = m00 * c00 + m01 * c01 + m02 * c02 + m03 * c03;
-            if (det == 0.0f)
-            {
-                //throw runtime_error("Matrix is singular and cannot be inverted.");
-            }
+        Matrix4x4 inverse() const;
 
-            float c10 = getCofactor(1, 0);// * -1.0f;
-            float c11 = getCofactor(1, 1);
-            float c12 = getCofactor(1, 2);// * -1.0f;
-            float c13 = getCofactor(1, 3);
-            float c20 = getCofactor(2, 0);
-            float c21 = getCofactor(2, 1);// * -1.0f;
-            float c22 = getCofactor(2, 2);
-            float c23 = getCofactor(2, 3);// * -1.0f;
-            float c30 = getCofactor(3, 0);// * -1.0f;
-            float c31 = getCofactor(3, 1);
-            float c32 = getCofactor(3, 2);// * -1.0f;
-            float c33 = getCofactor(3, 3);
+        static Matrix4x4 createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon);
 
-            // 余因子行列
-            Matrix4x4 adj;
-            adj.m00 = c00; adj.m01 = c10; adj.m02 = c20; adj.m03 = c30;
-            adj.m10 = c01; adj.m11 = c11; adj.m12 = c21; adj.m13 = c31;
-            adj.m20 = c02; adj.m21 = c12; adj.m22 = c22; adj.m23 = c32;
-            adj.m30 = c03; adj.m31 = c13; adj.m32 = c23; adj.m33 = c33;
+        static Matrix4x4 createRotationX(float angle);
+        static Matrix4x4 createRotationY(float angle);
 
-            // 逆行行列
-            float invDet = (1.0f / det);
-            Matrix4x4 inv;
-            inv.m00 = adj.m00 * invDet; inv.m01 = adj.m01 * invDet; inv.m02 = adj.m02 * invDet; inv.m03 = adj.m03 * invDet;
-            inv.m10 = adj.m10 * invDet; inv.m11 = adj.m11 * invDet; inv.m12 = adj.m12 * invDet; inv.m13 = adj.m13 * invDet;
-            inv.m20 = adj.m20 * invDet; inv.m21 = adj.m21 * invDet; inv.m22 = adj.m22 * invDet; inv.m23 = adj.m23 * invDet;
-            inv.m30 = adj.m30 * invDet; inv.m31 = adj.m31 * invDet; inv.m32 = adj.m32 * invDet; inv.m33 = adj.m33 * invDet;
-            return inv;
-        }
+        static Matrix4x4 createScale(float x, float y, float z);
 
+        static Matrix4x4 createShear(float xy, float xz, float yx, float yz, float zx, float zy);
 
-        // OpenGL系は手前方向に z プラス
-        static Matrix4x4 createLockAt(const Vector3& eye, const Vector3& center, const Vector3& up)
-        {
-            // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
-
-            // f=forward, s=side
-
-            Vector3 f = center - eye;
-            Vector3 f2 = f.normalize();
-            Vector3 up2 = up.normalize();
-
-            // khronos.org の式は s が正規化されてない
-            //Vector3 s = f2.cross(up2);
-            //Vector3 u = s.normalize().cross(f2);
-            Vector3 s = f2.cross(up2).normalize();
-            Vector3 u = s.cross(f2);
-
-#if 0// 最適化（転置を使う場合）
-            Matrix4x4 r;
-            r.m00 = s.x; r.m01 = s.y; r.m02 = s.z; r.m03 = 0.0f;
-            r.m10 = u.x; r.m11 = u.y; r.m12 = u.z; r.m13 = 0.0f;
-            r.m20 = -f2.x; r.m21 = -f2.y; r.m22 = -f2.z; r.m23 = 0.0f;
-            r.m30 = 0.0f; r.m31 = 0.0f; r.m32 = 0.0f; r.m33 = 1.0f;
-            Matrix4x4 t;
-            t.m00 = 1.0f; t.m01 = 0.0f; t.m02 = 0.0f; t.m03 = -eye.x;
-            t.m10 = 0.0f; t.m11 = 1.0f; t.m12 = 0.0f; t.m13 = -eye.y;
-            t.m20 = 0.0f; t.m21 = 0.0f; t.m22 = 1.0f; t.m23 = -eye.z;
-            t.m30 = 0.0f; t.m31 = 0.0f; t.m32 = 0.0f; t.m33 = 1.0f;
-            Matrix4x4 view = r * t;
-#else
-            // camera matrix
-            // 
-            //          * c
-            //    y+   / 
-            //      | /
-            //      |/
-            //    e *---- x+ 
-            //     /
-            //    /
-            //  z+
-            // 
-            // e : eye
-            // c : cetner
-            // x+ : s2
-            // y+ : up2
-            // z+ : -f2
-            // 
-            Matrix4x4 cam;
-            cam.m00 = s.x; cam.m01 = u.x; cam.m02 = -f2.x; cam.m03 = eye.x;
-            cam.m10 = s.y; cam.m11 = u.y; cam.m12 = -f2.y; cam.m13 = eye.y;
-            cam.m20 = s.z; cam.m21 = u.z; cam.m22 = -f2.z; cam.m23 = eye.z;
-            cam.m30 = 0.0f; cam.m31 = 0.0f; cam.m32 = 0.0f; cam.m33 = 1.0f;
-            Matrix4x4 view = cam.inverse();
-#endif
-            return view;
-        }
-
-        // OpenGL系は z [-1, 1]
-        static Matrix4x4 createFrustum(float left, float right, float bottom, float top, float near, float far)
-        {
-            // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
-
-#if 0// 最適化（直書きする場合）
-            Matrix4x4 frust;
-            float a = (right + left) / (right - left);
-            float b = (top + bottom) / (top - bottom);
-            float c = -(far + near) / (far - near);
-            float d = -(2.0f * far * near) / (far - near);
-            frust.m00 = (2.0f * near) / (right - left); frust.m01 = 0.0f; frust.m02 = a; frust.m03 = 0.0f;
-            frust.m10 = 0.0f; frust.m11 = (2.0f * near) / (top - bottom); frust.m12 = b; frust.m13 = 0.0f;
-            frust.m20 = 0.0f; frust.m21 = 0.0f; frust.m22 = c; frust.m23 = d;
-            frust.m30 = 0.0f; frust.m31 = 0.0f; frust.m32 = -1.0f; frust.m33 = 0.0f;
-            return frust;
-#else
-
-            // TODO
-            Matrix4x4 persZ;
-            float a = -(far + near) / (far - near);
-            float b = -(2.0f * far * near) / (far - near);
-            Matrix4x4& p = persZ;
-            p.m00 = 1.0f; p.m01 = 0.0f; p.m02 = 0.0f;  p.m03 = 0.0f;
-            p.m10 = 0.0f; p.m11 = 1.0f; p.m12 = 0.0f;  p.m13 = 0.0f;
-            p.m20 = 0.0f; p.m21 = 0.0f; p.m22 = a;     p.m23 = b;
-
-            // 透視除算の w 成分
-            //  mv = v' のときに v'w = -vz にするには３行目を ( 0, 0, -1, 0 ) にする
-            //  v'w = m30 * vx + m31 * vy + m32 * vz + m33 * vw
-            //      = 0 * vx + 0 * vy + -1 * vz + 0 * vw
-            //      = -1 * vz
-            p.m30 = 0.0f; p.m31 = 0.0f; p.m32 = -1.0f; p.m33 = 0.0f;
-
-            // 視体積のニアクリップ平面のXY範囲を [-near, near] に収まるようにスケール
-            Matrix4x4 scaleXY = createScale((2.0f / (right - left)) * near, (2.0f / (top - bottom)) * near, 1.0f);
-
-            // 視体積の中心がZ軸を通るように補正（変形）
-            float zx = (right + left) / (right - left);
-            float zy = (top + bottom) / (top - bottom);
-            Matrix4x4 shearXY = createShear(0.0f, 0.0f, 0.0f, 0.0f, zx, zy);
-
-            return persZ * scaleXY * shearXY;
-#endif
-        }
-
-        static Matrix4x4 createProjection(float fovy, float aspect, float near, float far)
-        {
-            // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
-
-#if 0// 最適化（直書きする場合）
-            Matrix4x4 proj = Matrix4x4::kIdentity;
-            float f = 1.0f / tan(fovy / 2.0f);
-            proj.m00 = f / aspect;
-            proj.m11 = f;
-            proj.m22 = (far + near) / (near - far);
-            proj.m23 = (2.0f * far * near) / (near - far);
-            proj.m32 = -1.0f;
-            proj.m33 = 0.0f;
-            return proj;
-#else
-            float top = near * tan(fovy / 2.0f);
-            float bottom = -top;
-            float right = top * aspect;
-            float left = -right;
-            return createFrustum(left, right, bottom, top, near, far);
-#endif
-        }
-
+        static Matrix4x4 lockAt(const Vector3& eye, const Vector3& center, const Vector3& up);
+        static Matrix4x4 createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal);
+        static Matrix4x4 createProjection(float fovy, float aspect, float zNear, float zFar);
     };
 }

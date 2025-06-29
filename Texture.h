@@ -31,7 +31,12 @@ namespace MyApp
         ty = clamp(ty, 0, tex->height - 1);
 
         const Texel* texel = ((const Texel*)tex->addr) + ty * tex->width + tx;
-        Vector4 color = Vector4(texel->r / 255.0f, texel->g / 255.0f, texel->b / 255.0f, 0.0f);
+        Vector4 color(
+            normalizeByte(texel->r),
+            normalizeByte(texel->g),
+            normalizeByte(texel->b),
+            normalizeByte(texel->a)
+        );
         return color;
     }
 

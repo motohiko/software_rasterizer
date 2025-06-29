@@ -4,6 +4,7 @@
 #include <memory>// memset
 #include <algorithm>// fill
 
+//# include <omp.h>
 
 namespace MyApp
 {
@@ -170,9 +171,9 @@ namespace MyApp
             // ※クリップ処理後は多角形の可能性がある
             const Vector2 ndcPositions[3] =
             {
-                clippedPrimitiveVertices[0].position.GetXY() / clippedPrimitiveVertices[0].position.w,
-                clippedPrimitiveVertices[1].position.GetXY() / clippedPrimitiveVertices[1].position.w,
-                clippedPrimitiveVertices[2].position.GetXY() / clippedPrimitiveVertices[2].position.w,
+                clippedPrimitiveVertices[0].position.getXY() / clippedPrimitiveVertices[0].position.w,
+                clippedPrimitiveVertices[1].position.getXY() / clippedPrimitiveVertices[1].position.w,
+                clippedPrimitiveVertices[2].position.getXY() / clippedPrimitiveVertices[2].position.w,
             };
             const Vector2& p0 = ndcPositions[0];
             const Vector2& p1 = ndcPositions[1];
@@ -201,7 +202,7 @@ namespace MyApp
 
         for (int i = 0; i < rasterizationPointsCount - 2; ++i)
         {
-            const RasterizationPopint* p0 = &rasterizationPoints[0];// always indexed at 0.
+            const RasterizationPopint* p0 = &rasterizationPoints[0];// 0 固定
             const RasterizationPopint* p1 = &rasterizationPoints[i + 1];
             const RasterizationPopint* p2 = &rasterizationPoints[i + 2];
 
@@ -209,9 +210,12 @@ namespace MyApp
             rasterizeTriangleFaceOnly(p2, p1, p0);// CW
 
             // debug code
-            //rasterizeLine(p0, p1);
-            //rasterizeLine(p1, p2);
-            //rasterizeLine(p2, p0);
+            if (false)
+            {
+                rasterizeLine(p0, p1);
+                rasterizeLine(p1, p2);
+                rasterizeLine(p2, p0);
+            }
         }
     }
 
@@ -435,7 +439,7 @@ namespace MyApp
 
         assert(clippedPrimitiveVertices->position.w != 0.0f);
 
-        // 正規化デバイス座標へ変換（w除算）
+        // 正規化デバイス座標へ変換（透視除算またはW除算）
         Vector4 ndcPosition = clippedPrimitiveVertices->position / clippedPrimitiveVertices->position.w;
         // ※誤差で捕まるのでassertはコメントアウト
         //assert(-1.0f <= ndcPosition.x && ndcPosition.x <= 1.0f);
@@ -648,9 +652,10 @@ namespace MyApp
         maxX = clamp(maxX, 0, width - 1);
         maxY = clamp(maxY, 0, height - 1);
 
-
+        //#pragma omp parallel for
         for (int y = minY; y <= maxY; ++y)
         {
+            //#pragma omp parallel for
             for (int x = minX; x <= maxX; ++x)
             {
                 Vector2 p(x + 0.5f, y + 0.5f);// ピクセルの中心

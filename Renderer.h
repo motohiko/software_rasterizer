@@ -295,9 +295,10 @@ namespace MyApp
             }
 
             uint32_t* colorDst = (uint32_t*)(((uintptr_t)(_colorFrameBuffer->addr)) + colorOffset);
-            uint32_t r = (uint8_t)(255 * clamp(color.x, 0.0f, 1.0f));
-            uint32_t g = (uint8_t)(255 * clamp(color.y, 0.0f, 1.0f));
-            uint32_t b = (uint8_t)(255 * clamp(color.z, 0.0f, 1.0f));
+
+            uint32_t r = denormalizeByte(color.x);
+            uint32_t g = denormalizeByte(color.y);
+            uint32_t b = denormalizeByte(color.z);
             *colorDst = (r << 16) | (g << 8) | (b);
         }
     };

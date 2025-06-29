@@ -23,7 +23,24 @@ namespace MyApp
     }
 
 
+    inline float normalizeByte(uint8_t val)
+    {
+        return val / 255.0f;
+    }
+
+    inline uint8_t denormalizeByte(float val)
+    {
+        return 255.0f * clamp(val, 0.0f, 1.0f);
+    }
+
+
+
     // 以下、未使用
+
+    static int clamp8_fast(int x)
+    {
+        return ((x & ~(x >> 31)) | ((255 - x) >> 31)) & 255;
+    }
 
     // １ビットの数
     inline uint32_t popcnt(uint32_t bit)

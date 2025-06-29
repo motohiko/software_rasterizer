@@ -67,7 +67,7 @@ namespace MyApp
         const Vector4& position = input->elements[0];
         const Vector4& color = input->elements[1];
 
-        output->position = ((projectionMatrix * viewMatrix) * modelMatrix) * position;
+        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * position);
         output->varyingVariables[0] = color;
     }
 
@@ -87,14 +87,14 @@ namespace MyApp
         const Vector4& position = input->elements[0];
         const Vector4& uv = input->elements[1];
 
-        output->position = ((projectionMatrix * viewMatrix) * modelMatrix) * position;
+        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * position);
         output->varyingVariables[0] = uv;
     }
 
     void MeshPixelShaderMain(const PixelShaderInput* input, PixelShaderOutput* output)
     {
         const UniformBlock* uniformBlock = (const UniformBlock*)input->uniformBlock;
-        const Vector2 uv = input->varyingVariables[0].GetXY();
+        const Vector2 uv = input->varyingVariables[0].getXY();
 
         output->fragColor = sampleTexture(uniformBlock->meshTexture, uv);
     }
@@ -113,8 +113,6 @@ namespace MyApp
             float far = 15.0f; // 遠クリップ面
             Matrix4x4 projectionMatrix = Matrix4x4::createProjection(fov, aspect, near, far);
 
-            uniformBlock.projectionMatrix = projectionMatrix;
-
             Matrix4x4 rotationX = Matrix4x4::createRotationX(angleX);
             Matrix4x4 rotationY = Matrix4x4::createRotationY(angleY);
             Vector4 tmp(0.0f, 0.0f, zoom, 1.0f);
@@ -122,12 +120,11 @@ namespace MyApp
             Vector3 eye = Vector3(cameraX, cameraY, cameraZ) + Vector3(tmp.x, tmp.y, tmp.z);
             Vector3 center(cameraX, cameraY, cameraZ);
             Vector3 up(0.0f, 1.0f, 0.0f);
-            Matrix4x4 viewMatrix = Matrix4x4::createLockAt(eye, center, up);
+            Matrix4x4 viewMatrix = Matrix4x4::lockAt(eye, center, up);
 
+            uniformBlock.projectionMatrix = projectionMatrix;
             uniformBlock.viewMatrix = viewMatrix;
-
             uniformBlock.modelMatrix = Matrix4x4::kIdentity;
-
             renderer->setUniformBlock(&uniformBlock);
         }
 
@@ -205,15 +202,16 @@ namespace MyApp
         }
 
 
-        uniformBlock.modelMatrix = Matrix4x4::createRotationX(90.0f * 3.14f / 180.0f);
-
         // メッシュの描画
         {
+            uniformBlock.modelMatrix = Matrix4x4::createRotationX(90.0f * 3.14f / 180.0f);
+
             Texture meshTexture = {};
             meshTexture.addr = kTexture;
             meshTexture.width = 256;
             meshTexture.height = 256;
             uniformBlock.meshTexture = &meshTexture;
+
             renderer->setVertexBufferElement(0, kMeshVertices, sizeof(Vector3));
             renderer->setVertexBufferElement(1, kMeshUvs, sizeof(Vector2));
             renderer->setVertexBufferElementsCount(2);

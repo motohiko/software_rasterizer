@@ -5,6 +5,7 @@
 namespace MyApp
 {
     // TODO float, uint8_t の配列に変える
+    // TODO GetMeshData 経由に変える
 
     const uint16_t kMeshTriangles[] =
     {
