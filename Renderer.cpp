@@ -447,9 +447,35 @@ namespace MyApp
         //assert(-1.0f <= ndcPosition.z && ndcPosition.z <= 1.0f);
         rasterizationPopint->ndcPosition = ndcPosition;
 
-        // ビューポート変換
-        rasterizationPopint->screenPosition.x = (ndcPosition.x + 1.0f) * ((float)(_viewportWidth) / 2.0f);
-        rasterizationPopint->screenPosition.y = (ndcPosition.y + 1.0f) * ((float)(_viewportHeight) / 2.0f);
+        // 正規化デバイス座標(xy)からウィンドウ座標へ変換（ビューポート変換）
+        // 
+        // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
+        // 
+        // ウィンドウ座標系(xy)
+        // 
+        //                         (x+w,y+h)
+        //               +--------+
+        //               |        |
+        //               |        |
+        //     +y        +--------+
+        //       |  (x,y)
+        //       |
+        //       +--- +x
+        //  (0,0)
+        // 
+        rasterizationPopint->windowPosition.x = (ndcPosition.x + 1.0f) * ((float)(_viewportWidth) / 2.0f) + (float)_viewportX;
+        rasterizationPopint->windowPosition.y = (ndcPosition.y + 1.0f) * ((float)(_viewportHeight) / 2.0f) + (float)_viewportY;
+
+
+        // 正規化デバイス座標(z)から深度に変換
+        // 
+        // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glDepthRange.xml
+        //
+        float depthRangeNearVal = 0.0;
+        float depthRangeFarVal = 1.0f;
+        float t = (ndcPosition.z + 1.0f) / 2.0f;
+        rasterizationPopint->depth = lerp(depthRangeNearVal, depthRangeFarVal, t);
+
 
         // 補間値のパースペクティブコレクト仕込み
         float perspectiveCorrectW = clippedPrimitiveVertices->position.w;
@@ -465,10 +491,10 @@ namespace MyApp
         const RasterizationPopint* p0 = rasterizationPopint0;
         const RasterizationPopint* p1 = rasterizationPopint1;
 
-        int x0 = (int)std::floor(p0->screenPosition.x);// 切り捨て
-        int y0 = (int)std::floor(p0->screenPosition.y);
-        int x1 = (int)std::floor(p1->screenPosition.x);
-        int y1 = (int)std::floor(p1->screenPosition.y);
+        int x0 = (int)std::floor(p0->windowPosition.x);// 切り捨て
+        int y0 = (int)std::floor(p0->windowPosition.y);
+        int x1 = (int)std::floor(p1->windowPosition.x);
+        int y1 = (int)std::floor(p1->windowPosition.y);
 
         //
         // Bresenham's line algorithm
@@ -523,11 +549,8 @@ namespace MyApp
         }
     }
 
-    void Renderer::rasterizeLinePixel(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, int x, int y)
+    void Renderer::rasterizeLinePixel(const RasterizationPopint* p0, const RasterizationPopint* p1, int x, int y)
     {
-        const RasterizationPopint* p0 = rasterizationPopint0;
-        const RasterizationPopint* p1 = rasterizationPopint1;
-
         int width = _colorFrameBuffer->width;
         int height = _colorFrameBuffer->height;
         if (x < 0 || width <= x || y < 0 || height <= y)
@@ -535,8 +558,8 @@ namespace MyApp
             return;
         }
 
-        Vector2 a(p0->screenPosition.x, p0->screenPosition.y);
-        Vector2 b(p1->screenPosition.x, p1->screenPosition.y);
+        Vector2 a(p0->windowPosition.x, p0->windowPosition.y);
+        Vector2 b(p1->windowPosition.x, p1->windowPosition.y);
         Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
         Vector2 ab = (b - a);
         Vector2 ac = (c - a);
@@ -550,11 +573,7 @@ namespace MyApp
         // Early Fragment Test (Early Depth Test) 
         //
 
-        float z = lerp(p0->ndcPosition.z, p1->ndcPosition.z, t);
-
-        // glDepthRange(nearVal, farVal) (Default 0, 1)
-        float depth = remapDepth(z, -1.0f, 1.0f, 0.0f, 1.0f);
-
+        float depth = lerp(p0->depth, p1->depth, t);
         bool pass = depthTest(x, y, depth);
         if (!pass)
         {
@@ -594,7 +613,7 @@ namespace MyApp
         // color blend stage ?
         //
 
-        setPixel(x, y, output.fragColor, depth);
+        outputPixel(x, y, output.fragColor, depth);
     }
 
     void Renderer::rasterizeTriangleFaceOnly(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, const RasterizationPopint* rasterizationPopint2)
@@ -608,7 +627,7 @@ namespace MyApp
         const RasterizationPopint* p2 = rasterizationPopint2;
 
         // 三角形の表裏判定
-        const float a = edgeFunction(p0->screenPosition, p1->screenPosition, p2->screenPosition);
+        const float a = edgeFunction(p0->windowPosition, p1->windowPosition, p2->windowPosition);
         if (a <= 0.0f)
         {
             return;
@@ -638,9 +657,9 @@ namespace MyApp
         };
         BoundingBox2d boundingBox = {};
         boundingBox.Init();
-        boundingBox.addPoint(p0->screenPosition);
-        boundingBox.addPoint(p1->screenPosition);
-        boundingBox.addPoint(p2->screenPosition);
+        boundingBox.addPoint(p0->windowPosition);
+        boundingBox.addPoint(p1->windowPosition);
+        boundingBox.addPoint(p2->windowPosition);
         int minX = (int)std::floor(boundingBox.minX);// 切り捨て
         int minY = (int)std::floor(boundingBox.minY);
         int maxX = (int)std::ceil(boundingBox.maxX);// 切り上げ
@@ -652,92 +671,127 @@ namespace MyApp
         maxX = clamp(maxX, 0, width - 1);
         maxY = clamp(maxY, 0, height - 1);
 
+        // 上から下へ走査
+
         //#pragma omp parallel for
-        for (int y = minY; y <= maxY; ++y)
+        for (int y = maxY; minY <= y; --y)
         {
             //#pragma omp parallel for
             for (int x = minX; x <= maxX; ++x)
             {
-                Vector2 p(x + 0.5f, y + 0.5f);// ピクセルの中心
-
-                // ピクセルの中心を内外判定
-                float b0 = edgeFunction(p1->screenPosition, p2->screenPosition, p);
-                if (b0 < 0.0f)
-                {
-                    continue;
-                }
-                float b1 = edgeFunction(p2->screenPosition, p0->screenPosition, p);
-                if (b1 < 0.0f)
-                {
-                    continue;
-                }
-                float b2 = edgeFunction(p0->screenPosition, p1->screenPosition, p);
-                if (b2 < 0.0f)
-                {
-                    continue;
-                }
-
-                // 重心座標の重みを求める
-                // ※edgeFunction（外積）は三角形の面積の２倍を返す
-                b0 /= a;
-                b1 /= a;
-                b2 /= a;
-
-
-                //
-                // Early Fragment Test (Early Depth Test) 
-                //
-
-                float z = ((b0 * p0->ndcPosition.z) + (b1 * p1->ndcPosition.z) + (b2 * p2->ndcPosition.z));
-
-                // glDepthRange(nearVal, farVal) (Default 0, 1)
-                float depth = remapDepth(z, -1.0f, 1.0f, 0.0f, 1.0f);
-
-                bool pass = depthTest(x, y, depth);
-                if (!pass)
-                {
-                    continue;
-                }
-
-
-                //
-                // 補間値を求める
-                //
-                
-                float invW0 = p0->perspectiveCorrectInvW;
-                float invW1 = p1->perspectiveCorrectInvW;
-                float invW2 = p2->perspectiveCorrectInvW;
-                float perspectiveCorrectInvW = ((b0 * invW0) + (b1 * invW1) + (b2 * invW2));
-                assert(0.0f != perspectiveCorrectInvW);
-                float perspectiveCorrectW = 1.0f / perspectiveCorrectInvW;
-
-                Vector4 varyingVariables[kVaryingVariableNum] = {};
-                for (int i = 0; i < _varyingVariableCount; ++i)
-                {
-                    const Vector4& v0 = p0->varyingVariablesDividedByW[i];
-                    const Vector4& v1 = p1->varyingVariablesDividedByW[i];
-                    const Vector4& v2 = p2->varyingVariablesDividedByW[i];
-                    varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2)) * perspectiveCorrectW;
-                }
-
-                //
-                // pixel shader stage
-                //
-
-                PixelShaderInput input = {};
-                input.uniformBlock = _uniformBlock;
-                input.varyingVariables = varyingVariables;
-
-                PixelShaderOutput output = {};
-
-                _pixelShaderMainFunc(&input, &output);
-
-                //
-                // color blend stage ?
-                //
-
-                setPixel(x, y, output.fragColor, depth);
+                rasterizeTrianglePixel(p0, p1, p2, a, x, y);
             }
         }
+    }
+
+    void Renderer::rasterizeTrianglePixel(const RasterizationPopint* p0, const RasterizationPopint* p1, const RasterizationPopint* p2, float a, int x, int y)
+    {
+        Vector2 p(x + 0.5f, y + 0.5f);// ピクセルの中心
+
+        // ピクセルの中心を内外判定
+        float b0 = edgeFunction(p1->windowPosition, p2->windowPosition, p);
+        if (b0 < 0.0f)
+        {
+            return;
+        }
+        float b1 = edgeFunction(p2->windowPosition, p0->windowPosition, p);
+        if (b1 < 0.0f)
+        {
+            return;
+        }
+        float b2 = edgeFunction(p0->windowPosition, p1->windowPosition, p);
+        if (b2 < 0.0f)
+        {
+            return;
+        }
+
+        // 重心座標の重みを求める
+        // ・edgeFunction（外積）は三角形の面積の２倍を返す
+        b0 /= a;
+        b1 /= a;
+        b2 /= a;
+
+
+        //
+        // Early Fragment Test (Early Depth Test) 
+        //
+
+        float depth = ((b0 * p0->depth) + (b1 * p1->depth) + (b2 * p2->depth));
+        bool pass = depthTest(x, y, depth);
+        if (!pass)
+        {
+            return;
+        }
+
+
+        //
+        // 補間値を求める
+        //
+
+        float invW0 = p0->perspectiveCorrectInvW;
+        float invW1 = p1->perspectiveCorrectInvW;
+        float invW2 = p2->perspectiveCorrectInvW;
+        float perspectiveCorrectInvW = ((b0 * invW0) + (b1 * invW1) + (b2 * invW2));
+        assert(0.0f != perspectiveCorrectInvW);
+        float perspectiveCorrectW = 1.0f / perspectiveCorrectInvW;
+
+        Vector4 varyingVariables[kVaryingVariableNum] = {};
+        for (int i = 0; i < _varyingVariableCount; ++i)
+        {
+            const Vector4& v0 = p0->varyingVariablesDividedByW[i];
+            const Vector4& v1 = p1->varyingVariablesDividedByW[i];
+            const Vector4& v2 = p2->varyingVariablesDividedByW[i];
+            varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2)) * perspectiveCorrectW;
+        }
+
+        //
+        // pixel shader stage
+        //
+
+        PixelShaderInput input = {};
+        input.uniformBlock = _uniformBlock;
+        input.varyingVariables = varyingVariables;
+
+        PixelShaderOutput output = {};
+
+        _pixelShaderMainFunc(&input, &output);
+
+        //
+        // color blend stage ?
+        //
+
+        outputPixel(x, y, output.fragColor, depth);
+    }
+
+    void Renderer::outputPixel(int x, int y, const Vector4& color, float depth)
+    {
+        // x, y はウィンドウ座標系
+
+        int depthOffset = (_depthFrameBuffer->widthBytes * y) + (sizeof(float) * x);
+        assert(0 <= depthOffset && depthOffset < (_depthFrameBuffer->widthBytes * _depthFrameBuffer->height));
+        if (depthOffset < 0 || (_depthFrameBuffer->widthBytes * _depthFrameBuffer->height) <= depthOffset)
+        {
+            return;
+        }
+
+        float* depthDst = (float*)(((uintptr_t)(_depthFrameBuffer->addr)) + (_depthFrameBuffer->widthBytes * y) + (sizeof(float) * x));
+        *depthDst = depth;
+
+
+        // ※ DIBも左下が(0,0)なので座標変換は不要
+
+        int colorOffset = (_colorFrameBuffer->widthBytes * y) + (sizeof(uint32_t) * x);
+        assert(0 <= colorOffset && colorOffset < (_colorFrameBuffer->widthBytes * _colorFrameBuffer->height));
+        if (colorOffset < 0 || (_colorFrameBuffer->widthBytes * _colorFrameBuffer->height) <= colorOffset)
+        {
+            return;
+        }
+
+        uint32_t* colorDst = (uint32_t*)(((uintptr_t)(_colorFrameBuffer->addr)) + colorOffset);
+
+        uint32_t r = denormalizeByte(color.x);
+        uint32_t g = denormalizeByte(color.y);
+        uint32_t b = denormalizeByte(color.z);
+        *colorDst = (r << 16) | (g << 8) | (b);
     }
 }

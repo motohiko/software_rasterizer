@@ -94,8 +94,8 @@ namespace MyApp
 
     private:
 
-        int _viewportOffsetX = 0;
-        int _viewportOffsetY = 0;
+        int _viewportX = 0;
+        int _viewportY = 0;
         int _viewportWidth = 0;
         int _viewportHeight = 0;
 
@@ -118,8 +118,8 @@ namespace MyApp
 
         void setViewport(int x, int y, int width, int height)
         {
-            _viewportOffsetX = x;
-            _viewportOffsetY = y;
+            _viewportX = x;
+            _viewportY = y;
             _viewportWidth = width;
             _viewportHeight = height;
         }
@@ -238,20 +238,27 @@ namespace MyApp
         struct RasterizationPopint
         {
             Vector4 ndcPosition;// normalized device coordinates
-            Vector2 screenPosition;// screen space coordinates
-            Vector4 varyingVariablesDividedByW[kVaryingVariableNum];// divided by w
+            Vector2 windowPosition;// window coordinates
+            float depth;
             float perspectiveCorrectInvW;
+            Vector4 varyingVariablesDividedByW[kVaryingVariableNum];// divided by w
         };
 
         void makeRasterizationPopint(const ClippedPrimitiveVertex* clippedPrimitiveVertices, RasterizationPopint* rasterizationPopint);
 
         void rasterizeLine(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1);
-        void rasterizeLinePixel(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, int x, int y);
-        void rasterizeTriangleFaceOnly(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, const RasterizationPopint* rasterizationPopint2);
+        void rasterizeLinePixel(const RasterizationPopint* p0, const RasterizationPopint* p1, int x, int y);
 
-        static float remapDepth(float value, float in_min, float in_max, float out_min, float out_max)
+        void rasterizeTriangleFaceOnly(const RasterizationPopint* rasterizationPopint0, const RasterizationPopint* rasterizationPopint1, const RasterizationPopint* rasterizationPopint2);
+        void rasterizeTrianglePixel(const RasterizationPopint* p0, const RasterizationPopint* p1, const RasterizationPopint* p2, float a, int x, int y);
+
+        void outputPixel(int x, int y, const Vector4& color, float depth);
+
+        static float edgeFunction(const Vector2& a, const Vector2& b, const Vector2& c)
         {
-            return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+            Vector2 ab = b - a;
+            Vector2 ac = c - a;
+            return ab.cross(ac);
         }
 
         bool depthTest(int x, int y, float depth)
@@ -268,38 +275,5 @@ namespace MyApp
             return pass;
         }
 
-        static float edgeFunction(const Vector2& a, const Vector2& b, const Vector2& c)
-        {
-            Vector2 ab = b - a;
-            Vector2 ac = c - a;
-            return ab.cross(ac);
-        }
-
-        void setPixel(int x, int y, const Vector4& color, float depth)
-        {
-            int depthOffset = (_depthFrameBuffer->widthBytes * y) + (sizeof(float) * x);
-            assert(0 <= depthOffset && depthOffset < (_depthFrameBuffer->widthBytes * _depthFrameBuffer->height));
-            if (depthOffset < 0 || (_depthFrameBuffer->widthBytes * _depthFrameBuffer->height) <= depthOffset)
-            {
-                return;
-            }
-
-            float* depthDst = (float*)(((uintptr_t)(_depthFrameBuffer->addr)) + (_depthFrameBuffer->widthBytes * y) + (sizeof(float) * x));
-            *depthDst = depth;
-
-            int colorOffset = (_colorFrameBuffer->widthBytes * y) + (sizeof(uint32_t) * x);
-            assert(0 <= colorOffset && colorOffset < (_colorFrameBuffer->widthBytes * _colorFrameBuffer->height));
-            if (colorOffset < 0 || (_colorFrameBuffer->widthBytes * _colorFrameBuffer->height) <= colorOffset)
-            {
-                return;
-            }
-
-            uint32_t* colorDst = (uint32_t*)(((uintptr_t)(_colorFrameBuffer->addr)) + colorOffset);
-
-            uint32_t r = denormalizeByte(color.x);
-            uint32_t g = denormalizeByte(color.y);
-            uint32_t b = denormalizeByte(color.z);
-            *colorDst = (r << 16) | (g << 8) | (b);
-        }
     };
 }

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <cmath>// abs
 
 #include "PreIncludeWindows.h"
 #include <Windows.h>
@@ -186,7 +187,7 @@ namespace MyApp
             renderer->drawIndexed();
         }
 
-        // ポリゴンの描画（RGBの順）
+        // ポリゴンの描画（頂点色は赤緑青の順、反時計周り）
         {
             const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
             Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
@@ -309,24 +310,28 @@ namespace MyApp
                 g_depthBuffer = nullptr;
             }
 
-            HDC hWndDC = GetDC(hwnd);
-
             RECT clientRect = {};
-            GetClientRect(hwnd, &clientRect);
+            GetClientRect(hwnd, &clientRect);// left と top は常に 0
+
+            int clientWidth = clientRect.right;
+            int clientHeight = clientRect.bottom;
 
             BITMAPINFOHEADER bih = {};
             bih.biSize = sizeof(BITMAPINFOHEADER);
-            bih.biWidth = clientRect.right - clientRect.left;
-            bih.biHeight = (clientRect.bottom - clientRect.top);
+            bih.biWidth = clientWidth;
+            bih.biHeight = clientHeight;
             bih.biPlanes = 1;
             bih.biBitCount = 32;
             bih.biCompression = BI_RGB;
-            VOID* pTmp;
-            g_hDibBm = CreateDIBSection(hWndDC, (BITMAPINFO*)&bih, DIB_RGB_COLORS, &pTmp, NULL, 0);
 
-            ReleaseDC(hwnd, hWndDC);
+            {
+                HDC hWndDC = GetDC(hwnd);
+                VOID* pvBits;
+                g_hDibBm = CreateDIBSection(hWndDC, (BITMAPINFO*)&bih, DIB_RGB_COLORS, &pvBits, NULL, 0);
+                ReleaseDC(hwnd, hWndDC);
+            }
 
-            g_depthBuffer = malloc(sizeof(float) * (clientRect.right - clientRect.left) * (clientRect.bottom - clientRect.top));
+            g_depthBuffer = malloc(sizeof(float) * clientWidth * clientHeight);
 
             InvalidateRect(hwnd, NULL, TRUE); // 再描画を要求
             return 0;
@@ -334,35 +339,56 @@ namespace MyApp
         case WM_PAINT:
         {
             PAINTSTRUCT ps = {};
-            HDC hWndDC = BeginPaint(hwnd, &ps);
+            BeginPaint(hwnd, &ps);
 
-            RECT clientRect = {};
-            GetClientRect(hwnd, &clientRect);
-
-            HDC hMemDC = CreateCompatibleDC(hWndDC);
+            HDC hMemDC = CreateCompatibleDC(ps.hdc);
             HGDIOBJ hPrevBm = SelectObject(hMemDC, g_hDibBm);
             DIBSECTION dibSection = {};
             GetObject(g_hDibBm, sizeof(DIBSECTION), &dibSection);
+
+            int bmWidth = dibSection.dsBm.bmWidth;
+            int bmHeight = std::abs(dibSection.dsBm.bmHeight);
+
+            //
+            // Windows GUI（クライアント領域、DIB）の座標系
+            //
+            //   (0, 0)
+            //         +--------+-- +x
+            //         |        |
+            //         |        |
+            //         +--------+
+            //         |         (w, h)
+            //       +y                
+            //
+            //
+            // DIBのメモリを直接参照したとき座標系（メモリのレイアウトは上下反転）
+            //
+            //       +y                
+            //         |         (w, h)
+            //         +--------+
+            //         |        |
+            //         |        |
+            //         +--------+-- +x
+            //   (0, 0)
+            //
 
             // レンダリング
             {
                 Renderer renderer;
 
-                int screenWidth = clientRect.right - clientRect.left;
-                int screenHeight = clientRect.bottom - clientRect.top;
-                renderer.setViewport(0, 0, screenWidth, screenHeight);
+                renderer.setViewport(0, 0, bmWidth, bmHeight);
 
                 ColorFrameBuffer colorFrameBuffer = {};
                 colorFrameBuffer.addr = dibSection.dsBm.bmBits;
-                colorFrameBuffer.width = dibSection.dsBm.bmWidth;
-                colorFrameBuffer.height = dibSection.dsBm.bmHeight;
+                colorFrameBuffer.width = bmWidth;
+                colorFrameBuffer.height = bmHeight;
                 colorFrameBuffer.widthBytes = dibSection.dsBm.bmWidthBytes;
 
                 DepthFrameBuffer depthFrameBuffer = {};
                 depthFrameBuffer.addr = g_depthBuffer;
-                depthFrameBuffer.width = dibSection.dsBm.bmWidth;
-                depthFrameBuffer.height = dibSection.dsBm.bmHeight;
-                depthFrameBuffer.widthBytes = sizeof(float) * dibSection.dsBm.bmWidth;
+                depthFrameBuffer.width = bmWidth;
+                depthFrameBuffer.height = bmHeight;
+                depthFrameBuffer.widthBytes = sizeof(float) * bmWidth;
 
                 renderer.setFrameBuffer(&colorFrameBuffer, &depthFrameBuffer);
 
@@ -372,7 +398,7 @@ namespace MyApp
             }
 
             // ウィンドウへ転送
-            BitBlt(hWndDC, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, hMemDC, 0, 0, SRCCOPY);
+            BitBlt(ps.hdc, 0, 0, bmWidth, bmHeight, hMemDC, 0, 0, SRCCOPY);
 
             SelectObject(hMemDC, hPrevBm);
             DeleteDC(hMemDC);

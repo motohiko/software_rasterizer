@@ -30,7 +30,7 @@ namespace MyApp
 
     inline uint8_t denormalizeByte(float val)
     {
-        return 255.0f * clamp(val, 0.0f, 1.0f);
+        return (uint8_t)(255.0f * clamp(val, 0.0f, 1.0f));
     }
 
 
