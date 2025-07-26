@@ -1,9 +1,8 @@
 ﻿#pragma once
 
-#include <cstdint>
-
 #include "Vector.h"
 #include "Texture.h"
+#include <cstdint>
 
 namespace MyApp
 {

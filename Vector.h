@@ -49,16 +49,39 @@ namespace MyApp
             return x * other.y - y * other.x;
         }
 
+        // 加算演算子
+        Vector2 operator+(const Vector2& other) const
+        {
+            return Vector2(x + other.x, y + other.y);
+        }
+
         // 減算演算子
         Vector2 operator-(const Vector2& other) const
         {
             return Vector2(x - other.x, y - other.y);
         }
 
+        // 乗算演算子（スカラー乗算）
+        Vector2 operator*(float scalar) const
+        {
+            return Vector2(x * scalar, y * scalar);
+        }
+
         // 割り算の演算子（スカラー乗算）
         Vector2 operator/(float scalar) const
         {
             return Vector2(x / scalar, y / scalar);
+        }
+
+        // 左項にfloatを持つ乗算演算子
+        friend Vector2 operator*(float scalar, const Vector2& vec)
+        {
+            return Vector2(vec.x * scalar, vec.y * scalar);
+        }
+
+        static Vector2 Lerp(const Vector2& v0, const Vector2& v1, float t)
+        {
+            return ((1.0f - t) * v0) + (t * v1);
         }
     };
 
@@ -74,6 +97,11 @@ namespace MyApp
 
         Vector3() = default;
         Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+
+        Vector2 getXY() const
+        {
+            return Vector2(x, y);
+        }
 
         float getComponent(int index) const
         {
@@ -120,13 +148,13 @@ namespace MyApp
             );
         }
 
-        // 加算演算子の
+        // 加算演算子
         Vector3 operator+(const Vector3& other) const
         {
             return Vector3(x + other.x, y + other.y, z + other.z);
         }
 
-        // 減算演算子の
+        // 減算演算子
         Vector3 operator-(const Vector3& other) const
         {
             return Vector3(x - other.x, y - other.y, z - other.z);
@@ -179,6 +207,18 @@ namespace MyApp
         Vector3 getXYZ() const
         {
             return Vector3(x, y, z);
+        }
+
+        void setComponent(int index, float value)
+        {
+            switch (index)
+            {
+            case 0: x = value;
+            case 1: y = value;
+            case 2: z = value;
+            case 3: w = value;
+            default: throw std::out_of_range("Index out of range.");
+            }
         }
 
         float getComponent(int index) const

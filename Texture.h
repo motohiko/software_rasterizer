@@ -1,10 +1,9 @@
 ﻿#pragma once
 
-#include <cstdint>
-#include <cmath>// floor
-
 #include "Algorithm.h"// clamp
 #include "Vector.h"
+#include <cstdint>
+#include <cmath>// floor
 
 namespace MyApp
 {

@@ -1,9 +1,10 @@
 ﻿#pragma once
+
+#include "Vector.h"
 #include <cstdint>
 #include <cmath>
 #include <cassert>
 #include <stdexcept>
-#include "Vector.h"
 
 namespace MyApp
 {

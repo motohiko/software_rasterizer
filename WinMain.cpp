@@ -1,10 +1,4 @@
 ﻿
-#include <cstdint>
-#include <cassert>
-#include <vector>
-#include <algorithm>
-#include <cmath>// abs
-
 #include "PreIncludeWindows.h"
 #include <Windows.h>
 #include "PostIncludeWindows.h"
@@ -17,13 +11,19 @@
 #include "Texture.h"
 #include "MeshData.h"
 
+#include <cstdint>
+#include <cassert>
+#include <vector>
+#include <algorithm>
+#include <cmath>// abs
+
 namespace MyApp
 {
     // 0,1,2,3,..,65535
     const uint16_t* kDefaultIndices = []
         {
             static uint16_t indices[0xffff + 1];
-            for (uint32_t i = 0; i <= 0xffff; ++i)
+            for (uint32_t i = 0; i <= 0xffff; i++)
             {
                 indices[i] = (uint16_t)i;
             }
@@ -65,14 +65,14 @@ namespace MyApp
         const Matrix4x4& projectionMatrix = uniformBlock->projectionMatrix;
         const Matrix4x4& viewMatrix = uniformBlock->viewMatrix;
         const Matrix4x4& modelMatrix = uniformBlock->modelMatrix;
-        const Vector4& position = input->elements[0];
-        const Vector4& color = input->elements[1];
+        const Vector4& position = input->attributes[0];
+        const Vector4& color = input->attributes[1];
 
-        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * position);
+        *(output->position) = projectionMatrix * ((viewMatrix * modelMatrix) * position);
         output->varyingVariables[0] = color;
     }
 
-    void LinePixelShaderMain(const PixelShaderInput* input, PixelShaderOutput* output)
+    void LinePixelShaderMain(const FragmentShaderInput* input, FragmentShaderOutput* output)
     {
         const UniformBlock* uniformBlock = (const UniformBlock*)input->uniformBlock;
         const Vector4& color = input->varyingVariables[0];
@@ -85,14 +85,14 @@ namespace MyApp
         const Matrix4x4& projectionMatrix = uniformBlock->projectionMatrix;
         const Matrix4x4& viewMatrix = uniformBlock->viewMatrix;
         const Matrix4x4& modelMatrix = uniformBlock->modelMatrix;
-        const Vector4& position = input->elements[0];
-        const Vector4& uv = input->elements[1];
+        const Vector4& position = input->attributes[0];
+        const Vector4& uv = input->attributes[1];
 
-        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * position);
+        *(output->position) = projectionMatrix * ((viewMatrix * modelMatrix) * position);
         output->varyingVariables[0] = uv;
     }
 
-    void MeshPixelShaderMain(const PixelShaderInput* input, PixelShaderOutput* output)
+    void MeshPixelShaderMain(const FragmentShaderInput* input, FragmentShaderOutput* output)
     {
         const UniformBlock* uniformBlock = (const UniformBlock*)input->uniformBlock;
         const Vector2 uv = input->varyingVariables[0].getXY();
@@ -137,25 +137,30 @@ namespace MyApp
             Vector4 yAxisColors[2] = { { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } };
             const Vector3 zAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  0.0f,  1.0f } };
             Vector4 zAxisColors[2] = { { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
+
             renderer->setPrimitiveTopologyType(PrimitiveTopologyType::LineList);
-            renderer->setVertexBufferElement(0, xAxisPositions, sizeof(Vector3));
-            renderer->setVertexBufferElement(1, xAxisColors, sizeof(Vector4));
-            renderer->setVertexBufferElementsCount(2);
+            renderer->enableVertexAttribute(0);
+            renderer->setVertexBuffer(0, xAxisPositions);
+            renderer->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
+            renderer->enableVertexAttribute(1);
+            renderer->setVertexBuffer(1, xAxisColors);
+            renderer->setVertexAttribute(1, Semantics::Color, 4, ComponentType::Float, sizeof(Vector4));
             renderer->setIndexBuffer(kDefaultIndices, 2);
             renderer->setVertexShaderProgram(LineVertexShaderMain);
             renderer->setVaryingVariableCount(1);
-            renderer->setPixelShaderProgram(LinePixelShaderMain);
+            renderer->setFragmentShaderProgram(LinePixelShaderMain);
             renderer->drawIndexed();
 
-            renderer->setVertexBufferElement(0, yAxisPositions, sizeof(Vector3));
-            renderer->setVertexBufferElement(1, yAxisColors, sizeof(Vector4));
-            renderer->setVertexBufferElementsCount(2);
+            renderer->setVertexBuffer(0, yAxisPositions);
+            renderer->setVertexBuffer(1, yAxisColors);
             renderer->drawIndexed();
 
-            renderer->setVertexBufferElement(0, zAxisPositions, sizeof(Vector3));
-            renderer->setVertexBufferElement(1, zAxisColors, sizeof(Vector4));
-            renderer->setVertexBufferElementsCount(2);
+            renderer->setVertexBuffer(0, zAxisPositions);
+            renderer->setVertexBuffer(1, zAxisColors);
             renderer->drawIndexed();
+
+            renderer->disableVertexAttribute(0);
+            renderer->disableVertexAttribute(1);
         }
 
         // グリッドの描画
@@ -164,7 +169,7 @@ namespace MyApp
             float harfGridSize = gridSize / 2.0f;
             Vector3 gridPositions[2 * 2 * gridSize];
             Vector4 gridColors[2 * 2 * gridSize];
-            for (int i = 0; i < gridSize; ++i)
+            for (int i = 0; i < gridSize; i++)
             {
                 float a = 1.0f * (i - (gridSize / 2));
                 gridPositions[2 * i] = { -harfGridSize, 0.0f,  a };
@@ -172,34 +177,48 @@ namespace MyApp
                 gridPositions[2 * gridSize + 2 * i] = { a, 0.0f, -harfGridSize };
                 gridPositions[2 * gridSize + 2 * i + 1] = { a, 0.0f, harfGridSize };
             }
-            for (int i = 0; i < (2 * 2 * gridSize); ++i)
+            for (int i = 0; i < (2 * 2 * gridSize); i++)
             {
                 gridColors[i] = Vector4(0.5f, 0.5f, 0.5f, 1.0f);
             }
+
             renderer->setPrimitiveTopologyType(PrimitiveTopologyType::LineList);
-            renderer->setVertexBufferElement(0, gridPositions, sizeof(Vector3));
-            renderer->setVertexBufferElement(1, gridColors, sizeof(Vector4));
-            renderer->setVertexBufferElementsCount(2);
+            renderer->enableVertexAttribute(0);
+            renderer->setVertexBuffer(0, gridPositions);
+            renderer->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
+            renderer->enableVertexAttribute(1);
+            renderer->setVertexBuffer(1, gridColors);
+            renderer->setVertexAttribute(1, Semantics::Color, 4, ComponentType::Float, sizeof(Vector4));
             renderer->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
             renderer->setVertexShaderProgram(LineVertexShaderMain);
             renderer->setVaryingVariableCount(1);
-            renderer->setPixelShaderProgram(LinePixelShaderMain);
+            renderer->setFragmentShaderProgram(LinePixelShaderMain);
             renderer->drawIndexed();
+
+            renderer->disableVertexAttribute(0);
+            renderer->disableVertexAttribute(1);
         }
 
         // ポリゴンの描画（頂点色は赤緑青の順、反時計周り）
         {
             const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
             Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
+
             renderer->setPrimitiveTopologyType(PrimitiveTopologyType::TriangleList);
-            renderer->setVertexBufferElement(0, polygonPositions, sizeof(Vector3));
-            renderer->setVertexBufferElement(1, polygonColors, sizeof(Vector4));
-            renderer->setVertexBufferElementsCount(2);
             renderer->setIndexBuffer(kDefaultIndices, 3);
+            renderer->enableVertexAttribute(0);
+            renderer->setVertexBuffer(0, polygonPositions);
+            renderer->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
+            renderer->enableVertexAttribute(1);
+            renderer->setVertexBuffer(1, polygonColors);
+            renderer->setVertexAttribute(1, Semantics::Color, 4, ComponentType::Float, sizeof(Vector4));
             renderer->setVertexShaderProgram(LineVertexShaderMain);// 流用
             renderer->setVaryingVariableCount(1);
-            renderer->setPixelShaderProgram(LinePixelShaderMain);// 流用
+            renderer->setFragmentShaderProgram(LinePixelShaderMain);// 流用
             renderer->drawIndexed();
+
+            renderer->disableVertexAttribute(0);
+            renderer->disableVertexAttribute(1);
         }
 
 
@@ -213,15 +232,21 @@ namespace MyApp
             meshTexture.height = 256;
             uniformBlock.meshTexture = &meshTexture;
 
-            renderer->setVertexBufferElement(0, kMeshVertices, sizeof(Vector3));
-            renderer->setVertexBufferElement(1, kMeshUvs, sizeof(Vector2));
-            renderer->setVertexBufferElementsCount(2);
+            renderer->setPrimitiveTopologyType(PrimitiveTopologyType::TriangleList);
             renderer->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
+            renderer->enableVertexAttribute(0);
+            renderer->setVertexBuffer(0, kMeshVertices);
+            renderer->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
+            renderer->enableVertexAttribute(1);
+            renderer->setVertexBuffer(1, kMeshUvs);
+            renderer->setVertexAttribute(1, Semantics::TexCoord, 2, ComponentType::Float, sizeof(Vector2));
             renderer->setVertexShaderProgram(MeshVertexShaderMain);
             renderer->setVaryingVariableCount(1);
-            renderer->setPixelShaderProgram(MeshPixelShaderMain);
-            renderer->setPrimitiveTopologyType(PrimitiveTopologyType::TriangleList);
+            renderer->setFragmentShaderProgram(MeshPixelShaderMain);
             renderer->drawIndexed();
+
+            renderer->disableVertexAttribute(0);
+            renderer->disableVertexAttribute(1);
         }
     }
 
@@ -376,21 +401,17 @@ namespace MyApp
             {
                 Renderer renderer;
 
+                renderer.setFrameSize(bmWidth, bmHeight);
+                renderer.setFrameBufferRenderColorBuffer(dibSection.dsBm.bmBits, dibSection.dsBm.bmWidthBytes);
+                renderer.setFrameBufferRenderDepthBuffer(g_depthBuffer, sizeof(float)* bmWidth);
+
                 renderer.setViewport(0, 0, bmWidth, bmHeight);
 
-                ColorFrameBuffer colorFrameBuffer = {};
-                colorFrameBuffer.addr = dibSection.dsBm.bmBits;
-                colorFrameBuffer.width = bmWidth;
-                colorFrameBuffer.height = bmHeight;
-                colorFrameBuffer.widthBytes = dibSection.dsBm.bmWidthBytes;
+                renderer.setOnOutputPixel([&]()
+                    {
+                        BitBlt(ps.hdc, 0, 0, bmWidth, bmHeight, hMemDC, 0, 0, SRCCOPY);
+                    });
 
-                DepthFrameBuffer depthFrameBuffer = {};
-                depthFrameBuffer.addr = g_depthBuffer;
-                depthFrameBuffer.width = bmWidth;
-                depthFrameBuffer.height = bmHeight;
-                depthFrameBuffer.widthBytes = sizeof(float) * bmWidth;
-
-                renderer.setFrameBuffer(&colorFrameBuffer, &depthFrameBuffer);
 
                 renderer.clearFrameBuffer();
 

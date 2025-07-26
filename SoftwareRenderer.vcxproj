@@ -106,6 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <OpenMPSupport>
       </OpenMPSupport>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,20 +132,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FragmentShaderStage.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
+    <ClCompile Include="InputAssemblyStage.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MeshData.cpp" />
+    <ClCompile Include="RasterizeStage.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="VertexShaderStage.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="FragmentShaderStage.h" />
+    <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="InputAssemblyStage.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="PostIncludeWindows.h" />
     <ClInclude Include="PreIncludeWindows.h" />
+    <ClInclude Include="RasterizeStage.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vector.h" />
+    <ClInclude Include="VertexShaderStage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
