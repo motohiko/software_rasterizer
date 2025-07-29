@@ -29,7 +29,7 @@
 // 
 // 
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     const Matrix4x4 Matrix4x4::kIdentity(
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -206,14 +206,14 @@ namespace MyApp
         //
         // v.x = [ left,     right ]
         // v.y = [ bottom,   top   ]
-        // v.z = [-nearVal, -farVal]  ※カメラ空間座標系では視点より奥は -z になる
+        // v.z = [-nearVal, -farVal]  ※カメラ空間座標系は右手系（奥が -z） 
         // v.w = 1
         //
         // のとき
         //
         // v'.x = [-nearVal, nearVal]
         // v'.y = [-nearVal, nearVal]
-        // v'.z = [-nearVal, farVal ]
+        // v'.z = [-nearVal, farVal ]  ※クリップ空間座標系は左手手系（奥が +z） 
         // v'.w = -v.z
         // 
         // また
@@ -222,10 +222,7 @@ namespace MyApp
         //
         // のとき
         //
-        // v'xyz = (0, 0, 0)
-        //
-        //
-        // v' はクリップ座標系となり、左手系に変わる
+        // v'.xyz = (0, 0, 0)　※視点(原点)は固定
         //
 
         if (false)
@@ -246,36 +243,38 @@ namespace MyApp
         }
         else
         {
+            // 視体積のZ軸が視体積の中心を通るように補正
+            // （ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を移動）
+            float m02 = (right + left) / (right - left);
+            float m12 = (top + bottom) / (top - bottom);
+            Matrix4x4 shearXY = createShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
+
+            // ニアクリップ面の上下左右の範囲を [-1, 1] から [-near, near] にマップ
+            float m00 = (2.0f / (right - left)) * nearVal;
+            float m11 = (2.0f / (top - bottom)) * nearVal;
+            Matrix4x4 scaleXY = createScale(m00, m11, 1.0f);
+
+            Matrix4x4 frustumXY = scaleXY * shearXY;
+
             // 視体積の奥行範囲を [-nearVal, -farVal] から [-nearVal, farVal] にマップ
             // z' = m22 * z + m23
-            float m22 = -(farVal + nearVal) / (farVal - nearVal);// C
-            float m23 = -(2.0f * farVal * nearVal) / (farVal - nearVal);// D
+            float m22 = -(farVal + nearVal) / (farVal - nearVal);
+            float m23 = -(2.0f * farVal * nearVal) / (farVal - nearVal);
 
             // 変換後のベクトルの w' に変換前のベクトルの -z を入れる 
             // w' = m32 * z + m33
             float m32 = -1.0f;
             float m33 = 0.0f;
 
-            Matrix4x4 frustumZ(
+            // w' の式に z (z'ではない)が含まれているので、zw変換は１行列に収める
+            Matrix4x4 frustumZW(
                 1.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 1.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, m22,  m23,
                 0.0f, 0.0f, m32,  m33
             );
 
-            // ニアクリップ面が左右非対称なら解消
-            // ・視点（原点）はそのままにニアクリップ面を移動
-            // ・視体積の中心軸＝Z軸になる
-            float zx = (right + left) / (right - left);// A
-            float zy = (top + bottom) / (top - bottom);// B
-            Matrix4x4 shearXY = createShear(0.0f, 0.0f, 0.0f, 0.0f, zx, zy);
-
-            // ニアクリップ面の寸法を [-near, near] にマップ
-            float sx = (2.0f / (right - left)) * nearVal;
-            float sy = (2.0f / (top - bottom)) * nearVal;
-            Matrix4x4 scaleXY = createScale(sx, sy, 1.0f);
-
-            return frustumZ * (shearXY * scaleXY);
+            return frustumZW * frustumXY;
         }
     }
 

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cmath>// floor
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     struct Texture
     {

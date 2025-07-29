@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     void RasterizeStage::setVaryingVariableCount(int count)
     {

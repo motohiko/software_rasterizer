@@ -1,7 +1,7 @@
 #include "FragmentShaderStage.h"
 #include <cassert>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
 
     void FragmentShaderStage::setUniformBlock(const void* uniformBlock)

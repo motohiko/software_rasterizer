@@ -4,7 +4,7 @@
 #include <memory>// memset
 #include <algorithm>// fill
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     void FrameBuffer::setFrameSize(int width, int height)
     {

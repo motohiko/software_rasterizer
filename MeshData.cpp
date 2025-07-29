@@ -2,43 +2,46 @@
 
 #include "Matrix.h"
 
-namespace MyApp
+namespace SoftwareRenderer
 {
-    // TODO float, uint8_t の配列に変える
-    // TODO GetMeshData 経由に変える
-
-    const uint16_t kMeshTriangles[] =
+    namespace Test
     {
+        // TODO float, uint8_t の配列に変える
+        // TODO GetMeshData 経由に変える
+
+        const uint16_t kMeshTriangles[] =
+        {
 #include "LowPolyUnityChan\triangles.txt"
-    };
+        };
 
-    const int kMeshTrianglesLength = sizeof(kMeshTriangles) / sizeof(kMeshTriangles[0]);
+        const int kMeshTrianglesLength = sizeof(kMeshTriangles) / sizeof(kMeshTriangles[0]);
 
-    const Vector3 kMeshVertices[] =
-    {
+        const Vector3 kMeshVertices[] =
+        {
 #include "LowPolyUnityChan\vertices.txt"
-    };
+        };
 
-    const int kMeshVerticesLength = sizeof(kMeshVertices) / sizeof(kMeshVertices[0]);
+        const int kMeshVerticesLength = sizeof(kMeshVertices) / sizeof(kMeshVertices[0]);
 
-    const Vector3 kMeshNormals[] =
-    {
+        const Vector3 kMeshNormals[] =
+        {
 #include "LowPolyUnityChan\normals.txt"
-    };
+        };
 
-    const int kMeshNormalsLength = sizeof(kMeshNormals) / sizeof(kMeshNormals[0]);
+        const int kMeshNormalsLength = sizeof(kMeshNormals) / sizeof(kMeshNormals[0]);
 
-    const Vector2 kMeshUvs[] =
-    {
+        const Vector2 kMeshUvs[] =
+        {
 #include "LowPolyUnityChan\uvs.txt"
-    };
+        };
 
-    const int kMeshUvsLength = sizeof(kMeshUvs) / sizeof(kMeshUvs[0]);
+        const int kMeshUvsLength = sizeof(kMeshUvs) / sizeof(kMeshUvs[0]);
 
-    const Texel kTexture[] =
-    {
+        const Texel kTexture[] =
+        {
 #include "LowPolyUnityChan\texture.txt"
-    };
+        };
 
-    const int kTextureLength = sizeof(kTexture) / sizeof(kTexture[0]);
+        const int kTextureLength = sizeof(kTexture) / sizeof(kTexture[0]);
+    }
 };

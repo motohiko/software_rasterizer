@@ -4,7 +4,7 @@
 #include <cassert>
 #include <stdexcept>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     //
     // Column vector

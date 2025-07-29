@@ -3,7 +3,7 @@
 #include "Vector.h"
 #include <cstdint>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     const int kMaxVertexAttributes = 16;// GL_MAX_VERTEX_ATTRIBS
     const int kMaxVaryingVectors = 15;// GL_MAX_VARYING_VECTORS

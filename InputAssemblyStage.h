@@ -4,7 +4,7 @@
 #include "Vector.h"
 #include <cstdint>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     enum PrimitiveTopologyType
     {

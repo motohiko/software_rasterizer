@@ -6,9 +6,9 @@
 #include <cfloat>
 #include <cassert>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
-    void Renderer::drawIndexed()
+    void RenderingContext::drawIndexed()
     {
         _inputAssemblyStage.resetReadCount();
 
@@ -29,7 +29,7 @@ namespace MyApp
             }
             primitive.vertexNum = assembledPrimitive.vertexNum;
 
-            // 視錐台でプリミティブをクリップして、クリップした結果が多角形なら複数の３角形に分割する
+            // プリミティブを [-1,1] でクリップして、クリップした結果が多角形なら複数の３角形に分割する
             Vertex clippedPrimitiveVertices[kTriangleClippingPointMaxNum];
             int clippedPrimitiveVertiexCount = 0;
             Primitive clippedPrimitives[(kTriangleClippingPointMaxNum - 2)];
@@ -80,6 +80,7 @@ namespace MyApp
 
                     // glFrontFace(GL_CCW) // OpenGL default
                     // glEnable(GL_CULL_FACE)
+
                     float n = (p1 - p0).cross(p2 - p0);// CCW
                     if (n <= 0.0f)// GL_CULL_FACE
                     {
@@ -119,7 +120,7 @@ namespace MyApp
         }
     }
 
-    void Renderer::rasterizeLine(const RasterVertex* p0, const RasterVertex* p1)
+    void RenderingContext::rasterizeLine(const RasterVertex* p0, const RasterVertex* p1)
     {
         BresenhamLine bresenhamLine;
 
@@ -163,9 +164,9 @@ namespace MyApp
         } while (bresenhamLine.next());
     }
 
-    void Renderer::rasterizeTriangle(const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2)
+    void RenderingContext::rasterizeTriangle(const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2)
     {
-        // 全頂点が同一座標（縮退ポリゴン）はラスタライズ出来ない
+        // 全ての頂点が同一座標（縮退ポリゴン）はラスタライズ出来ない
         float area2 = RasterizeStage::edgeFunction(p0->wrcPosition, p1->wrcPosition, p2->wrcPosition);
         if (0.0f == area2)
         {

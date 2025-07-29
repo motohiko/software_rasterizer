@@ -6,7 +6,7 @@
 #include <cassert>
 #include <stdexcept>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
 
     // m = | m00 m01 |
@@ -235,6 +235,7 @@ namespace MyApp
         Matrix4x4 operator*(const Matrix4x4& r) const
         {
             return  Matrix4x4(
+
                 // m00, m01, m02, m03
                 m00 * r.m00 + m01 * r.m10 + m02 * r.m20 + m03 * r.m30,
                 m00 * r.m01 + m01 * r.m11 + m02 * r.m21 + m03 * r.m31,
@@ -429,6 +430,9 @@ namespace MyApp
 
         // 逆行列
         Matrix4x4 inverse() const;
+
+
+        // 以下、3D 用
 
         static Matrix4x4 createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon);
 

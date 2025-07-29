@@ -2,7 +2,7 @@
 #include "Algorithm.h"
 #include <cassert>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     void InputAssemblyStage::setPrimitiveTopologyType(PrimitiveTopologyType primitiveTopologyType)
     {

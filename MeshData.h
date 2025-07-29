@@ -4,16 +4,19 @@
 #include "Texture.h"
 #include <cstdint>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
-    extern const uint16_t kMeshTriangles[];
-    extern const int kMeshTrianglesLength;
-    extern const Vector3 kMeshVertices[];
-    extern const int kMeshVerticesLength;
-    extern const Vector3 kMeshNormals[];
-    extern const int kMeshNormalsLength;
-    extern const Vector2 kMeshUvs[];
-    extern const int kMeshUvsLength;
-    extern const Texel kTexture[];
-    extern const int kTextureLength;
+    namespace Test
+    {
+        extern const uint16_t kMeshTriangles[];
+        extern const int kMeshTrianglesLength;
+        extern const Vector3 kMeshVertices[];
+        extern const int kMeshVerticesLength;
+        extern const Vector3 kMeshNormals[];
+        extern const int kMeshNormalsLength;
+        extern const Vector2 kMeshUvs[];
+        extern const int kMeshUvsLength;
+        extern const Texel kTexture[];
+        extern const int kTextureLength;
+    }
 }

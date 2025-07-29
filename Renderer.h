@@ -11,9 +11,9 @@
 
 #include <functional>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
-    class Renderer
+    class RenderingContext
     {
 
     private:

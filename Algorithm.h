@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <algorithm>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     // std::lerp : c++20 
     inline float lerp(float a, float b, float t)

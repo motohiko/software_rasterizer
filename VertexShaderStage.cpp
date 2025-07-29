@@ -1,7 +1,7 @@
 #include "VertexShaderStage.h"
 #include <cassert>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     void VertexShaderStage::setUniformBlock(const void* uniformBlock)
     {

@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "Vector.h"
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     const int kTriangleClippingPointMaxNum = 7;
 

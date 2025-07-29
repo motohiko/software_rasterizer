@@ -3,7 +3,7 @@
 #include "Vector.h"
 #include <cstdint>
 
-namespace MyApp
+namespace SoftwareRenderer
 {
     class FrameBuffer
     {
