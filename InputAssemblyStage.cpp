@@ -60,7 +60,6 @@ namespace SoftwareRenderer
     {
         _readVertexCount = 0;
 
-        // TODO
         _vertexAttributeNum = 0;
         for (int i = sizeof(_vertexAttributeEnableBits) - 1; 0 <= i; i--)
         {
@@ -122,7 +121,7 @@ namespace SoftwareRenderer
             break;
         }
 
-        // 指定個数のコンポーネントを読み取る（上書く）
+        // 指定個数のコンポーネントを読み取る
         assert(vertexAttributeLayout->buffer);
         uintptr_t ptr = ((uintptr_t)vertexAttributeLayout->buffer) + (vertexAttributeLayout->stride * vertexIndex);
         switch (vertexAttributeLayout->type)

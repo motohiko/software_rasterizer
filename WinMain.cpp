@@ -34,16 +34,16 @@ namespace SoftwareRenderer
 
         struct Camera
         {
-            float fovY = 90.0f * (3.14159265359f / 180.0f); // 上下の視野角
-            float nearZ = 0.1f; // ニアクリップ面までの距離
-            float farZ = 15.0f; // ファークリップ面までの距離
+            float fovY = 60.0f * (3.14159265359f / 180.0f); // 上下の視野角
+            float nearZ = 0.3f; // ニアクリップ面までの距離
+            float farZ = 1000.0f; // ファークリップ面までの距離
 
             float focusPositionX = 0.0f;// 注視点
             float focusPositionY = 0.5f;
             float focusPositionZ = 0.0f;
             float angleX = 0.0f; // X軸回転角度
             float angleY = 0.0f; // Y軸回転角度
-            float zoom = 2.0f;
+            float zoom = 3.0f;
         };
 
         struct UniformBlock
@@ -75,6 +75,7 @@ namespace SoftwareRenderer
 
             *(output->position) = projectionMatrix * ((viewMatrix * modelMatrix) * position);
             output->varyingVariables[0] = color;
+            output->varyingVariableNum = 1;
         }
 
         void LinePixelShaderMain(const FragmentShaderInput* input, FragmentShaderOutput* output)
@@ -92,15 +93,19 @@ namespace SoftwareRenderer
             const Matrix4x4& modelMatrix = uniformBlock->modelMatrix;
             const Vector4& position = input->attributes[0];
             const Vector4& uv = input->attributes[1];
+            const Vector4& normal = input->attributes[2];
 
             *(output->position) = projectionMatrix * ((viewMatrix * modelMatrix) * position);
             output->varyingVariables[0] = uv;
+            output->varyingVariables[1] = modelMatrix * normal;
+            output->varyingVariableNum = 2;
         }
 
         void MeshPixelShaderMain(const FragmentShaderInput* input, FragmentShaderOutput* output)
         {
             const UniformBlock* uniformBlock = (const UniformBlock*)input->uniformBlock;
             const Vector2 uv = input->varyingVariables[0].getXY();
+            const Vector4& normal = input->varyingVariables[1];
 
             output->fragColor = sampleTexture(uniformBlock->meshTexture, uv);
         }
@@ -128,41 +133,7 @@ namespace SoftwareRenderer
                 uniformBlock.viewMatrix = Matrix4x4::lockAt(eye, center, up);
             }
 
-            // 座標軸の描画
-            {
-                const Vector3 xAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 1.0f,  0.0f,  0.0f } };
-                const Vector4 xAxisColors[2] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } };
-                const Vector3 yAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  1.0f,  0.0f } };
-                const Vector4 yAxisColors[2] = { { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } };
-                const Vector3 zAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  0.0f,  1.0f } };
-                const Vector4 zAxisColors[2] = { { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
-
-                g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::LineList);
-                g_renderingContext->enableVertexAttribute(0);
-                g_renderingContext->setVertexBuffer(0, xAxisPositions);
-                g_renderingContext->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
-                g_renderingContext->enableVertexAttribute(1);
-                g_renderingContext->setVertexBuffer(1, xAxisColors);
-                g_renderingContext->setVertexAttribute(1, Semantics::Color, 4, ComponentType::Float, sizeof(Vector4));
-                g_renderingContext->setIndexBuffer(kDefaultIndices, 2);
-                g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);
-                g_renderingContext->setVaryingVariableCount(1);
-                g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
-                g_renderingContext->drawIndexed();
-
-                g_renderingContext->setVertexBuffer(0, yAxisPositions);
-                g_renderingContext->setVertexBuffer(1, yAxisColors);
-                g_renderingContext->drawIndexed();
-
-                g_renderingContext->setVertexBuffer(0, zAxisPositions);
-                g_renderingContext->setVertexBuffer(1, zAxisColors);
-                g_renderingContext->drawIndexed();
-
-                g_renderingContext->disableVertexAttribute(0);
-                g_renderingContext->disableVertexAttribute(1);
-            }
-
-            // グリッドの描画
+            // グリッドを描画
             {
                 const int gridSize = 9;
                 float harfGridSize = gridSize / 2.0f;
@@ -198,7 +169,41 @@ namespace SoftwareRenderer
                 g_renderingContext->disableVertexAttribute(1);
             }
 
-            // 色付き三角形の描画（頂点色は赤緑青の順、反時計周り）
+            // 座標軸を描画
+            {
+                const Vector3 xAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 1.0f,  0.0f,  0.0f } };
+                const Vector4 xAxisColors[2] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } };
+                const Vector3 yAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  1.0f,  0.0f } };
+                const Vector4 yAxisColors[2] = { { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } };
+                const Vector3 zAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  0.0f,  1.0f } };
+                const Vector4 zAxisColors[2] = { { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
+
+                g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::LineList);
+                g_renderingContext->enableVertexAttribute(0);
+                g_renderingContext->setVertexBuffer(0, xAxisPositions);
+                g_renderingContext->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
+                g_renderingContext->enableVertexAttribute(1);
+                g_renderingContext->setVertexBuffer(1, xAxisColors);
+                g_renderingContext->setVertexAttribute(1, Semantics::Color, 4, ComponentType::Float, sizeof(Vector4));
+                g_renderingContext->setIndexBuffer(kDefaultIndices, 2);
+                g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);
+                g_renderingContext->setVaryingVariableCount(1);
+                g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
+                g_renderingContext->drawIndexed();
+
+                g_renderingContext->setVertexBuffer(0, yAxisPositions);
+                g_renderingContext->setVertexBuffer(1, yAxisColors);
+                g_renderingContext->drawIndexed();
+
+                g_renderingContext->setVertexBuffer(0, zAxisPositions);
+                g_renderingContext->setVertexBuffer(1, zAxisColors);
+                g_renderingContext->drawIndexed();
+
+                g_renderingContext->disableVertexAttribute(0);
+                g_renderingContext->disableVertexAttribute(1);
+            }
+
+            // 色付き三角形を描画（頂点色は赤緑青の順、反時計周り）
             {
                 const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
                 const Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
@@ -220,7 +225,7 @@ namespace SoftwareRenderer
                 g_renderingContext->disableVertexAttribute(1);
             }
 
-            // モデル（１メッシュ）の描画
+            // モデル（１メッシュ）を描画
             {
                 uniformBlock.modelMatrix = Matrix4x4::createRotationX(90.0f * 3.14f / 180.0f);
 
@@ -234,17 +239,21 @@ namespace SoftwareRenderer
                 g_renderingContext->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
                 g_renderingContext->enableVertexAttribute(0);
                 g_renderingContext->setVertexBuffer(0, kMeshVertices);
-                g_renderingContext->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(Vector3));
+                g_renderingContext->setVertexAttribute(0, Semantics::Position, 3, ComponentType::Float, sizeof(float) * 3);
                 g_renderingContext->enableVertexAttribute(1);
                 g_renderingContext->setVertexBuffer(1, kMeshUvs);
-                g_renderingContext->setVertexAttribute(1, Semantics::TexCoord, 2, ComponentType::Float, sizeof(Vector2));
+                g_renderingContext->setVertexAttribute(1, Semantics::TexCoord, 2, ComponentType::Float, sizeof(float) * 2);
+                g_renderingContext->enableVertexAttribute(2);
+                g_renderingContext->setVertexBuffer(2, kMeshNormals);
+                g_renderingContext->setVertexAttribute(2, Semantics::Normal, 3, ComponentType::Float, sizeof(float) * 3);
                 g_renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
-                g_renderingContext->setVaryingVariableCount(1);
+                g_renderingContext->setVaryingVariableCount(2);
                 g_renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
                 g_renderingContext->drawIndexed();
 
                 g_renderingContext->disableVertexAttribute(0);
                 g_renderingContext->disableVertexAttribute(1);
+                g_renderingContext->disableVertexAttribute(2);
 
                 uniformBlock.modelMatrix = Matrix4x4::kIdentity;
                 uniformBlock.meshTexture = nullptr;
@@ -273,7 +282,7 @@ namespace SoftwareRenderer
             case WM_MOUSEMOVE:
                 if (g_isDragging)
                 {
-                    POINT currentMousePos = {};
+                    POINT currentMousePos;
                     currentMousePos.x = LOWORD(lParam);
                     currentMousePos.y = HIWORD(lParam);
 

@@ -15,6 +15,7 @@ namespace SoftwareRenderer
     {
         Vector4* position;// gl_Position, clip space coordinates
         Vector4* varyingVariables;
+        int varyingVariableNum;
     };
 
     typedef void (*VertexShaderMainFunc)(const VertexShaderInput* input, VertexShaderOutput* output);

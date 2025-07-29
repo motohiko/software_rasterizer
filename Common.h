@@ -23,6 +23,7 @@ namespace SoftwareRenderer
     {
         Vector4 clipSpacePosition;// clip space coordinates
         Vector4 varyingVariables[kMaxVaryingVectors];
+        int varyingVariableNum;
     };
 
     struct Primitive

@@ -1,12 +1,9 @@
 ﻿#include "MeshData.h"
 
-#include "Matrix.h"
-
 namespace SoftwareRenderer
 {
     namespace Test
     {
-        // TODO float, uint8_t の配列に変える
         // TODO GetMeshData 経由に変える
 
         const uint16_t kMeshTriangles[] =
@@ -16,28 +13,28 @@ namespace SoftwareRenderer
 
         const int kMeshTrianglesLength = sizeof(kMeshTriangles) / sizeof(kMeshTriangles[0]);
 
-        const Vector3 kMeshVertices[] =
+        const float kMeshVertices[] =
         {
 #include "LowPolyUnityChan\vertices.txt"
         };
 
         const int kMeshVerticesLength = sizeof(kMeshVertices) / sizeof(kMeshVertices[0]);
 
-        const Vector3 kMeshNormals[] =
+        const float kMeshNormals[] =
         {
 #include "LowPolyUnityChan\normals.txt"
         };
 
         const int kMeshNormalsLength = sizeof(kMeshNormals) / sizeof(kMeshNormals[0]);
 
-        const Vector2 kMeshUvs[] =
+        const float kMeshUvs[] =
         {
 #include "LowPolyUnityChan\uvs.txt"
         };
 
         const int kMeshUvsLength = sizeof(kMeshUvs) / sizeof(kMeshUvs[0]);
 
-        const Texel kTexture[] =
+        const uint8_t kTexture[] =
         {
 #include "LowPolyUnityChan\texture.txt"
         };

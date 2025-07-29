@@ -16,6 +16,7 @@ namespace SoftwareRenderer
     enum Semantics
     {
         Position,
+        Normal,
         TexCoord,
         Color,
     };
