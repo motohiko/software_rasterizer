@@ -1,10 +1,37 @@
+
+// ウィンドウ相対座標（ビューポート変換後）
+//
+//       +y                
+//         |
+//         |
+//         +---- +x
+//   (0, 0)
+//
+//
+// Windows GUI の座標系
+//
+//   (0, 0)
+//         +---- +x
+//         |
+//         |
+//       +y                
+//
+//
+// DIBのメモリを直接参照したとき座標系
+//
+//       +y                
+//         |
+//         |
+//         +---- +x
+//   (0, 0)
+//
+
 #include "FrameBuffer.h"
 #include "Algorithm.h"
 #include <cassert>
-#include <memory>// memset
 #include <algorithm>// fill
 
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
     void FrameBuffer::setFrameSize(int width, int height)
     {
@@ -12,80 +39,78 @@ namespace SoftwareRenderer
         _freameHeight = height;
     }
 
-    void FrameBuffer::setRenderColorBuffer(void* addr, size_t widthBytes)
+    void FrameBuffer::setColorBuffer(void* addr, size_t widthBytes)
     {
-        assert(_freameWidth <= widthBytes);
-        colorFrameBuffer.addr = addr;
-        colorFrameBuffer.widthBytes = widthBytes;
+        _colorBuffer = addr;
+        _colorBufferWidthBytes = widthBytes;
     }
 
-    void FrameBuffer::setRenderDepthBuffer(void* addr, size_t widthBytes)
+    void FrameBuffer::setDepthBuffer(void* addr, size_t widthBytes)
     {
-        assert(_freameWidth <= widthBytes);
-        depthFrameBuffer.addr = addr;
-        depthFrameBuffer.widthBytes = widthBytes;
+        _depthBuffer = addr;
+        _depthBufferWidthBytes = widthBytes;
     }
 
-    void FrameBuffer::clearRenderBuffer()
+    void FrameBuffer::setClearColor(float r, float g, float b, float a)
+    {
+        _clearColor = (denormalizeByte(a) << 24) | (denormalizeByte(r) << 16) | (denormalizeByte(g) << 8) | denormalizeByte(b);
+    }
+
+    void FrameBuffer::setClearDepth(float depth)
+    {
+        _clearDepth = depth;
+    }
+
+    void FrameBuffer::clearBuffer()
 	{
-        uint32_t clearColor = 0;// glClearColor(r, g, b, a) (Default all 0)
-        float clearDepth = 1.0f; // glClearDepth(depth) (Default 1)
+        assert(0 <= _freameWidth);
+        assert(0 <= _freameHeight);
+        assert(nullptr != _colorBuffer);
+        assert(_freameWidth <= _colorBufferWidthBytes);
+        assert(nullptr != _depthBuffer);
+        assert(_freameWidth <= _depthBufferWidthBytes);
 
-        // glClear()
-        if (0 == clearColor)
-        {
-            size_t size = colorFrameBuffer.widthBytes * _freameHeight;
-            std::memset(colorFrameBuffer.addr, 0, size);
-        }
-        else
-        {
-            // TODO
-            uint32_t* firstColor = (uint32_t*)colorFrameBuffer.addr;
-            uint32_t* lastColor = ((uint32_t*)colorFrameBuffer.addr) + (_freameHeight * _freameWidth);
-            std::fill(firstColor, lastColor, clearColor);
-        }
+        uint32_t* firstColor = (uint32_t*)_colorBuffer;
+        uint32_t* lastColor = ((uint32_t*)_colorBuffer) + (_freameHeight * _freameWidth);
+        std::fill(firstColor, lastColor, _clearColor);
 
-
-        {
-            float* firstDepth = (float*)depthFrameBuffer.addr;
-            float* lastDepth = ((float*)depthFrameBuffer.addr) + (_freameHeight * _freameWidth);
-            std::fill(firstDepth, lastDepth, clearDepth);
-        }
+        float* firstDepth = (float*)_depthBuffer;
+        float* lastDepth = ((float*)_depthBuffer) + (_freameHeight * _freameWidth);
+        std::fill(firstDepth, lastDepth, _clearDepth);
     }
 
     float FrameBuffer::readDepth(int x, int y) const
     {
-        size_t depthOffset = (depthFrameBuffer.widthBytes * y) + (sizeof(float) * x);
-        assert(0 <= depthOffset && depthOffset < (depthFrameBuffer.widthBytes * _freameHeight));
-        if (0 <= depthOffset && depthOffset < (depthFrameBuffer.widthBytes * _freameHeight))
+        // x, y はウィンドウ相対座標
+
+        if (0 <= x && x < _freameWidth || 0 <= y || y < _freameHeight)
         {
-            const float* depthSrc = (float*)(((uintptr_t)(depthFrameBuffer.addr)) + depthOffset);
+            size_t depthOffset = (_depthBufferWidthBytes * y) + (sizeof(float) * x);
+            const float* depthSrc = (float*)(((uintptr_t)_depthBuffer) + depthOffset);
             return *depthSrc;
         }
-
-        float clearDepth = 1.0f; // glClearDepth(depth) (Default 1)
-        return clearDepth;
-    }
-
-    void FrameBuffer::writeColorAndDepth(int x, int y, const Vector4& color, float depth)
-    {
-        // x, y はウィンドウ座標系、DIBも左下が(0,0)なので上下反転は不要
-        size_t colorOffset = (colorFrameBuffer.widthBytes * y) + (sizeof(uint32_t) * x);
-        assert(0 <= colorOffset && colorOffset < (colorFrameBuffer.widthBytes * _freameHeight));
-        if (0 <= colorOffset && colorOffset < (colorFrameBuffer.widthBytes * _freameHeight))
+        else
         {
-            uint32_t* colorDst = (uint32_t*)(((uintptr_t)(colorFrameBuffer.addr)) + colorOffset);
+            return _clearDepth;
+        }
+    }
+    
+    void FrameBuffer::writePixel(int x, int y, const Vector4& color, float depth)
+    {
+        // x, y はウィンドウ相対座標
+        
+        if (0 <= x && x < _freameWidth || 0 <= y || y < _freameHeight)
+        {
+            // DIBも左下が(0,0)なので上下反転は不要
+            size_t colorOffset = (_colorBufferWidthBytes * y) + (sizeof(uint32_t) * x);
+            uint32_t* colorDst = (uint32_t*)(((uintptr_t)_colorBuffer) + colorOffset);
             uint32_t r = denormalizeByte(color.x);
             uint32_t g = denormalizeByte(color.y);
             uint32_t b = denormalizeByte(color.z);
             *colorDst = (r << 16) | (g << 8) | (b);
-        }
 
-        size_t depthOffset = (depthFrameBuffer.widthBytes * y) + (sizeof(float) * x);
-        assert(0 <= depthOffset && depthOffset < (depthFrameBuffer.widthBytes * _freameHeight));
-        if (0 <= depthOffset && depthOffset < (depthFrameBuffer.widthBytes * _freameHeight))
-        {
-            float* depthDst = (float*)(((uintptr_t)(depthFrameBuffer.addr)) + (depthFrameBuffer.widthBytes * y) + (sizeof(float) * x));
+            size_t depthOffset = (_depthBufferWidthBytes * y) + (sizeof(float) * x);
+            float* depthDst = (float*)(((uintptr_t)_depthBuffer) + (_depthBufferWidthBytes * y) + (sizeof(float) * x));
             *depthDst = depth;
         }
     }

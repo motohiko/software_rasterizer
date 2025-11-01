@@ -1,6 +1,6 @@
 ﻿#include "MeshData.h"
 
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
     namespace Test
     {

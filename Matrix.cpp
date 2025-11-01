@@ -1,42 +1,361 @@
 ﻿#include "Matrix.h"
+#include <cmath>
 
-// note.
-// 
-// 右手座標系の覚え方
-// 
-//      人差し指
-//      +y 
-//        |
-//        |
-//        +---- +x 親指
-//       /
-//      /
-//   +z
-//   中指
-// 
-//   座標軸は xyz = rgb で描画される
-// 
-// 
-// 外積と直交基底の関係
-// 
-//   y × z = x   
-//   z × x = y   
-//   x × y = z   
-// 
-//   (0, 1, 0) x (0, 0, 1) = (1, 0, 0)
-//   (0, 0, 1) x (1, 0, 0) = (0, 1, 0)
-//   (1, 0, 0) x (0, 1, 0) = (0, 0, 1)
-// 
-// 
-
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
+    const Matrix2x2 Matrix2x2::kIdentity(
+        1.0f, 0.0f,
+        0.0f, 1.0f
+    );
+
+    Matrix2x2::Matrix2x2(
+        float m00, float m01,
+        float m10, float m11
+    ) :
+        m00(m00), m01(m01),
+        m10(m10), m11(m11)
+    {
+    }
+
+    // 行列式
+    float Matrix2x2::getDeterminant() const
+    {
+        float c00 = m11;
+        float c01 = m10 * -1.0f;
+        return m00 * c00 + m01 * c01;
+    }
+
+    const Matrix3x3 Matrix3x3::kIdentity(
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    );
+
+    Matrix3x3::Matrix3x3(
+        float m00, float m01, float m02,
+        float m10, float m11, float m12,
+        float m20, float m21, float m22
+    ) :
+        m00(m00), m01(m01), m02(m02),
+        m10(m10), m11(m11), m12(m12),
+        m20(m20), m21(m21), m22(m22)
+    {
+    }
+
+    // 特定の行および列を取り除いた小行列
+    Matrix2x2 Matrix3x3::removeRowAndColumn(int rowIndex, int columnIndex) const
+    {
+        switch (rowIndex)
+        {
+        case 0:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix2x2(
+                    m11, m12,
+                    m21, m22
+                );
+            case 1:
+                return Matrix2x2(
+                    m10, m12,
+                    m20, m22
+                );
+            case 2:
+                return Matrix2x2(
+                    m10, m11,
+                    m20, m21
+                );
+            }
+            break;
+        case 1:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix2x2(
+                    m01, m02,
+                    m21, m22
+                );
+            case 1:
+                return Matrix2x2(
+                    m00, m02,
+                    m20, m22
+                );
+            case 2:
+                return Matrix2x2(
+                    m00, m01,
+                    m20, m21
+                );
+            }
+            break;
+        case 2:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix2x2(
+                    m01, m02,
+                    m11, m12
+                );
+            case 1:
+                return Matrix2x2(
+                    m00, m02,
+                    m10, m12
+                );
+            case 2:
+                return Matrix2x2(
+                    m00, m01,
+                    m10, m11
+                );
+            }
+            break;
+        }
+
+        return Matrix2x2::kIdentity;
+    }
+
+    // 余因子
+    float Matrix3x3::getCofactor(int row, int column) const
+    {
+        Matrix2x2 subMatrix = removeRowAndColumn(row, column);
+        float det = subMatrix.getDeterminant();
+        return det * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+    }
+
+    // 行列式
+    float Matrix3x3::getDeterminant() const
+    {
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
+        float c02 = getCofactor(0, 2);
+        return m00 * c00 + m01 * c01 + m02 * c02;
+    }
+
     const Matrix4x4 Matrix4x4::kIdentity(
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     );
+
+    Matrix4x4::Matrix4x4(
+        float m00, float m01, float m02, float m03,
+        float m10, float m11, float m12, float m13,
+        float m20, float m21, float m22, float m23,
+        float m30, float m31, float m32, float m33
+    ) :
+        m00(m00), m01(m01), m02(m02), m03(m03),
+        m10(m10), m11(m11), m12(m12), m13(m13),
+        m20(m20), m21(m21), m22(m22), m23(m23),
+        m30(m30), m31(m31), m32(m32), m33(m33)
+    {
+    }
+
+    void Matrix4x4::setRow(int index, const Vector4& row)
+    {
+        switch (index)
+        {
+        case 0: m00 = row.x; m01 = row.y; m02 = row.z; m03 = row.w; break;
+        case 1: m11 = row.x; m11 = row.y; m12 = row.z; m13 = row.w; break;
+        case 2: m20 = row.x; m21 = row.y; m22 = row.z; m23 = row.w; break;
+        case 3: m30 = row.x; m31 = row.y; m32 = row.z; m33 = row.w; break;
+        }
+    }
+
+    Vector4 Matrix4x4::getRow(int index) const
+    {
+        switch (index)
+        {
+        case 0: return Vector4(m00, m01, m02, m03);
+        case 1: return Vector4(m10, m11, m12, m13);
+        case 2: return Vector4(m20, m21, m22, m23);
+        case 3: return Vector4(m30, m31, m32, m33);
+        default: return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+    }
+
+    void Matrix4x4::setColumn(int index, const Vector4& column)
+    {
+        switch (index)
+        {
+        case 0:
+            m00 = column.x;
+            m10 = column.y;
+            m20 = column.z;
+            m30 = column.w;
+            break;
+        case 1:
+            m01 = column.x;
+            m11 = column.y;
+            m21 = column.z;
+            m31 = column.w;
+            break;
+        case 2:
+            m02 = column.x;
+            m12 = column.y;
+            m22 = column.z;
+            m32 = column.w;
+            break;
+        case 3:
+            m03 = column.x;
+            m13 = column.y;
+            m23 = column.z;
+            m33 = column.w;
+            break;
+        }
+    }
+
+    // 転置
+    Matrix4x4 Matrix4x4::transpose() const
+    {
+        return Matrix4x4(
+            m00, m10, m20, m30,
+            m01, m11, m21, m31,
+            m02, m12, m22, m32,
+            m03, m13, m23, m33
+        );
+    }
+
+    // 特定の行および列を取り除いた小行列
+    Matrix3x3 Matrix4x4::removeRowAndColumn(int rowIndex, int columnIndex) const
+    {
+        switch (rowIndex)
+        {
+        case 0:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix3x3(
+                    m11, m12, m13,
+                    m21, m22, m23,
+                    m31, m32, m33
+                );
+            case 1:
+                return Matrix3x3(
+                    m10, m12, m13,
+                    m20, m22, m23,
+                    m30, m32, m33
+                );
+            case 2:
+                return Matrix3x3(
+                    m10, m11, m13,
+                    m20, m21, m23,
+                    m30, m31, m33
+                );
+            case 3:
+                return Matrix3x3(
+                    m10, m11, m12,
+                    m20, m21, m22,
+                    m30, m31, m32
+                );
+            }
+            break;
+        case 1:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix3x3(
+                    m01, m02, m03,
+                    m21, m22, m23,
+                    m31, m32, m33
+                );
+            case 1:
+                return Matrix3x3(
+                    m00, m02, m03,
+                    m20, m22, m23,
+                    m30, m32, m33
+                );
+            case 2:
+                return Matrix3x3(
+                    m00, m01, m03,
+                    m20, m21, m23,
+                    m30, m31, m33
+                );
+            case 3:
+                return Matrix3x3(
+                    m00, m01, m02,
+                    m20, m21, m22,
+                    m30, m31, m32
+                );
+            }
+            break;
+        case 2:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix3x3(
+                    m01, m02, m03,
+                    m11, m12, m13,
+                    m31, m32, m33
+                );
+            case 1:
+                return Matrix3x3(
+                    m00, m02, m03,
+                    m10, m12, m13,
+                    m30, m32, m33
+                );
+            case 2:
+                return Matrix3x3(
+                    m00, m01, m03,
+                    m10, m11, m13,
+                    m30, m31, m33
+                );
+            case 3:
+                return Matrix3x3(
+                    m00, m01, m02,
+                    m10, m11, m12,
+                    m30, m31, m32
+                );
+            }
+            break;
+        case 3:
+            switch (columnIndex)
+            {
+            case 0:
+                return Matrix3x3(
+                    m01, m02, m03,
+                    m11, m12, m13,
+                    m21, m22, m23
+                );
+            case 1:
+                return Matrix3x3(
+                    m00, m02, m03,
+                    m10, m12, m13,
+                    m20, m22, m23
+                );
+            case 2:
+                return Matrix3x3(
+                    m00, m01, m03,
+                    m10, m11, m13,
+                    m20, m21, m23
+                );
+            case 3:
+                return Matrix3x3(
+                    m00, m01, m02,
+                    m10, m11, m12,
+                    m20, m21, m22
+                );
+            }
+            break;
+        }
+        return Matrix3x3::kIdentity;
+    }
+
+    // 余因子
+    float Matrix4x4::getCofactor(int row, int column) const
+    {
+        Matrix3x3 subMatrix = removeRowAndColumn(row, column);
+        float det = subMatrix.getDeterminant();
+        return det * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -;
+    }
+
+    // 行列式
+    float Matrix4x4::getDeterminant() const
+    {
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
+        float c02 = getCofactor(0, 2);
+        float c03 = getCofactor(0, 3);
+        return m00 * c00 + m01 * c01 + m02 * c02 + m03 * c03;
+    }
 
     // 余因子行列
     Matrix4x4 Matrix4x4::getAdjugateMatrix() const
@@ -76,16 +395,14 @@ namespace SoftwareRenderer
         float det = getDeterminant();
         if (det == 0.0f)
         {
-            throw std::domain_error("Matrix is singular and cannot be inverted.");
+            return Matrix4x4::kIdentity;
         }
 
-        float invDet = (1.0f / det);
-
         return Matrix4x4(
-            a.m00 * invDet, a.m01 * invDet, a.m02 * invDet, a.m03 * invDet,
-            a.m10 * invDet, a.m11 * invDet, a.m12 * invDet, a.m13 * invDet,
-            a.m20 * invDet, a.m21 * invDet, a.m22 * invDet, a.m23 * invDet,
-            a.m30 * invDet, a.m31 * invDet, a.m32 * invDet, a.m33 * invDet
+            a.m00 / det, a.m01 / det, a.m02 / det, a.m03 / det,
+            a.m10 / det, a.m11 / det, a.m12 / det, a.m13 / det,
+            a.m20 / det, a.m21 / det, a.m22 / det, a.m23 / det,
+            a.m30 / det, a.m31 / det, a.m32 / det, a.m33 / det
         );
     }
 
@@ -145,159 +462,43 @@ namespace SoftwareRenderer
         );
     }
 
-    Matrix4x4 Matrix4x4::lockAt(const Vector3& eye, const Vector3& center, const Vector3& up)
+    Matrix4x4 Matrix4x4::operator*(const Matrix4x4& r) const
     {
-        if (false)
-        {
-            // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
+        return  Matrix4x4(
 
-            Vector3 F = center - eye;
+            // m00, m01, m02, m03
+            m00 * r.m00 + m01 * r.m10 + m02 * r.m20 + m03 * r.m30,
+            m00 * r.m01 + m01 * r.m11 + m02 * r.m21 + m03 * r.m31,
+            m00 * r.m02 + m01 * r.m12 + m02 * r.m22 + m03 * r.m32,
+            m00 * r.m03 + m01 * r.m13 + m02 * r.m23 + m03 * r.m33,
 
-            Vector3 f = F.normalize();
-            Vector3 UP = up.normalize();
+            // m10, m11, m12, m13
+            m10 * r.m00 + m11 * r.m10 + m12 * r.m20 + m13 * r.m30,
+            m10 * r.m01 + m11 * r.m11 + m12 * r.m21 + m13 * r.m31,
+            m10 * r.m02 + m11 * r.m12 + m12 * r.m22 + m13 * r.m32,
+            m10 * r.m03 + m11 * r.m13 + m12 * r.m23 + m13 * r.m33,
 
-            Vector3 s = f.cross(UP).normalize();// fix
-            Vector3 u = s.cross(f);
+            // m20, m21, m22, m23
+            m20 * r.m00 + m21 * r.m10 + m22 * r.m20 + m23 * r.m30,
+            m20 * r.m01 + m21 * r.m11 + m22 * r.m21 + m23 * r.m31,
+            m20 * r.m02 + m21 * r.m12 + m22 * r.m22 + m23 * r.m32,
+            m20 * r.m03 + m21 * r.m13 + m22 * r.m23 + m23 * r.m33,
 
-            Matrix4x4 r(
-                 s.x,  s.y,  s.z,  0.0f,
-                 u.x,  u.y,  u.z,  0.0f,
-                -f.x, -f.y, -f.z,  0.0f,
-                 0.0f, 0.0f, 0.0f, 1.0f
-            );
-
-            Matrix4x4 t(
-                1.0f, 0.0f, 0.0f, -eye.x,
-                0.0f, 1.0f, 0.0f, -eye.y,
-                0.0f, 0.0f, 1.0f, -eye.z,
-                0.0f, 0.0f, 0.0f, 1.0f
-            );
-
-            return r * t;
-        }
-        else
-        {
-            // カメラ行列
-            // 
-            //           + center
-            //     +y   / 
-            //       | /
-            //       |/
-            //   eye +---- +x 
-            //      /
-            //     /
-            //  +z
-            // 
-
-            Vector3 zAxis = (eye - center).normalize();
-            Vector3 xAxis = (up.cross(zAxis)).normalize();
-            Vector3 yAxis = zAxis.cross(xAxis);
-            Matrix4x4 cameraMatrix = createBasis(xAxis, yAxis, zAxis, eye);
-
-            return cameraMatrix.inverse();// view matrix
-        }
+            // m30, m31, m32, m33
+            m30 * r.m00 + m31 * r.m10 + m32 * r.m20 + m33 * r.m30,
+            m30 * r.m01 + m31 * r.m11 + m32 * r.m21 + m33 * r.m31,
+            m30 * r.m02 + m31 * r.m12 + m32 * r.m22 + m33 * r.m32,
+            m30 * r.m03 + m31 * r.m13 + m32 * r.m23 + m33 * r.m33
+        );
     }
 
-    Matrix4x4 Matrix4x4::createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
+    Vector4 operator*(const Matrix4x4& mat, const Vector4& vec)
     {
-        // 次を満たす変換行列 m を返す
-        //
-        // mv = v'
-        //
-        // v.x = [ left,     right ]
-        // v.y = [ bottom,   top   ]
-        // v.z = [-nearVal, -farVal]  ※カメラ空間座標系は右手系（奥が -z） 
-        // v.w = 1
-        //
-        // のとき
-        //
-        // v'.x = [-nearVal, nearVal]
-        // v'.y = [-nearVal, nearVal]
-        // v'.z = [-nearVal, farVal ]  ※クリップ空間座標系は左手手系（奥が +z） 
-        // v'.w = -v.z
-        // 
-        // また
-        // 
-        // v,xyz = (0, 0, 0)
-        //
-        // のとき
-        //
-        // v'.xyz = (0, 0, 0)　※視点(原点)は固定
-        //
-
-        if (false)
-        {
-            // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
-
-            float A = (right + left) / (right - left);
-            float B = (top + bottom) / (top - bottom);
-            float C = -(farVal + nearVal) / (farVal - nearVal);
-            float D = -(2.0f * farVal * nearVal) / (farVal - nearVal);
-
-            return Matrix4x4(
-                (2.0f * nearVal) / (right - left),  0.0f,                               A,    0.0f,
-                0.0f,                               (2.0f * nearVal) / (top - bottom),  B,    0.0f,
-                0.0f,                               0.0f,                               C,    D,
-                0.0f,                               0.0f,                              -1.0f, 0.0f
-            );
-        }
-        else
-        {
-            // 視体積のZ軸が視体積の中心を通るように補正
-            // （ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を移動）
-            float m02 = (right + left) / (right - left);
-            float m12 = (top + bottom) / (top - bottom);
-            Matrix4x4 shearXY = createShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
-
-            // ニアクリップ面の上下左右の範囲を [-1, 1] から [-near, near] にマップ
-            float m00 = (2.0f / (right - left)) * nearVal;
-            float m11 = (2.0f / (top - bottom)) * nearVal;
-            Matrix4x4 scaleXY = createScale(m00, m11, 1.0f);
-
-            Matrix4x4 frustumXY = scaleXY * shearXY;
-
-            // 視体積の奥行範囲を [-nearVal, -farVal] から [-nearVal, farVal] にマップ
-            // z' = m22 * z + m23
-            float m22 = -(farVal + nearVal) / (farVal - nearVal);
-            float m23 = -(2.0f * farVal * nearVal) / (farVal - nearVal);
-
-            // 変換後のベクトルの w' に変換前のベクトルの -z を入れる 
-            // w' = m32 * z + m33
-            float m32 = -1.0f;
-            float m33 = 0.0f;
-
-            // w' の式に z (z'ではない)が含まれているので、zw変換は１行列に収める
-            Matrix4x4 frustumZW(
-                1.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 1.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, m22,  m23,
-                0.0f, 0.0f, m32,  m33
-            );
-
-            return frustumZW * frustumXY;
-        }
-    }
-
-    Matrix4x4 Matrix4x4::createProjection(float fovy, float aspect, float zNear, float zFar)
-    {
-        if (false)
-        {
-            // see https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
-
-            float f = 1.0f / tan(fovy / 2.0f);
-
-            return Matrix4x4(
-                f / aspect, 0.0f, 0.0f,                            0.0f,
-                0.0f,       f,    0.0f,                            0.0f,
-                0.0f,       0.0f, (zFar + zNear) / (zNear - zFar), (2.0f * zFar * zNear) / (zNear - zFar),
-                0.0f,       0.0f, -1.0f,                           0.0f
-            );
-        }
-        else
-        {
-            float halfHeight = zNear * tan(fovy / 2.0f);
-            float halfWidth = halfHeight * aspect;
-            return createFrustum(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear, zFar);
-        }
+        return Vector4(
+            mat.m00 * vec.x + mat.m01 * vec.y + mat.m02 * vec.z + mat.m03 * vec.w,
+            mat.m10 * vec.x + mat.m11 * vec.y + mat.m12 * vec.z + mat.m13 * vec.w,
+            mat.m20 * vec.x + mat.m21 * vec.y + mat.m22 * vec.z + mat.m23 * vec.w,
+            mat.m30 * vec.x + mat.m31 * vec.y + mat.m32 * vec.z + mat.m33 * vec.w
+        );
     }
 }

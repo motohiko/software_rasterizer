@@ -132,31 +132,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FragmentShaderStage.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
-    <ClCompile Include="InputAssemblyStage.cpp" />
+    <ClCompile Include="Math3d.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MeshData.cpp" />
-    <ClCompile Include="RasterizeStage.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="VertexShaderStage.cpp" />
+    <ClCompile Include="Pipeline\ClipStage.cpp" />
+    <ClCompile Include="Pipeline\FragmentShaderStage.cpp" />
+    <ClCompile Include="Pipeline\InputAssemblyStage.cpp" />
+    <ClCompile Include="Pipeline\PrimitiveAssembly.cpp" />
+    <ClCompile Include="Pipeline\RasterizeStage.cpp" />
+    <ClCompile Include="Pipeline\VertexShaderStage.cpp" />
+    <ClCompile Include="RenderingContext.cpp" />
+    <ClCompile Include="Vector.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="FragmentShaderStage.h" />
     <ClInclude Include="FrameBuffer.h" />
-    <ClInclude Include="InputAssemblyStage.h" />
+    <ClInclude Include="Math3d.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MeshData.h" />
+    <ClInclude Include="Pipeline\ClipStage.h" />
+    <ClInclude Include="Pipeline\FragmentShaderStage.h" />
+    <ClInclude Include="Pipeline\FragmentShaderStageState.h" />
+    <ClInclude Include="Pipeline\InputAssemblyStage.h" />
+    <ClInclude Include="Pipeline\InputAssemblyStageState.h" />
+    <ClInclude Include="Pipeline\PrimitiveAssembly.h" />
+    <ClInclude Include="Pipeline\RasterizeStage.h" />
+    <ClInclude Include="Pipeline\RasterizeStageState.h" />
+    <ClInclude Include="Pipeline\VertexShaderStage.h" />
+    <ClInclude Include="Pipeline\VertexShaderStageState.h" />
     <ClInclude Include="PostIncludeWindows.h" />
     <ClInclude Include="PreIncludeWindows.h" />
-    <ClInclude Include="RasterizeStage.h" />
-    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RenderingContext.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Vector.h" />
-    <ClInclude Include="VertexShaderStage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

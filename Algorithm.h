@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <algorithm>
 
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
     // std::lerp : c++20 
     inline float lerp(float a, float b, float t)

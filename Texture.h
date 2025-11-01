@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cmath>// floor
 
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
     struct Texture
     {

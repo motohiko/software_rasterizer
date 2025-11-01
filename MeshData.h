@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
     namespace Test
     {

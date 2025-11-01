@@ -3,30 +3,24 @@
 #include "Vector.h"
 #include <cstdint>
 
-namespace SoftwareRenderer
+namespace SoftwareRasterizer
 {
     class FrameBuffer
     {
 
     private:
 
-        struct ColorFrameBuffer
-        {
-            void* addr;// byte[], BGRA
-            size_t widthBytes;
-        };
-
-        struct DepthFrameBuffer
-        {
-            void* addr;// float[]
-            size_t widthBytes;
-        };
-
         int _freameWidth = 0;
         int _freameHeight = 0;
 
-        ColorFrameBuffer colorFrameBuffer {};
-        DepthFrameBuffer depthFrameBuffer {};
+        void* _colorBuffer = nullptr;// uint32_t[], BGRA
+        size_t _colorBufferWidthBytes = 0;
+
+        void* _depthBuffer = nullptr;// float[]
+        size_t _depthBufferWidthBytes = 0;
+
+        uint32_t _clearColor = 0;
+        float _clearDepth = 1.0f; 
 
     public:
 
@@ -34,12 +28,15 @@ namespace SoftwareRenderer
         int getFrameWidth() const { return _freameWidth; };
         int getFrameHeight() const { return _freameHeight; };
 
-        void setRenderColorBuffer(void* addr, size_t widthBytes);
-        void setRenderDepthBuffer(void* addr, size_t widthBytes);
+        void setColorBuffer(void* addr, size_t widthBytes);
+        void setDepthBuffer(void* addr, size_t widthBytes);
 
-        void clearRenderBuffer();
+        void setClearColor(float r, float g, float b, float a);// glClearColor
+        void setClearDepth(float depth);// glClearDepth
+
+        void clearBuffer();// glClear()
 
         float readDepth(int x, int y) const;
-        void writeColorAndDepth(int x, int y, const Vector4& color, float depth);
+        void writePixel(int x, int y, const Vector4& color, float depth);
     };
 }
