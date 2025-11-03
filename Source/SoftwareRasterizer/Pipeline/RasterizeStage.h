@@ -6,11 +6,7 @@
 
 namespace SoftwareRasterizer
 {
-    class IFragmentOutput
-    {
-    public:
-        virtual void outputFragment(const Fragment* fragment) = 0;
-    };
+    class RenderingContext;
 
     struct RasterPrimitive
     {
@@ -24,30 +20,37 @@ namespace SoftwareRasterizer
 
     private:
 
+        RenderingContext* _renderingContext;
         const RasterizeStageState* _rasterizeStageState;
 
-        int _frameWidth;
-        int _frameHeight;
+        int _frameWidth = 0;
+        int _frameHeight = 0;
 
-        IFragmentOutput* _outputFragment;
+        int _clipRectMinX = 0;
+        int _clipRectMinY = 0;
+        int _clipRectMaxX = 0;
+        int _clipRectMaxY = 0;
+
+        float _sarea2 = 0.0f;// singed area 2x
 
     public:
 
         static void validateState(const RasterizeStageState* state);
 
-        static void transformToNdcVertex(const ShadedVertex* vertex, NdcVertex* ndcVertex)
-        {
-            ndcVertex->ndcPosition = vertex->clipSpacePosition.getXYZ() / vertex->clipSpacePosition.w;
-        }
-
-        RasterizeStage(const RasterizeStageState* state);
+        RasterizeStage(RenderingContext* renderingContext);
 
         void setFrameSize(int width, int height);
-        void setFragmentOutput(IFragmentOutput* output);
+
+        void prepareRasterize();
 
         void rasterizePrimitive(RasterPrimitive& rasterPrimitive);
 
     private:
+
+        static void transformToNdcVertex(const ShadedVertex* vertex, NdcVertex* ndcVertex)
+        {
+            ndcVertex->ndcPosition = vertex->clipPosition.getXYZ() / vertex->clipPosition.w;
+        }
 
         void transformRasterVertex(const ShadedVertex* clippedPrimitiveVertices, const NdcVertex* ndcVertex, RasterVertex* rasterizationPoint) const;
 
@@ -63,5 +66,6 @@ namespace SoftwareRasterizer
 
         void getLineFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, Fragment* fragment);
         bool getTriangleFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2, Fragment* fragment);
+
     };
 }

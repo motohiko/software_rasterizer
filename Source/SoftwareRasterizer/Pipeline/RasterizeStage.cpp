@@ -1,4 +1,5 @@
 #include "RasterizeStage.h"
+#include "..\RenderingContext.h"
 #include "..\Lib\Algorithm.h"
 #include <cassert>
 #include <cmath>
@@ -9,14 +10,10 @@ namespace SoftwareRasterizer
     {
     }
 
-    RasterizeStage::RasterizeStage(const RasterizeStageState* state) :
-        _rasterizeStageState(state)
+    RasterizeStage::RasterizeStage(RenderingContext* renderingContext) :
+        _renderingContext(renderingContext),
+        _rasterizeStageState(&(renderingContext->_rasterizeStageState))
     {
-    }
-
-    void RasterizeStage::setFragmentOutput(IFragmentOutput* output)
-    {
-        _outputFragment = output;
     }
 
     void RasterizeStage::setFrameSize(int width, int height)
@@ -25,53 +22,74 @@ namespace SoftwareRasterizer
         _frameHeight = height;
     }
 
+    void RasterizeStage::prepareRasterize()
+    {
+        int windowMaxX = _frameWidth - 1;
+        int windowMaxY = _frameHeight - 1;
+        int viewportMaxX = _rasterizeStageState->viewportX + _rasterizeStageState->viewportWidth - 1;
+        int viewportMaxY = _rasterizeStageState->viewportY + _rasterizeStageState->viewportHeight - 1;
+
+        _clipRectMinX = std::max(0, _rasterizeStageState->viewportX);
+        _clipRectMinY = std::max(0, _rasterizeStageState->viewportY);
+        _clipRectMaxX = std::min(windowMaxX, viewportMaxX);
+        _clipRectMaxY = std::min(windowMaxY, viewportMaxY);
+    }
+
+
     void RasterizeStage::transformRasterVertex(const ShadedVertex* clippedPrimitiveVertex, const NdcVertex* ndcVertex, RasterVertex* rasterizationPoint) const
     {
+#ifndef NDEBUG
+        if (false)
+        {
+            float lazyW = std::abs(clippedPrimitiveVertex->clipPosition.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertex->clipPosition.x && clippedPrimitiveVertex->clipPosition.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertex->clipPosition.y && clippedPrimitiveVertex->clipPosition.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertex->clipPosition.z && clippedPrimitiveVertex->clipPosition.z <= lazyW);
+        }
+#endif
+
         // 正規化デバイス座標からウィンドウ座標へ変換（ビューポート変換）
+
+        // note.
         // 
         // 参考 https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
         // 
         // ウィンドウ座標系(xy)
         // 
-        //                         (x+w,y+h)
-        //               +--------+
-        //               |        |
-        //               |        |
-        //     +y        +--------+
-        //       |  (x,y)
+        //     +y
+        //       |
         //       |
         //       +--- +x
         //  (0,0)
         // 
-
-#ifndef NDEBUG
-        if (false)
-        {
-            float lazyW = std::abs(clippedPrimitiveVertex->clipSpacePosition.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertex->clipSpacePosition.x && clippedPrimitiveVertex->clipSpacePosition.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertex->clipSpacePosition.y && clippedPrimitiveVertex->clipSpacePosition.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertex->clipSpacePosition.z && clippedPrimitiveVertex->clipSpacePosition.z <= lazyW);
-        }
-#endif
-
+        // ウィンドウの大きさ
+        // 
+        //                   (ViewportWidth, ViewportHeight)
+        //       +----------+
+        //       |          |
+        //       |          |
+        //       |          |
+        //       +----------+  
+        //  (0,0)
+        // 
         float halfWidth = (float)_rasterizeStageState->viewportWidth / 2.0f;
         float halfHeight = (float)_rasterizeStageState->viewportHeight / 2.0f;
-        rasterizationPoint->wrcPosition.x = (ndcVertex->ndcPosition.x * halfWidth) + halfWidth + (float)_rasterizeStageState->viewportX;
-        rasterizationPoint->wrcPosition.y = (ndcVertex->ndcPosition.y * halfHeight) + halfHeight + (float)_rasterizeStageState->viewportY;
+        rasterizationPoint->wndPosition.x = ((ndcVertex->ndcPosition.x + 1.0f) * halfWidth) + (float)_rasterizeStageState->viewportX;
+        rasterizationPoint->wndPosition.y = ((ndcVertex->ndcPosition.y + 1.0f) * halfHeight) + (float)_rasterizeStageState->viewportY;
 
-        // 正規化デバイス座標(z)から深度に変換
+        // 正規化デバイス座標の z を深度範囲にマップ
         float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
         rasterizationPoint->depth = lerp(_rasterizeStageState->depthRangeNearVal, _rasterizeStageState->depthRangeFarVal, t);
 
-        // パースペクティブコレクト用の 1/W を保存
-        float w = clippedPrimitiveVertex->clipSpacePosition.w;
+        // パースペクティブコレクト用に 1/W を保存
+        float w = clippedPrimitiveVertex->clipPosition.w;
         assert(w != 0.0f);
         rasterizationPoint->invW = 1.0f / w;
   
-        //  パースペクティブコレクト用に補間変数をW除算
+        //  パースペクティブコレクト用に補間変数を W で除算
         for (int i = 0; i < clippedPrimitiveVertex->varyingNum; i++)
         {
-            rasterizationPoint->varyingVariablesDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
+            rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
         }
         rasterizationPoint->varyingNum = clippedPrimitiveVertex->varyingNum;
     }
@@ -96,7 +114,9 @@ namespace SoftwareRasterizer
             // glEnable(GL_CULL_FACE)
 
             float n = (p1 - p0).cross(p2 - p0);// CCW
-            if (n <= 0.0f)// GL_CULL_FACE
+            bool passed = (0.0f < n);// GL_CULL_FACE
+
+            if (!passed)
             {
                 return;
             }
@@ -110,7 +130,7 @@ namespace SoftwareRasterizer
             transformRasterVertex(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]), &rasterVertices[i]);
         }
 
-        // ラスタライズ
+        // 形状ごとの処理
         switch (rasterVertexNum)
         {
         case 2:
@@ -134,13 +154,10 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::rasterizeLine(const RasterVertex* p0, const RasterVertex* p1)
     {
-        int x0 = (int)std::floor(p0->wrcPosition.x);// 小数点以下切り捨て
-        int y0 = (int)std::floor(p0->wrcPosition.y);
-        int x1 = (int)std::floor(p1->wrcPosition.x);
-        int y1 = (int)std::floor(p1->wrcPosition.y);
-
-        int width = _frameWidth;
-        int height = _frameHeight;
+        int x0 = (int)std::floor(p0->wndPosition.x);// 小数点以下切り捨て
+        int y0 = (int)std::floor(p0->wndPosition.y);
+        int x1 = (int)std::floor(p1->wndPosition.x);
+        int y1 = (int)std::floor(p1->wndPosition.y);
 
         BresenhamLine bresenhamLine;
         bresenhamLine.setup(x0, y0, x1, y1);
@@ -149,7 +166,8 @@ namespace SoftwareRasterizer
             int x = bresenhamLine.x;
             int y = bresenhamLine.y;
 
-            if (x < 0 || width <= x || y < 0 || height <= y)
+            if (x < _clipRectMinX || _clipRectMaxX < x ||
+                y < _clipRectMinY || _clipRectMaxY < y)
             {
                 continue;
             }
@@ -157,7 +175,7 @@ namespace SoftwareRasterizer
             Fragment fragment;
             getLineFragment(x, y, p0, p1, &fragment);
 
-            _outputFragment->outputFragment(&fragment);
+            _renderingContext->outputFragment(&fragment);
 
         } while (bresenhamLine.next());
     }
@@ -169,6 +187,8 @@ namespace SoftwareRasterizer
 
         int width = _frameWidth;
         int height = _frameHeight;
+
+        _sarea2 = edgeFunction(p0->wndPosition, p1->wndPosition, p2->wndPosition);
 
         // 処理が重すぎるのでラスタライズの範囲を絞り込む
         struct BoundingBox2d
@@ -194,19 +214,19 @@ namespace SoftwareRasterizer
         };
         BoundingBox2d boundingBox = {};
         boundingBox.init();
-        boundingBox.addPoint(p0->wrcPosition);
-        boundingBox.addPoint(p1->wrcPosition);
-        boundingBox.addPoint(p2->wrcPosition);
+        boundingBox.addPoint(p0->wndPosition);
+        boundingBox.addPoint(p1->wndPosition);
+        boundingBox.addPoint(p2->wndPosition);
 
         int minX = (int)std::floor(boundingBox.minX);// 切り捨て
         int minY = (int)std::floor(boundingBox.minY);
         int maxX = (int)std::ceil(boundingBox.maxX);// 切り上げ
         int maxY = (int)std::ceil(boundingBox.maxY);
-        minX = clamp(minX, 0, width - 1);
-        minY = clamp(minY, 0, height - 1);
-        maxX = clamp(maxX, 0, width - 1);
-        maxY = clamp(maxY, 0, height - 1);
 
+        minX = std::max(minX, _clipRectMinX);
+        minY = std::max(minY, _clipRectMinY);
+        maxX = std::min(maxX, _clipRectMaxX);
+        maxY = std::min(maxY, _clipRectMaxY);
         for (int y = maxY; minY <= y; y--)
         {
             for (int x = minX; x <= maxX; x++)
@@ -217,15 +237,15 @@ namespace SoftwareRasterizer
                     continue;
                 }
 
-                _outputFragment->outputFragment(&fragment);
+                _renderingContext->outputFragment(&fragment);
             }
         }
     }
 
     void RasterizeStage::getLineFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, Fragment* fragment)
     {
-        Vector2 a(p0->wrcPosition.x, p0->wrcPosition.y);
-        Vector2 b(p1->wrcPosition.x, p1->wrcPosition.y);
+        Vector2 a(p0->wndPosition.x, p0->wndPosition.y);
+        Vector2 b(p1->wndPosition.x, p1->wndPosition.y);
         Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
         Vector2 ab(b - a);
         Vector2 ac(c - a);
@@ -235,31 +255,36 @@ namespace SoftwareRasterizer
         t = clamp(t, 0.0f, 1.0f);
 
         // ２点間を補間
-        Vector2 wrcPosition = Vector2::Lerp(p0->wrcPosition, p1->wrcPosition, t);
+        Vector2 wndPosition = Vector2::Lerp(p0->wndPosition, p1->wndPosition, t);
         float depth = lerp(p0->depth, p1->depth, t);
         float invW = lerp(p0->invW, p1->invW, t);
 
-        assert(0.0f != invW);
-        float w = 1.0f / invW;
-
-        // Varying 変数 も補間
         Vector4 varyingVariables[kMaxVaryings] = {};
         int varyingNum = p0->varyingNum;// TODO:
         for (int i = 0; i < varyingNum; i++)
         {
-            const Vector4& v0 = p0->varyingVariablesDividedByW[i];
-            const Vector4& v1 = p1->varyingVariablesDividedByW[i];
-            varyingVariables[i] = Vector4::Lerp(v0, v1, t) * w;
+            const Vector4& v0 = p0->varyingsDividedByW[i];
+            const Vector4& v1 = p1->varyingsDividedByW[i];
+            varyingVariables[i] = Vector4::Lerp(v0, v1, t);
+        }
+
+        assert(0.0f != invW);
+        float w = 1.0f / invW;
+
+        const bool noperspective = false;
+        if (noperspective)
+        {
+            w = 1.0f;
         }
 
         fragment->x = x;
         fragment->y = y;
-        fragment->wrcPosition = wrcPosition;
+        fragment->wndPosition = c;// wndPosition;
         fragment->depth = depth;
         fragment->invW = invW;
         for (int i = 0; i < varyingNum; i++)
         {
-            fragment->varyings[i] = varyingVariables[i];
+            fragment->varyings[i] = varyingVariables[i] * w;
         }
         fragment->varyingNum = varyingNum;
     }
@@ -269,11 +294,10 @@ namespace SoftwareRasterizer
         Vector2 p(x + 0.5f, y + 0.5f);// ピクセルの中心
 
         // 重心座標の重みを求める（外積は三角形の面積の２倍）
-        float area2 = edgeFunction(p0->wrcPosition, p1->wrcPosition, p2->wrcPosition);
-        assert(0.0f != area2);
-        float b0 = edgeFunction(p1->wrcPosition, p2->wrcPosition, p) / area2;
-        float b1 = edgeFunction(p2->wrcPosition, p0->wrcPosition, p) / area2;
-        float b2 = edgeFunction(p0->wrcPosition, p1->wrcPosition, p) / area2;
+        assert(0.0f != _sarea2);
+        float b0 = edgeFunction(p1->wndPosition, p2->wndPosition, p) / _sarea2;
+        float b1 = edgeFunction(p2->wndPosition, p0->wndPosition, p) / _sarea2;
+        float b2 = edgeFunction(p0->wndPosition, p1->wndPosition, p) / _sarea2;
 
         // ピクセルの中心を内外判定
         if (b0 < 0.0f)
@@ -290,16 +314,21 @@ namespace SoftwareRasterizer
         }
 
         // 補間
-        Vector2 wrcPosition = (b0 * p0->wrcPosition) + (b1 * p1->wrcPosition) + (b2 * p2->wrcPosition);
+        Vector2 wndPosition = (b0 * p0->wndPosition) + (b1 * p1->wndPosition) + (b2 * p2->wndPosition);
         float depth = (b0 * p0->depth) + (b1 * p1->depth) + (b2 * p2->depth);
         float invW = (b0 * p0->invW) + (b1 * p1->invW) + (b2 * p2->invW);
 
-        assert(0.0f != invW);
-        if (0.0f == invW)
+        Vector4 varyingVariables[kMaxVaryings] = {};
+        int varyingNum = p0->varyingNum;// TODO:
+        for (int i = 0; i < varyingNum; i++)
         {
-            return false;
+            const Vector4& v0 = p0->varyingsDividedByW[i];
+            const Vector4& v1 = p1->varyingsDividedByW[i];
+            const Vector4& v2 = p2->varyingsDividedByW[i];
+            varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2));
         }
 
+        assert(0.0f != invW);
         float w = 1.0f / invW;
 
         const bool noperspective = false;
@@ -308,24 +337,14 @@ namespace SoftwareRasterizer
             w = 1.0f;
         }
 
-        Vector4 varyingVariables[kMaxVaryings] = {};
-        int varyingNum = p0->varyingNum;// TODO:
-        for (int i = 0; i < varyingNum; i++)
-        {
-            const Vector4& v0 = p0->varyingVariablesDividedByW[i];
-            const Vector4& v1 = p1->varyingVariablesDividedByW[i];
-            const Vector4& v2 = p2->varyingVariablesDividedByW[i];
-            varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2)) * w;
-        }
-
         fragment->x = x;
         fragment->y = y;
-        fragment->wrcPosition = wrcPosition;
+        fragment->wndPosition = p;// wndPosition;
         fragment->depth = depth;
         fragment->invW = invW;
         for (int i = 0; i < varyingNum; i++)
         {
-            fragment->varyings[i] = varyingVariables[i];
+            fragment->varyings[i] = varyingVariables[i] * w;
         }
         fragment->varyingNum = varyingNum;
 

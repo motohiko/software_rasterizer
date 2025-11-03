@@ -5,21 +5,6 @@
 
 namespace SoftwareRasterizer
 {
-    // normalized device coordinates
-    struct NdcVertex
-    {
-        Vector3 ndcPosition;
-    };
-
-    struct RasterVertex
-    {
-        Vector2 wrcPosition;// window relative coordinate
-        float depth;
-        float invW;
-        Vector4 varyingVariablesDividedByW[kMaxVaryings];
-        int varyingNum;
-    };
-
     struct RasterizeStageState
     {
         int viewportX = 0;

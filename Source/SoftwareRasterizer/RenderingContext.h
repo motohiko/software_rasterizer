@@ -5,12 +5,6 @@
 #include "Pipeline\VertexShaderStageState.h"
 #include "Pipeline\RasterizeStageState.h"
 #include "Pipeline\FragmentShaderStageState.h"
-#include "Pipeline\InputAssemblyStage.h"
-#include "Pipeline\VertexShaderStage.h"
-#include "Pipeline\ClipStage.h"
-#include "Pipeline\PrimitiveAssembly.h"
-#include "Pipeline\RasterizeStage.h"
-#include "Pipeline\FragmentShaderStage.h"
 #include "Types.h"
 #include "Lib\Vector.h"
 #include <cstdint>
@@ -18,8 +12,12 @@
 
 namespace SoftwareRasterizer
 {
-    class RenderingContext : public IFragmentOutput
+    class RenderingContext
     {
+        friend class InputAssemblyStage;
+        friend class VertexShaderStage;
+        friend class RasterizeStage;
+        friend class FragmentShaderStage;
 
     private:
 
@@ -48,7 +46,7 @@ namespace SoftwareRasterizer
         void disableVertexAttribute(int index);
 
         void setVertexBuffer(int index, const void* buffer);
-        void setVertexAttribute(int index, Semantics semantics, int size, ComponentType type, size_t stride);
+        void setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride);
 
         void setIndexBuffer(const uint16_t* indices, int indexNum);
 
@@ -70,7 +68,8 @@ namespace SoftwareRasterizer
 
     private:
 
-        void outputFragment(const Fragment* fragment) override;
+        void outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum);
+        void outputFragment(const Fragment* fragment);
 
         bool depthTest(int x, int y, float depth)
         {

@@ -6,6 +6,8 @@
 
 namespace SoftwareRasterizer
 {
+    class RenderingContext;
+
     class InputAssemblyStage
     {
 
@@ -20,6 +22,7 @@ namespace SoftwareRasterizer
 
     private:
 
+        RenderingContext* _renderingContext;
         const InputAssemblyStageState* _inputAssemblyStageState;
 
         PrimitiveType _primitiveType = PrimitiveType::kUndefined;
@@ -32,12 +35,13 @@ namespace SoftwareRasterizer
 
         static void validateState(const InputAssemblyStageState* state);
 
-        InputAssemblyStage(const InputAssemblyStageState* state);
+        InputAssemblyStage(RenderingContext* renderingContext);
 
         void prepareReadPrimitive();
         bool readPrimitive(Primitive* primitive);
 
         void prepareReadVertex();
         void readVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
+
     };
 }

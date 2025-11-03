@@ -1,9 +1,11 @@
 #include "RenderingContext.h"
-#include "Lib\Algorithm.h"
-#include <cstdint>
-#include <algorithm>
-#include <cmath>
-#include <cfloat>
+#include "Pipeline\InputAssemblyStage.h"
+#include "Pipeline\VertexShaderStage.h"
+#include "Pipeline\ClipStage.h"
+#include "Pipeline\PrimitiveAssembly.h"
+#include "Pipeline\RasterizeStage.h"
+#include "Pipeline\FragmentShaderStage.h"
+#include <iterator>// std::size
 #include <cassert>
 
 namespace SoftwareRasterizer
@@ -71,7 +73,7 @@ namespace SoftwareRasterizer
         attribute->buffer = buffer;
     }
 
-    void RenderingContext::setVertexAttribute(int index, Semantics semantics, int size, ComponentType type, size_t stride)
+    void RenderingContext::setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride)
     {
         assert(0 <= index && index < std::size(_inputAssemblyStageState.vertexAttributeLayouts));
         VertexAttributeLayout* attribute = &(_inputAssemblyStageState.vertexAttributeLayouts[index]);
@@ -140,7 +142,7 @@ namespace SoftwareRasterizer
         RasterizeStage::validateState(&_rasterizeStageState);
         FragmentShaderStage::validateState(&_fragmentShaderStageState);
 
-        InputAssemblyStage inputAssemblyStage(&_inputAssemblyStageState);
+        InputAssemblyStage inputAssemblyStage(this);
         inputAssemblyStage.prepareReadPrimitive();
         inputAssemblyStage.prepareReadVertex();
 
@@ -156,48 +158,55 @@ namespace SoftwareRasterizer
                 AttributeVertex attributeVertex;
                 inputAssemblyStage.readVertex(vertexIndex, &attributeVertex);
 
-                VertexShaderStage vertexShaderStage(&_vertexShaderStageState);
+                VertexShaderStage vertexShaderStage(this);
                 vertexShaderStage.executeShader(&attributeVertex, &(shadedVertices[i]));
             }
 
-            // プリミティブをクリップ
+            outputPrimitive(primitive.primitiveType, shadedVertices, primitive.vertexNum);
+        }
+    }
+
+    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum)
+    {
+        // プリミティブをクリップ
+        ShadedVertex clippedVertices[kTriangleClippingPointMaxNum];
+        int clippedVertiexNum = 0;
+        {
             ClipStage clipStage;
-            clipStage.setPrimitiveType(primitive.primitiveType);
-            ShadedVertex clippedVertices[kTriangleClippingPointMaxNum];
-            int clippedVertiexNum = 0;
-            clipStage.clipPrimitive(shadedVertices, primitive.vertexNum, clippedVertices, &clippedVertiexNum);
+            clipStage.setPrimitiveType(primitiveType);
+            clipStage.clipPrimitive(vertices, vertexNum, clippedVertices, &clippedVertiexNum);
+        }
 
-            // クリップ結果をプリミティブに分割
-            PrimitiveAssembly primitiveAssembly;
-            primitiveAssembly.setPrimitiveType(primitive.primitiveType);
-            primitiveAssembly.setClipedVertices(clippedVertices, clippedVertiexNum);
-            primitiveAssembly.prepareDividPrimitive();
-            AssembledPrimitive dividedPrimitive;
-            while (primitiveAssembly.readPrimitive(&dividedPrimitive))
+        // クリップ結果をプリミティブに分割
+        PrimitiveAssembly primitiveAssembly;
+        primitiveAssembly.setPrimitiveType(primitiveType);
+        primitiveAssembly.setClipedVertices(clippedVertices, clippedVertiexNum);
+        primitiveAssembly.prepareDividPrimitive();
+        AssembledPrimitive dividedPrimitive;
+        while (primitiveAssembly.readPrimitive(&dividedPrimitive))
+        {
+            // （分割された）各プリミティブをラスタライズ
+
+            RasterizeStage _rasterizeStage(this);
+            _rasterizeStage.setFrameSize(_frameBuffer.getFrameWidth(), _frameBuffer.getFrameHeight());
+            _rasterizeStage.prepareRasterize();
+
+            RasterPrimitive rasterPrimitive;
+            rasterPrimitive.primitiveType = dividedPrimitive.primitiveType;
+            for (int i = 0; i < dividedPrimitive.vertexNum; i++)
             {
-                // （分割された）各プリミティブをラスタライズ
-
-                RasterizeStage _rasterizeStage(&_rasterizeStageState);
-                _rasterizeStage.setFrameSize(_frameBuffer.getFrameWidth(), _frameBuffer.getFrameHeight());
-                _rasterizeStage.setFragmentOutput(this);
-
-                RasterPrimitive rasterPrimitive;
-                rasterPrimitive.primitiveType = dividedPrimitive.primitiveType;
-                for (int i = 0; i < dividedPrimitive.vertexNum; i++)
-                {
-                    uint16_t vertexIndex = dividedPrimitive.vertexIndices[i];
-                    rasterPrimitive.vertices[i] = clippedVertices[vertexIndex];
-                }
-                rasterPrimitive.vertexNum = dividedPrimitive.vertexNum;
-
-                _rasterizeStage.rasterizePrimitive(rasterPrimitive);
+                uint16_t vertexIndex = dividedPrimitive.vertexIndices[i];
+                rasterPrimitive.vertices[i] = clippedVertices[vertexIndex];
             }
+            rasterPrimitive.vertexNum = dividedPrimitive.vertexNum;
+
+            _rasterizeStage.rasterizePrimitive(rasterPrimitive);
         }
     }
 
     void RenderingContext::outputFragment(const Fragment* fragment)
     {
-        FragmentShaderStage _fragmentShaderStage(&_fragmentShaderStageState);
+        FragmentShaderStage _fragmentShaderStage(this);
 
         Vector4 color;
         _fragmentShaderStage.executeShader(fragment, &color);

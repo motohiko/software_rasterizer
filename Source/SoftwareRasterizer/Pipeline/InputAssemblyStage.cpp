@@ -1,4 +1,5 @@
 #include "InputAssemblyStage.h"
+#include "..\RenderingContext.h"
 #include "..\Lib\Algorithm.h"
 #include "..\Lib\Vector.h"
 #include <cassert>
@@ -9,8 +10,9 @@ namespace SoftwareRasterizer
     {
     }
 
-    InputAssemblyStage::InputAssemblyStage(const InputAssemblyStageState* state) :
-        _inputAssemblyStageState(state)
+    InputAssemblyStage::InputAssemblyStage(RenderingContext* renderingContext) :
+        _renderingContext(renderingContext),
+        _inputAssemblyStageState(&(renderingContext->_inputAssemblyStageState))
     {
     }
 
@@ -83,7 +85,7 @@ namespace SoftwareRasterizer
                 Vector4 attribute;
                 switch (vertexAttributeLayout->semantics)
                 {
-                case Semantics::kPosition:
+                case SemanticsType::kPosition:
                     attribute = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
                     break;
                 default:

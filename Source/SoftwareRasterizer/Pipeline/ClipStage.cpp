@@ -5,13 +5,31 @@
 
 namespace SoftwareRasterizer
 {
+    const int kClippingPlaneNum = 6;
+
+    struct ClippingPlaneParameter
+    {
+        int vectorComponentIndex;// 0=x, 1=y, 2=z
+        float sign;
+    };
+
+    const ClippingPlaneParameter kClipPlaneParameters[kClippingPlaneNum] =
+    {
+        { 0, -1.0f },// left
+        { 0,  1.0f },// right
+        { 1, -1.0f },// bottom
+        { 1,  1.0f },// top
+        { 2, -1.0f },// near
+        { 2,  1.0f } // far
+    };
+
     // クリップ境界座標系へ変換
     // ret : outside <= 0 < indide
     //
     // Blinn & Newell（1978）Clipping Using Homogeneous Coordinates - section 2. CLIPPING
     // SIGGRAPH '78: Proceedings of the 5th annual conference on Computer graphics and interactive techniques Pages 245 - 251
     //
-    inline float transformClippingBoundaryCoordinate(const Vector4& clipSpaceVertex, const ClippingPlaneParameter* clippingPlaneParameter)
+    static float transformClippingBoundaryCoordinate(const Vector4& clipSpaceVertex, const ClippingPlaneParameter* clippingPlaneParameter)
     {
 #if !0
         float clippingPoint = clipSpaceVertex.w * clippingPlaneParameter->sign;
@@ -22,6 +40,20 @@ namespace SoftwareRasterizer
         // 最適化
         return clipSpaceVertex.w - (clippingPlaneParameter->sign * clipSpaceVertex.getComponent(clippingPlaneParameter->vectorComponentIndex));
 #endif
+    }
+
+    static void lerpVertex(ShadedVertex* dst, const ShadedVertex& p0, const ShadedVertex& p1, float t)
+    {
+        // ※ w も xyz と同様に線形補間する
+
+        int varyingNum = p0.varyingNum;// TODO:
+
+        dst->clipPosition = Vector4::Lerp(p0.clipPosition, p1.clipPosition, t);
+        for (int i = 0; i < varyingNum; ++i)
+        {
+            dst->varyings[i] = Vector4::Lerp(p0.varyings[i], p1.varyings[i], t);
+        }
+        dst->varyingNum = varyingNum;
     }
 
     void ClipStage::setPrimitiveType(PrimitiveType primitiveType)
@@ -62,8 +94,8 @@ namespace SoftwareRasterizer
         for (int i = 0; i < kClippingPlaneNum; i++)
         {
             // 境界座標系に変換
-            float d0 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[0].clipSpacePosition, &kClipPlaneParameters[i]);
-            float d1 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[1].clipSpacePosition, &kClipPlaneParameters[i]);
+            float d0 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[0].clipPosition, &kClipPlaneParameters[i]);
+            float d1 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[1].clipPosition, &kClipPlaneParameters[i]);
             if (0.0f < d0)
             {
                 if (d1 < 0.0f)
@@ -95,15 +127,15 @@ namespace SoftwareRasterizer
 #ifndef NDEBUG
         if (false)
         {
-            float lazyW = std::abs(clippedPrimitiveVertices[0].clipSpacePosition.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.x && clippedPrimitiveVertices[0].clipSpacePosition.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.y && clippedPrimitiveVertices[0].clipSpacePosition.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.z && clippedPrimitiveVertices[0].clipSpacePosition.z <= lazyW);
+            float lazyW = std::abs(clippedPrimitiveVertices[0].clipPosition.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipPosition.x && clippedPrimitiveVertices[0].clipPosition.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipPosition.y && clippedPrimitiveVertices[0].clipPosition.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipPosition.z && clippedPrimitiveVertices[0].clipPosition.z <= lazyW);
 
-            lazyW = std::abs(clippedPrimitiveVertices[1].clipSpacePosition.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.x && clippedPrimitiveVertices[1].clipSpacePosition.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.y && clippedPrimitiveVertices[1].clipSpacePosition.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.z && clippedPrimitiveVertices[1].clipSpacePosition.z <= lazyW);
+            lazyW = std::abs(clippedPrimitiveVertices[1].clipPosition.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipPosition.x && clippedPrimitiveVertices[1].clipPosition.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipPosition.y && clippedPrimitiveVertices[1].clipPosition.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipPosition.z && clippedPrimitiveVertices[1].clipPosition.z <= lazyW);
         }
 #endif
     }
@@ -187,8 +219,8 @@ namespace SoftwareRasterizer
                 ShadedVertex& p1 = currentPoint;
 
                 // 境界座標系に変換（0 <= d のとき indide）
-                float d0 = transformClippingBoundaryCoordinate(p0.clipSpacePosition, &kClipPlaneParameters[i]);
-                float d1 = transformClippingBoundaryCoordinate(p1.clipSpacePosition, &kClipPlaneParameters[i]);
+                float d0 = transformClippingBoundaryCoordinate(p0.clipPosition, &kClipPlaneParameters[i]);
+                float d1 = transformClippingBoundaryCoordinate(p1.clipPosition, &kClipPlaneParameters[i]);
 
                 ShadedVertex intersectingPoint;
 

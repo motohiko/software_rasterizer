@@ -5,6 +5,27 @@
 
 namespace SoftwareRasterizer
 {
+    enum class PrimitiveTopologyType
+    {
+        kUndefined,
+        kLineList,
+        kTriangleList,
+    };
+
+    enum class SemanticsType
+    {
+        kPosition,
+        kNormal,
+        kTexCoord,
+        kColor,
+    };
+
+    enum class ComponentType
+    {
+        kFloat,// GL_FLOAT
+        kUnsignedByte,// GL_UNSIGNED_BYTE
+    };
+
     const int kMaxVertexAttributes = 16;// GL_MAX_VERTEX_ATTRIBS
     const int kMaxVaryings = 15;// GL_MAX_VARYING_VECTORS
 
@@ -22,19 +43,34 @@ namespace SoftwareRasterizer
 
     struct ShadedVertex
     {
-        Vector4 clipSpacePosition;
+        Vector4 clipPosition;// 頂点座標（クリッピング座標系）
         Vector4 varyings[kMaxVaryings];
+        int varyingNum;
+    };
+
+    struct NdcVertex
+    {
+        Vector3 ndcPosition;// 頂点座標（正規化デバイス座標系）
+    };
+
+    struct RasterVertex
+    {
+        Vector2 wndPosition;// 頂点座標（ウィンドウ座標系）
+        float depth;// 深度
+        float invW;// = 1 / clipPosition.w
+
+        Vector4 varyingsDividedByW[kMaxVaryings];
         int varyingNum;
     };
 
     struct Fragment
     {
-        int x;
-        int y;
+        int x, y;// フラグメントの座標（ウィンドウ座標系）
 
-        Vector2 wrcPosition;// window relative coordinate
-        float depth;
-        float invW;// 1 / clip space position w
+        Vector2 wndPosition;// フラグメントの中心座標（ウィンドウ座標系）
+        float depth;// 深度
+        float invW;// = 1 / clipPosition.w
+
         Vector4 varyings[kMaxVaryings];
         int varyingNum;
     };

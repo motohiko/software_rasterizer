@@ -1,4 +1,5 @@
 #include "VertexShaderStage.h"
+#include "..\RenderingContext.h"
 #include <cassert>
 
 namespace SoftwareRasterizer
@@ -9,8 +10,9 @@ namespace SoftwareRasterizer
         assert(state->vertexShaderMain);
     }
 
-    VertexShaderStage::VertexShaderStage(const VertexShaderStageState* state) :
-        _vertexShaderStageState(state)
+    VertexShaderStage::VertexShaderStage(RenderingContext* renderingContext) :
+        _renderingContext(renderingContext),
+        _vertexShaderStageState(&(renderingContext->_vertexShaderStageState))
     {
     }
 
@@ -28,7 +30,7 @@ namespace SoftwareRasterizer
         _vertexShaderStageState->vertexShaderMain(&vertexShaderInput, &vertexShaderOutput);
         assert(vertexShaderOutput.varyingNum < kMaxVaryings);
 
-        outputVertex->clipSpacePosition = vertexShaderOutput.position;
+        outputVertex->clipPosition = vertexShaderOutput.position;
         outputVertex->varyingNum = vertexShaderOutput.varyingNum;
     }
 }
