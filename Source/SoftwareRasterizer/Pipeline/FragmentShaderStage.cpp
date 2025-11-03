@@ -3,14 +3,14 @@
 
 namespace SoftwareRasterizer
 {
+    void FragmentShaderStage::validateState(const FragmentShaderStageState* state)
+    {
+        assert(state->fragmentShaderMain);
+    }
+
     FragmentShaderStage::FragmentShaderStage(const FragmentShaderStageState* state) :
         _fragmentShaderStageState(state)
     {
-    }
-
-    void FragmentShaderStage::validateState()
-    {
-        assert(_fragmentShaderStageState->fragmentShaderMain);
     }
 
     void FragmentShaderStage::executeShader(const Fragment* inputFragment, Vector4* outputColor) const

@@ -13,123 +13,129 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Pipeline">
-      <UniqueIdentifier>{7a0a94eb-3cab-4886-af32-4f9101c78916}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\SoftwareRasterizer">
+      <UniqueIdentifier>{ce703962-7687-438f-bb75-4300bd21c777}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Pipeline">
-      <UniqueIdentifier>{998e8ce2-ebed-4dec-a035-25baec2b8003}</UniqueIdentifier>
+    <Filter Include="ヘッダー ファイル\SoftwareRasterizer">
+      <UniqueIdentifier>{78b5532d-9771-4863-b27b-f4b52f330bef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Lib">
-      <UniqueIdentifier>{0c874966-6963-4d58-bc9a-0509b1a931ca}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\SoftwareRasterizer\Lib">
+      <UniqueIdentifier>{d69e3c04-f819-4e84-b911-ea540f135317}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Lib">
-      <UniqueIdentifier>{f6138142-26dc-4645-a1d6-b32b56d695d0}</UniqueIdentifier>
+    <Filter Include="ヘッダー ファイル\SoftwareRasterizer\Lib">
+      <UniqueIdentifier>{46e8903d-20e6-478d-9787-dd337f85a53c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\SoftwareRasterizer\Pipeline">
+      <UniqueIdentifier>{8f2d7319-27c3-4536-aebe-3f2c2275bf2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\SoftwareRasterizer\Pipeline">
+      <UniqueIdentifier>{a8402eb8-5637-418c-aa5f-9b42e073e357}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WinMain.cpp">
+    <ClCompile Include="Source\MeshData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="MeshData.cpp">
+    <ClCompile Include="Source\WinMain.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\FrameBuffer.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
-    <ClCompile Include="Matrix.cpp">
-      <Filter>ソース ファイル\Lib</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Math3d.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
-    <ClCompile Include="RenderingContext.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline\FragmentShaderStage.cpp">
-      <Filter>ソース ファイル\Pipeline</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Lib\Matrix.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Lib</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline\InputAssemblyStage.cpp">
-      <Filter>ソース ファイル\Pipeline</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Lib\Vector.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Lib</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline\PrimitiveAssembly.cpp">
-      <Filter>ソース ファイル\Pipeline</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline\RasterizeStage.cpp">
-      <Filter>ソース ファイル\Pipeline</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline\VertexShaderStage.cpp">
-      <Filter>ソース ファイル\Pipeline</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\ClipStage.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline\ClipStage.cpp">
-      <Filter>ソース ファイル\Pipeline</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Math3d.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Vector.cpp">
-      <Filter>ソース ファイル\Lib</Filter>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="Source\PostIncludeWindows.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="MeshData.h">
+    <ClInclude Include="Source\PreIncludeWindows.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="PostIncludeWindows.h">
+    <ClInclude Include="Source\MeshData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="PreIncludeWindows.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\FrameBuffer.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Math3d.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="RenderingContext.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Texture.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="Matrix.h">
-      <Filter>ヘッダー ファイル\Lib</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Types.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="Vector.h">
-      <Filter>ヘッダー ファイル\Lib</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Lib\Matrix.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Lib</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\ClipStage.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Lib\Vector.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Lib</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\FragmentShaderStage.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Lib\Algorithm.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Lib</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\FragmentShaderStageState.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\InputAssemblyStage.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStageState.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\InputAssemblyStageState.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\PrimitiveAssembly.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\RasterizeStage.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStageState.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\VertexShaderStage.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\VertexShaderStageState.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStageState.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline\RasterizeStageState.h">
-      <Filter>ヘッダー ファイル\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\ClipStage.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Math3d.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Algorithm.h">
-      <Filter>ヘッダー ファイル\Lib</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStageState.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 
 #include "FragmentShaderStageState.h"
 #include "..\Types.h"
-#include "..\Vector.h"
+#include "..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {
@@ -16,9 +16,9 @@ namespace SoftwareRasterizer
 
     public:
 
-        FragmentShaderStage(const FragmentShaderStageState* state);
+        static void validateState(const FragmentShaderStageState* state);
 
-        void validateState();
+        FragmentShaderStage(const FragmentShaderStageState* state);
 
         void executeShader(const Fragment* fragment, Vector4* color) const;
 

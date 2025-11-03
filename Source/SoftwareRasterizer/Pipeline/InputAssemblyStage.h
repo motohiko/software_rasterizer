@@ -30,14 +30,14 @@ namespace SoftwareRasterizer
 
     public:
 
-        InputAssemblyStage(const InputAssemblyStageState* state);
+        static void validateState(const InputAssemblyStageState* state);
 
-        void validateState();
+        InputAssemblyStage(const InputAssemblyStageState* state);
 
         void prepareReadPrimitive();
         bool readPrimitive(Primitive* primitive);
 
         void prepareReadVertex();
-        void readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
+        void readVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
     };
 }

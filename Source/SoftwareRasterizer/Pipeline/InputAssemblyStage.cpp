@@ -1,16 +1,16 @@
 #include "InputAssemblyStage.h"
-#include "..\Algorithm.h"
-#include "..\Vector.h"
+#include "..\Lib\Algorithm.h"
+#include "..\Lib\Vector.h"
 #include <cassert>
 
 namespace SoftwareRasterizer
 {
-    InputAssemblyStage::InputAssemblyStage(const InputAssemblyStageState* state) :
-        _inputAssemblyStageState(state)
+    void InputAssemblyStage::validateState(const InputAssemblyStageState* state)
     {
     }
 
-    void InputAssemblyStage::validateState()
+    InputAssemblyStage::InputAssemblyStage(const InputAssemblyStageState* state) :
+        _inputAssemblyStageState(state)
     {
     }
 
@@ -72,7 +72,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    void InputAssemblyStage::readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const
+    void InputAssemblyStage::readVertex(uint16_t vertexIndex, AttributeVertex* vertex) const
     {
         for (int i = 0; i < _vertexAttributeNum; i++)
         {

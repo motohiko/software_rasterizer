@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector.h"
+#include "Lib\Vector.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer
@@ -22,18 +22,20 @@ namespace SoftwareRasterizer
 
     struct ShadedVertex
     {
-        Vector4 clipSpacePosition;// clip space coordinates
+        Vector4 clipSpacePosition;
         Vector4 varyings[kMaxVaryings];
         int varyingNum;
     };
 
     struct Fragment
     {
+        int x;
+        int y;
+
         Vector2 wrcPosition;// window relative coordinate
         float depth;
         float invW;// 1 / clip space position w
         Vector4 varyings[kMaxVaryings];
         int varyingNum;
-        bool helperInvocation;// gl_helperinvocation
     };
 }

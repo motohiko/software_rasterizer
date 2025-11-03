@@ -18,6 +18,44 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\MeshData.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\FrameBuffer.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Lib\Matrix.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Lib\Vector.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Math3d.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\ClipStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
+    <ClCompile Include="Source\WinMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\MeshData.h" />
+    <ClInclude Include="Source\PostIncludeWindows.h" />
+    <ClInclude Include="Source\PreIncludeWindows.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\FrameBuffer.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Lib\Algorithm.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Lib\Matrix.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Lib\Vector.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Math3d.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\ClipStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStageState.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStageState.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStageState.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStageState.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Texture.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Types.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -131,44 +169,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="FrameBuffer.cpp" />
-    <ClCompile Include="Math3d.cpp" />
-    <ClCompile Include="Matrix.cpp" />
-    <ClCompile Include="MeshData.cpp" />
-    <ClCompile Include="Pipeline\ClipStage.cpp" />
-    <ClCompile Include="Pipeline\FragmentShaderStage.cpp" />
-    <ClCompile Include="Pipeline\InputAssemblyStage.cpp" />
-    <ClCompile Include="Pipeline\PrimitiveAssembly.cpp" />
-    <ClCompile Include="Pipeline\RasterizeStage.cpp" />
-    <ClCompile Include="Pipeline\VertexShaderStage.cpp" />
-    <ClCompile Include="RenderingContext.cpp" />
-    <ClCompile Include="Vector.cpp" />
-    <ClCompile Include="WinMain.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Algorithm.h" />
-    <ClInclude Include="FrameBuffer.h" />
-    <ClInclude Include="Math3d.h" />
-    <ClInclude Include="Matrix.h" />
-    <ClInclude Include="MeshData.h" />
-    <ClInclude Include="Pipeline\ClipStage.h" />
-    <ClInclude Include="Pipeline\FragmentShaderStage.h" />
-    <ClInclude Include="Pipeline\FragmentShaderStageState.h" />
-    <ClInclude Include="Pipeline\InputAssemblyStage.h" />
-    <ClInclude Include="Pipeline\InputAssemblyStageState.h" />
-    <ClInclude Include="Pipeline\PrimitiveAssembly.h" />
-    <ClInclude Include="Pipeline\RasterizeStage.h" />
-    <ClInclude Include="Pipeline\RasterizeStageState.h" />
-    <ClInclude Include="Pipeline\VertexShaderStage.h" />
-    <ClInclude Include="Pipeline\VertexShaderStageState.h" />
-    <ClInclude Include="PostIncludeWindows.h" />
-    <ClInclude Include="PreIncludeWindows.h" />
-    <ClInclude Include="RenderingContext.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Types.h" />
-    <ClInclude Include="Vector.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

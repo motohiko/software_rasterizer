@@ -27,7 +27,7 @@
 //
 
 #include "FrameBuffer.h"
-#include "Algorithm.h"
+#include "Lib\Algorithm.h"
 #include <cassert>
 #include <algorithm>// fill
 

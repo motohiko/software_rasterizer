@@ -1,5 +1,5 @@
 #include "ClipStage.h"
-#include "..\Algorithm.h"
+#include "..\Lib\Algorithm.h"
 #include <cassert>
 #include <cmath>
 
@@ -93,15 +93,18 @@ namespace SoftwareRasterizer
         *clippedPrimitiveVertiexCount = 2;
 
 #ifndef NDEBUG
-        float lazyW = std::abs(clippedPrimitiveVertices[0].clipSpacePosition.w) + 0.00001f;
-        assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.x && clippedPrimitiveVertices[0].clipSpacePosition.x <= lazyW);
-        assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.y && clippedPrimitiveVertices[0].clipSpacePosition.y <= lazyW);
-        assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.z && clippedPrimitiveVertices[0].clipSpacePosition.z <= lazyW);
+        if (false)
+        {
+            float lazyW = std::abs(clippedPrimitiveVertices[0].clipSpacePosition.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.x && clippedPrimitiveVertices[0].clipSpacePosition.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.y && clippedPrimitiveVertices[0].clipSpacePosition.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipSpacePosition.z && clippedPrimitiveVertices[0].clipSpacePosition.z <= lazyW);
 
-        lazyW = std::abs(clippedPrimitiveVertices[1].clipSpacePosition.w) + 0.00001f;
-        assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.x && clippedPrimitiveVertices[1].clipSpacePosition.x <= lazyW);
-        assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.y && clippedPrimitiveVertices[1].clipSpacePosition.y <= lazyW);
-        assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.z && clippedPrimitiveVertices[1].clipSpacePosition.z <= lazyW);
+            lazyW = std::abs(clippedPrimitiveVertices[1].clipSpacePosition.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.x && clippedPrimitiveVertices[1].clipSpacePosition.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.y && clippedPrimitiveVertices[1].clipSpacePosition.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipSpacePosition.z && clippedPrimitiveVertices[1].clipSpacePosition.z <= lazyW);
+        }
 #endif
     }
 

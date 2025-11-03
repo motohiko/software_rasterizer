@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Algorithm.h"// clamp
-#include "Vector.h"
+#include "Lib\Algorithm.h"// clamp
+#include "Lib\Vector.h"
 #include <cstdint>
 #include <cmath>// floor
 

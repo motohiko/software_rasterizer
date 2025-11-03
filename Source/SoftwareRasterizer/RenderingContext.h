@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Types.h"
-#include "Vector.h"
 #include "FrameBuffer.h"
 #include "Pipeline\InputAssemblyStageState.h"
 #include "Pipeline\VertexShaderStageState.h"
@@ -13,25 +11,23 @@
 #include "Pipeline\PrimitiveAssembly.h"
 #include "Pipeline\RasterizeStage.h"
 #include "Pipeline\FragmentShaderStage.h"
+#include "Types.h"
+#include "Lib\Vector.h"
 #include <cstdint>
 #include <functional>
 
 namespace SoftwareRasterizer
 {
-    class RenderingContext
+    class RenderingContext : public IFragmentOutput
     {
 
     private:
 
         FrameBuffer _frameBuffer;
-
         InputAssemblyStageState _inputAssemblyStageState;
         VertexShaderStageState _vertexShaderStageState;
         RasterizeStageState _rasterizeStageState;
         FragmentShaderStageState _fragmentShaderStageState;
-
-        RasterizeStage _rasterizeStage;
-        FragmentShaderStage _fragmentShaderStage;
 
     public:
 
@@ -74,8 +70,7 @@ namespace SoftwareRasterizer
 
     private:
 
-        void rasterizeLine(const RasterVertex* p0, const RasterVertex* p1);
-        void rasterizeTriangle(const RasterVertex* rasterizationPoint0, const RasterVertex* rasterizationPoint1, const RasterVertex* rasterizationPopint2);
+        void outputFragment(const Fragment* fragment) override;
 
         bool depthTest(int x, int y, float depth)
         {

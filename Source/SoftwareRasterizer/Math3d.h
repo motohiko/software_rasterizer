@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Matrix.h"
-#include "Vector.h"
+#include "Lib\Matrix.h"
+#include "Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {

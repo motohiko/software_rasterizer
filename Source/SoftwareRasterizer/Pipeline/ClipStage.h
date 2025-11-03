@@ -1,13 +1,13 @@
 #pragma once
 
 #include "..\Types.h"
-#include "..\Vector.h"
+#include "..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {
     const int kTriangleClippingPointMaxNum = 7;
 
-    const int kClippingPlaneNum = 6;
+    const int kClippingPlaneNum = 2;//6;
 
     struct ClippingPlaneParameter
     {
@@ -17,10 +17,10 @@ namespace SoftwareRasterizer
 
     const ClippingPlaneParameter kClipPlaneParameters[kClippingPlaneNum] =
     {
-        { 0, -1.0f },// left
-        { 0,  1.0f },// right
-        { 1, -1.0f },// bottom
-        { 1,  1.0f },// top
+//        { 0, -1.0f },// left
+//        { 0,  1.0f },// right
+//        { 1, -1.0f },// bottom
+//        { 1,  1.0f },// top
         { 2, -1.0f },// near
         { 2,  1.0f } // far
     };
