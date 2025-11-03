@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Lib\Matrix.cpp" />
+    <ClCompile Include="Source\Lib\Vector.cpp" />
     <ClCompile Include="Source\MeshData.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\FrameBuffer.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Lib\Matrix.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Lib\Vector.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Math3d.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\RenderingMatrix.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\ClipStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.cpp" />
@@ -34,14 +34,14 @@
     <ClCompile Include="Source\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Lib\Algorithm.h" />
+    <ClInclude Include="Source\Lib\Matrix.h" />
+    <ClInclude Include="Source\Lib\Vector.h" />
     <ClInclude Include="Source\MeshData.h" />
     <ClInclude Include="Source\PostIncludeWindows.h" />
     <ClInclude Include="Source\PreIncludeWindows.h" />
     <ClInclude Include="Source\SoftwareRasterizer\FrameBuffer.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Lib\Algorithm.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Lib\Matrix.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Lib\Vector.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Math3d.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\RenderingMatrix.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\ClipStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStageState.h" />

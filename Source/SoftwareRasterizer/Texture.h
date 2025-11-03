@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Lib\Algorithm.h"// clamp
-#include "Lib\Vector.h"
+#include "..\Lib\Algorithm.h"
+#include "..\Lib\Vector.h"
 #include <cstdint>
 #include <cmath>// floor
 
@@ -26,15 +26,15 @@ namespace SoftwareRasterizer
     {
         int tx = (int)std::floor((uv.x * tex->width) + 0.5f);// 切り捨て
         int ty = (int)std::floor((uv.y * tex->height) + 0.5f);
-        tx = clamp(tx, 0, tex->width - 1);
-        ty = clamp(ty, 0, tex->height - 1);
+        tx = Lib::clamp(tx, 0, tex->width - 1);
+        ty = Lib::clamp(ty, 0, tex->height - 1);
 
         const Texel* texel = ((const Texel*)tex->addr) + ty * tex->width + tx;
         Vector4 color(
-            normalizeByte(texel->r),
-            normalizeByte(texel->g),
-            normalizeByte(texel->b),
-            normalizeByte(texel->a)
+            Lib::normalizeByte(texel->r),
+            Lib::normalizeByte(texel->g),
+            Lib::normalizeByte(texel->b),
+            Lib::normalizeByte(texel->a)
         );
         return color;
     }

@@ -1,7 +1,7 @@
 #include "InputAssemblyStage.h"
 #include "..\RenderingContext.h"
-#include "..\Lib\Algorithm.h"
-#include "..\Lib\Vector.h"
+#include "..\..\Lib\Algorithm.h"
+#include "..\..\Lib\Vector.h"
 #include <cassert>
 
 namespace SoftwareRasterizer

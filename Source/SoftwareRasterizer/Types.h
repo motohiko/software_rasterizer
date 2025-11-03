@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Lib\Vector.h"
+#include "..\Lib\Vector.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer
@@ -43,7 +43,7 @@ namespace SoftwareRasterizer
 
     struct ShadedVertex
     {
-        Vector4 clipPosition;// 頂点座標（クリッピング座標系）
+        Vector4 clipPosition;// 頂点座標（クリップ空間座標系）
         Vector4 varyings[kMaxVaryings];
         int varyingNum;
     };

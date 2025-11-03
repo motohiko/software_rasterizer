@@ -1,5 +1,5 @@
 
-// ウィンドウ相対座標（ビューポート変換後）
+// ウィンドウ座標（ビューポート変換後）
 //
 //       +y                
 //         |
@@ -27,7 +27,7 @@
 //
 
 #include "FrameBuffer.h"
-#include "Lib\Algorithm.h"
+#include "..\Lib\Algorithm.h"
 #include <cassert>
 #include <algorithm>// fill
 
@@ -53,7 +53,7 @@ namespace SoftwareRasterizer
 
     void FrameBuffer::setClearColor(float r, float g, float b, float a)
     {
-        _clearColor = (denormalizeByte(a) << 24) | (denormalizeByte(r) << 16) | (denormalizeByte(g) << 8) | denormalizeByte(b);
+        _clearColor = (Lib::denormalizeByte(a) << 24) | (Lib::denormalizeByte(r) << 16) | (Lib::denormalizeByte(g) << 8) | Lib::denormalizeByte(b);
     }
 
     void FrameBuffer::setClearDepth(float depth)
@@ -104,9 +104,9 @@ namespace SoftwareRasterizer
             // DIBも左下が(0,0)なので上下反転は不要
             size_t colorOffset = (_colorBufferWidthBytes * y) + (sizeof(uint32_t) * x);
             uint32_t* colorDst = (uint32_t*)(((uintptr_t)_colorBuffer) + colorOffset);
-            uint32_t r = denormalizeByte(color.x);
-            uint32_t g = denormalizeByte(color.y);
-            uint32_t b = denormalizeByte(color.z);
+            uint32_t r = Lib::denormalizeByte(color.x);
+            uint32_t g = Lib::denormalizeByte(color.y);
+            uint32_t b = Lib::denormalizeByte(color.z);
             *colorDst = (r << 16) | (g << 8) | (b);
 
             size_t depthOffset = (_depthBufferWidthBytes * y) + (sizeof(float) * x);

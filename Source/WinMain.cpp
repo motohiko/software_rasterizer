@@ -7,9 +7,9 @@
 #include "SoftwareRasterizer\RenderingContext.h"
 #include "SoftwareRasterizer\FrameBuffer.h"
 #include "SoftwareRasterizer\Texture.h"
-#include "SoftwareRasterizer\Math3d.h"
-#include "SoftwareRasterizer\Lib\Matrix.h"
-#include "SoftwareRasterizer\Lib\Vector.h"
+#include "SoftwareRasterizer\RenderingMatrix.h"
+#include "Lib\Matrix.h"
+#include "Lib\Vector.h"
 #include "MeshData.h"
 
 #include <cstdint>
@@ -124,7 +124,7 @@ namespace Test
             int screenWidth = g_renderingContext->getViewportWidth();
             int screenHeight = g_renderingContext->getViewportHeight();
             float aspect = (float)screenWidth / (float)screenHeight;
-            uniformBlock.projectionMatrix = Math3d::createProjection(camera->fovY, aspect, camera->nearZ, camera->farZ);
+            uniformBlock.projectionMatrix = RenderingMatrix::createProjection(camera->fovY, aspect, camera->nearZ, camera->farZ);
 
             Matrix4x4 rotationX = Matrix4x4::createRotationX(camera->angleX);
             Matrix4x4 rotationY = Matrix4x4::createRotationY(camera->angleY);
@@ -133,7 +133,7 @@ namespace Test
             Vector3 eye = Vector3(camera->focusPositionX, camera->focusPositionY, camera->focusPositionZ) + Vector3(offset.x, offset.y, offset.z);
             Vector3 center(camera->focusPositionX, camera->focusPositionY, camera->focusPositionZ);
             Vector3 up(0.0f, 1.0f, 0.0f);
-            uniformBlock.viewMatrix = Math3d::lockAt(eye, center, up);
+            uniformBlock.viewMatrix = RenderingMatrix::lookAtRH(eye, center, up);
         }
 
         // グリッドを描画
@@ -305,7 +305,7 @@ namespace Test
         {
             int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
             g_camera.zoom += zDelta * -0.001f;
-            g_camera.zoom = clamp(g_camera.zoom, 0.001f, FLT_MAX);
+            g_camera.zoom = Lib::clamp(g_camera.zoom, 0.001f, FLT_MAX);
             InvalidateRect(hwnd, NULL, TRUE); // 再描画を要求
             return 0;
         }

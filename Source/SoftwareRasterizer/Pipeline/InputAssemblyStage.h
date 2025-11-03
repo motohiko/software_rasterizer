@@ -1,7 +1,7 @@
 #pragma once
 
 #include "InputAssemblyStageState.h"
-#include "..\Types.h"// PrimitiveType, kMaxVertexAttributes
+#include "..\Types.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer

@@ -1,6 +1,6 @@
 #include "RasterizeStage.h"
 #include "..\RenderingContext.h"
-#include "..\Lib\Algorithm.h"
+#include "..\..\Lib\Algorithm.h"
 #include <cassert>
 #include <cmath>
 
@@ -79,7 +79,7 @@ namespace SoftwareRasterizer
 
         // 正規化デバイス座標の z を深度範囲にマップ
         float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
-        rasterizationPoint->depth = lerp(_rasterizeStageState->depthRangeNearVal, _rasterizeStageState->depthRangeFarVal, t);
+        rasterizationPoint->depth = Lib::lerp(_rasterizeStageState->depthRangeNearVal, _rasterizeStageState->depthRangeFarVal, t);
 
         // パースペクティブコレクト用に 1/W を保存
         float w = clippedPrimitiveVertex->clipPosition.w;
@@ -159,7 +159,7 @@ namespace SoftwareRasterizer
         int x1 = (int)std::floor(p1->wndPosition.x);
         int y1 = (int)std::floor(p1->wndPosition.y);
 
-        BresenhamLine bresenhamLine;
+        Lib::BresenhamLine bresenhamLine;
         bresenhamLine.setup(x0, y0, x1, y1);
         do
         {
@@ -252,12 +252,12 @@ namespace SoftwareRasterizer
         float acLengthClosest = ab.normalize().dot(ac);
 
         float t = acLengthClosest / ab.getLength();
-        t = clamp(t, 0.0f, 1.0f);
+        t = Lib::clamp(t, 0.0f, 1.0f);
 
         // ２点間を補間
         Vector2 wndPosition = Vector2::Lerp(p0->wndPosition, p1->wndPosition, t);
-        float depth = lerp(p0->depth, p1->depth, t);
-        float invW = lerp(p0->invW, p1->invW, t);
+        float depth = Lib::lerp(p0->depth, p1->depth, t);
+        float invW = Lib::lerp(p0->invW, p1->invW, t);
 
         Vector4 varyingVariables[kMaxVaryings] = {};
         int varyingNum = p0->varyingNum;// TODO:

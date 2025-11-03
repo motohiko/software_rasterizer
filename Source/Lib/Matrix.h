@@ -2,8 +2,8 @@
 
 #include "Vector.h"
 
-namespace SoftwareRasterizer
-{
+//namespace Lib
+//{
     // m = | m00 m01 |
     //     | m10 m11 |
      struct Matrix2x2
@@ -19,6 +19,12 @@ namespace SoftwareRasterizer
             float m00, float m01,
             float m10, float m11
         );
+
+        // 特定の行および列を取り除いた小行列
+        float removeRowAndColumn(int rowIndex, int columnIndex) const;
+
+        // 余因子
+        float getCofactor(int row, int column) const;
 
         // 行列式
         float getDeterminant() const;
@@ -101,11 +107,11 @@ namespace SoftwareRasterizer
         static Matrix4x4 createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon);
         static Matrix4x4 createRotationX(float angle);
         static Matrix4x4 createRotationY(float angle);
-        static Matrix4x4 createScale(float x, float y, float z);
+        static Matrix4x4 createScale(float x, float y, float z, float w);
         static Matrix4x4 createShear(float xy, float xz, float yx, float yz, float zx, float zy);
 
         Matrix4x4 operator*(const Matrix4x4& r) const;
 
         friend Vector4 operator*(const Matrix4x4& mat, const Vector4& vec);
     };
-}
+//}

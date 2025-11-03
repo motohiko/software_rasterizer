@@ -1,9 +1,11 @@
-#include "Math3d.h"
+#include "RenderingMatrix.h"
 #include <cmath>
 
 // note.
 // 
-// 右手座標系の覚え方
+// 座標軸は xyz = rgb で描画される
+// 
+// 座標系
 // 
 //      人差し指
 //      +y 
@@ -15,24 +17,11 @@
 //   +z
 //   中指
 // 
-//   座標軸は xyz = rgb で描画される
-// 
-// 
-// 外積と直交基底の関係
-// 
-//   y × z = x   
-//   z × x = y   
-//   x × y = z   
-// 
-//   (0, 1, 0) x (0, 0, 1) = (1, 0, 0)
-//   (0, 0, 1) x (1, 0, 0) = (0, 1, 0)
-//   (1, 0, 0) x (0, 1, 0) = (0, 0, 1)
-// 
 // 
 
 namespace SoftwareRasterizer
 {
-    Matrix4x4 Math3d::lockAt(const Vector3& eye, const Vector3& center, const Vector3& up)
+    Matrix4x4 RenderingMatrix::lookAtRH(const Vector3& eye, const Vector3& center, const Vector3& up)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)
@@ -79,6 +68,19 @@ namespace SoftwareRasterizer
             //  +z
             // 
 
+            // 
+            // 
+            // 外積と直交基底の関係
+            // 
+            //   y × z = x   
+            //   z × x = y   
+            //   x × y = z   
+            // 
+            //   (0, 1, 0) x (0, 0, 1) = (1, 0, 0)
+            //   (0, 0, 1) x (1, 0, 0) = (0, 1, 0)
+            //   (1, 0, 0) x (0, 1, 0) = (0, 0, 1)
+            // 
+
             Vector3 zAxis = (eye - center).normalize();
             Vector3 xAxis = (up.cross(zAxis)).normalize();
             Vector3 yAxis = zAxis.cross(xAxis);
@@ -88,7 +90,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    Matrix4x4 Math3d::createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
+    Matrix4x4 RenderingMatrix::createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
     {
         // note.
         // 
@@ -110,7 +112,7 @@ namespace SoftwareRasterizer
         // 
         // また
         // 
-        // v,xyz = (0, 0, 0)
+        // v.xyz = (0, 0, 0)
         //
         // のとき
         //
@@ -136,8 +138,7 @@ namespace SoftwareRasterizer
         }
         else
         {
-            // 視体積のZ軸が視体積の中心を通るように補正
-            // （ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を移動）
+            // ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を中央に移動
             float m02 = (right + left) / (right - left);
             float m12 = (top + bottom) / (top - bottom);
             Matrix4x4 shearXY = Matrix4x4::createShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
@@ -145,9 +146,7 @@ namespace SoftwareRasterizer
             // ニアクリップ面の上下左右の範囲を [-1, 1] から [-near, near] にマップ
             float m00 = (2.0f / (right - left)) * nearVal;
             float m11 = (2.0f / (top - bottom)) * nearVal;
-            Matrix4x4 scaleXY = Matrix4x4::createScale(m00, m11, 1.0f);
-
-            Matrix4x4 frustumXY = scaleXY * shearXY;
+            Matrix4x4 scaleXY = Matrix4x4::createScale(m00, m11, 1.0f, 1.0f);
 
             // 視体積の奥行範囲を [-nearVal, -farVal] から [-nearVal, farVal] にマップ
             // z' = m22 * z + m23
@@ -159,7 +158,7 @@ namespace SoftwareRasterizer
             float m32 = -1.0f;
             float m33 = 0.0f;
 
-            // w' の式に z (z'ではない)が含まれているので、zw変換は１行列に収める
+            // w' の式に z (z'ではない)が含まれているので、zw変換は１行列に直書き
             Matrix4x4 frustumZW(
                 1.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 1.0f, 0.0f, 0.0f,
@@ -167,11 +166,11 @@ namespace SoftwareRasterizer
                 0.0f, 0.0f, m32, m33
             );
 
-            return frustumZW * frustumXY;
+            return frustumZW * scaleXY * shearXY;
         }
     }
 
-    Matrix4x4 Math3d::createProjection(float fovy, float aspect, float zNear, float zFar)
+    Matrix4x4 RenderingMatrix::createProjection(float fovy, float aspect, float zNear, float zFar)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)

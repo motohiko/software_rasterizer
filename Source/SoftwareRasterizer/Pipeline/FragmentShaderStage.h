@@ -2,7 +2,7 @@
 
 #include "FragmentShaderStageState.h"
 #include "..\Types.h"
-#include "..\Lib\Vector.h"
+#include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {

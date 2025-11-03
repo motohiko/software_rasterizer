@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\Lib\Vector.h"
+#include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {

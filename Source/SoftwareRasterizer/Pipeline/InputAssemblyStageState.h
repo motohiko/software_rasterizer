@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\Types.h"// kMaxVertexAttributes
+#include "..\Types.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer

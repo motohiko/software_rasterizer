@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-namespace SoftwareRasterizer
-{
+//namespace Lib
+//{
     //
     // 列ベクトル
     //
@@ -249,4 +249,4 @@ namespace SoftwareRasterizer
             return Vector4(vec.x * scalar, vec.y * scalar, vec.z * scalar, vec.w * scalar);
         }
     };
-}
+//}

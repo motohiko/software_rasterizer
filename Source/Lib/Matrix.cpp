@@ -1,8 +1,8 @@
 ﻿#include "Matrix.h"
 #include <cmath>
 
-namespace SoftwareRasterizer
-{
+//namespace Lib
+//{
     const Matrix2x2 Matrix2x2::kIdentity(
         1.0f, 0.0f,
         0.0f, 1.0f
@@ -17,11 +17,47 @@ namespace SoftwareRasterizer
     {
     }
 
+    // 特定の行および列を取り除いた小行列
+    float Matrix2x2::removeRowAndColumn(int rowIndex, int columnIndex) const
+    {
+        switch (rowIndex)
+        {
+        case 0:
+            switch (columnIndex)
+            {
+            case 0:
+                return m11;
+            case 1:
+                return m10;
+            }
+            break;
+        case 1:
+            switch (columnIndex)
+            {
+            case 0:
+                return m01;
+            case 1:
+                return m00;
+            }
+            break;
+        }
+
+        return 1.0f;
+    }
+
+    // 余因子
+    float Matrix2x2::getCofactor(int row, int column) const
+    {
+        float subMatrix = removeRowAndColumn(row, column);
+        float det = subMatrix;
+        return det * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+    }
+
     // 行列式
     float Matrix2x2::getDeterminant() const
     {
-        float c00 = m11;
-        float c01 = m10 * -1.0f;
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
         return m00 * c00 + m01 * c01;
     }
 
@@ -442,13 +478,13 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 Matrix4x4::createScale(float x, float y, float z)
+    Matrix4x4 Matrix4x4::createScale(float x, float y, float z, float w)
     {
         return Matrix4x4(
             x,    0.0f, 0.0f, 0.0f,
             0.0f, y,    0.0f, 0.0f,
             0.0f, 0.0f, z,    0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
+            0.0f, 0.0f, 0.0f, w
         );
     }
 
@@ -501,4 +537,4 @@ namespace SoftwareRasterizer
             mat.m30 * vec.x + mat.m31 * vec.y + mat.m32 * vec.z + mat.m33 * vec.w
         );
     }
-}
+//}

@@ -1,8 +1,8 @@
 #include "Vector.h"
 #include <cmath>
 
-namespace SoftwareRasterizer
-{
+//namespace Lib
+//{
     float Vector2::getLength() const
     {
         return std::sqrt(getLengthSquared());
@@ -32,4 +32,4 @@ namespace SoftwareRasterizer
         }
         return Vector3(x / length, y / length, z / length);
     }
-}
+//}
