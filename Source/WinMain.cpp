@@ -219,10 +219,16 @@ namespace Test
             g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4));
             g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);// 流用
             g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// 流用
+
+            g_renderingContext->setFrontFaceType(FrontFaceType::kCounterClockwise);
+            g_renderingContext->setCullFaceType(CullFaceType::kBack);
+
             g_renderingContext->drawIndexed();
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
+            g_renderingContext->setFrontFaceType(FrontFaceType::kDefault);
+            g_renderingContext->setCullFaceType(CullFaceType::kDefault);
         }
 
         // モデル（１メッシュ）を描画

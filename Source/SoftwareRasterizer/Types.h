@@ -26,6 +26,22 @@ namespace SoftwareRasterizer
         kUnsignedByte,// GL_UNSIGNED_BYTE
     };
 
+    enum class FrontFaceType
+    {
+        kClockwise, //GL_CW
+        kCounterClockwise,// GL_CCW
+        kDefault = kCounterClockwise,
+    };
+
+    enum class CullFaceType
+    {
+        kNone,
+        kFront, // GL_FRONT
+        kBack, // GL_BACK
+        kFrontAndBack, // GL_FRONT_AND_BACK
+        kDefault = kBack,
+    };
+
     const int kMaxVertexAttributes = 16;// GL_MAX_VERTEX_ATTRIBS
     const int kMaxVaryings = 15;// GL_MAX_VARYING_VECTORS
 

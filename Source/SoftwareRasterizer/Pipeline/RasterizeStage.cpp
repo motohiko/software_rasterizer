@@ -110,11 +110,37 @@ namespace SoftwareRasterizer
             Vector2 p1 = ndcVertices[1].ndcPosition.getXY();
             Vector2 p2 = ndcVertices[2].ndcPosition.getXY();
 
-            // glFrontFace(GL_CCW) // OpenGL default
-            // glEnable(GL_CULL_FACE)
+            float n;
+            switch (_rasterizeStageState->frontFacetype)
+            {
+            case FrontFaceType::kCounterClockwise:
+                n = (p1 - p0).cross(p2 - p0);
+                break;
+            case FrontFaceType::kClockwise:
+                n = (p2 - p0).cross(p1 - p0);
+                break;
+            default:
+                n = 0.0f;
+                break;
+            }
 
-            float n = (p1 - p0).cross(p2 - p0);// CCW
-            bool passed = (0.0f < n);// GL_CULL_FACE
+            bool passed;
+            switch (_rasterizeStageState->cullFaceType)
+            {
+            case CullFaceType::kNone:
+                passed = true;
+                break;
+            case CullFaceType::kBack:
+                passed = (0.0f < n);
+                break;
+            case CullFaceType::kFront:
+                passed = (n < 0.0f);
+                break;
+            case CullFaceType::kFrontAndBack:
+            default:
+                passed = false;
+                break;
+            }
 
             if (!passed)
             {

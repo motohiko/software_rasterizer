@@ -62,6 +62,10 @@ namespace SoftwareRasterizer
 
         void setDepthRange(float nearVal, float farVal);
 
+        void setFrontFaceType(FrontFaceType frontFacetype);// glFrontFace
+        void setCullFaceType(CullFaceType cullFaceType);// glCullFace
+
+
         void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);
 
         void drawIndexed();

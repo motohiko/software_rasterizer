@@ -14,5 +14,8 @@ namespace SoftwareRasterizer
 
         float depthRangeNearVal = 0.0;
         float depthRangeFarVal = 1.0f;
+        
+        FrontFaceType frontFacetype = FrontFaceType::kDefault;
+        CullFaceType cullFaceType = CullFaceType::kDefault;
     };
 }

@@ -31,13 +31,12 @@ namespace SoftwareRasterizer
     //
     static float transformClippingBoundaryCoordinate(const Vector4& clipSpaceVertex, const ClippingPlaneParameter* clippingPlaneParameter)
     {
-#if !0
+#if 0// TODO
         float clippingPoint = clipSpaceVertex.w * clippingPlaneParameter->sign;
         float offsetFromClippingPoint = clipSpaceVertex.getComponent(clippingPlaneParameter->vectorComponentIndex) - clippingPoint;
         // sign = 1.0f ‚È‚ç•„†‚ð”½“]
         return (clippingPlaneParameter->sign * -1.0f) * offsetFromClippingPoint;
 #else
-        // Å“K‰»
         return clipSpaceVertex.w - (clippingPlaneParameter->sign * clipSpaceVertex.getComponent(clippingPlaneParameter->vectorComponentIndex));
 #endif
     }

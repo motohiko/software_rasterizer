@@ -130,6 +130,16 @@ namespace SoftwareRasterizer
         _rasterizeStageState.depthRangeFarVal = farVal;
     }
 
+    void RenderingContext::setFrontFaceType(FrontFaceType frontFacetype)
+    {
+        _rasterizeStageState.frontFacetype = frontFacetype;
+    }
+
+    void RenderingContext::setCullFaceType(CullFaceType cullFaceType)
+    {
+        _rasterizeStageState.cullFaceType = cullFaceType;
+    }
+
     void RenderingContext::setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain)
     {
         _fragmentShaderStageState.fragmentShaderMain = fragmentShaderMain;
