@@ -1,28 +1,15 @@
 #include "MatrixUtility.h"
 #include <cmath>
 
-// note.
-// 
-// 座標軸は xyz = rgb で描画される
-// 
-// 座標系
-// 
-//      人差し指
-//      +y 
-//        |
-//        |
-//        +---- +x 親指
-//       /
-//      /
-//   +z
-//   中指
-// 
-// 
-
 namespace SoftwareRasterizer
 {
     Matrix4x4 MatrixUtility::createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon)
     {
+        //     | xAxis.x yAxis.x zAxis.x origon.x |
+        // m = | xAxis.y yAxis.y zAxis.y origon.y |
+        //     | xAxis.z yAxis.z zAxis.z origon.z |
+        //     | 0       0       0       1        |
+
         return Matrix4x4(
             xAxis.x, yAxis.x, zAxis.x, origon.x,
             xAxis.y, yAxis.y, zAxis.y, origon.y,
@@ -33,26 +20,26 @@ namespace SoftwareRasterizer
 
     Matrix4x4 MatrixUtility::createRotationX(float angle)
     {
-        float c = std::cosf(angle);
-        float s = std::sinf(angle);
+        float c = std::cos(angle);
+        float s = std::sin(angle);
 
         return Matrix4x4(
             1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, c, s, 0.0f,
-            0.0f, -s, c, 0.0f,
+            0.0f, c,    s,    0.0f,
+            0.0f, -s,   c,    0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         );
     }
 
     Matrix4x4 MatrixUtility::createRotationY(float angle)
     {
-        float c = std::cosf(angle);
-        float s = std::sinf(angle);
+        float c = std::cos(angle);
+        float s = std::sin(angle);
 
         return Matrix4x4(
-            c, 0.0f, -s, 0.0f,
+            c,    0.0f, -s,   0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
-            s, 0.0f, c, 0.0f,
+            s,    0.0f, c,    0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         );
     }
@@ -60,9 +47,9 @@ namespace SoftwareRasterizer
     Matrix4x4 MatrixUtility::createScale(float x, float y, float z, float w)
     {
         return Matrix4x4(
-            x, 0.0f, 0.0f, 0.0f,
-            0.0f, y, 0.0f, 0.0f,
-            0.0f, 0.0f, z, 0.0f,
+            x,    0.0f, 0.0f, 0.0f,
+            0.0f, y,    0.0f, 0.0f,
+            0.0f, 0.0f, z,    0.0f,
             0.0f, 0.0f, 0.0f, w
         );
     }
@@ -70,13 +57,12 @@ namespace SoftwareRasterizer
     Matrix4x4 MatrixUtility::createShear(float xy, float xz, float yx, float yz, float zx, float zy)
     {
         return Matrix4x4(
-            1.0f, yx, zx, 0.0f,
-            xy, 1.0f, zy, 0.0f,
-            xz, yz, 1.0f, 0.0f,
+            1.0f, yx,   zx,   0.0f,
+            xy,   1.0f, zy,   0.0f,
+            xz,   yz,   1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         );
     }
-
 
     Matrix4x4 MatrixUtility::lookAtRH(const Vector3& eye, const Vector3& center, const Vector3& up)
     {

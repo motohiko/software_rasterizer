@@ -7,17 +7,31 @@
 namespace SoftwareRasterizer
 {
 	//
-	// ベクトル・行列は列優先
+	// ベクトル（行列）は列優先
 	//
-	//     | x |        | xx yy zx wx |
-	// v = | y |    m = | xy yy zy wy |
-	//     | z |        | xz yz zz wz |
-	//     | w |        | xw yw zw ww |
+	//     | x |        | xAxis.x yAxis.x zAxis.x origon.x |
+	// v = | y |    m = | xAxis.y yAxis.y zAxis.y origon.y |
+	//     | z |        | xAxis.z yAxis.z zAxis.z origon.z |
+	//     | w |        | xAxis.w yAxis.w zAxis.w origon.w |
 	//
-
 	//
 	// 座標系は右手系
+	// 
+	//      人差し指
+	//      +y 
+	//        |
+	//        |
+	//        +---- +x 親指
+	//       /
+	//      /
+	//   +z
+	//   中指
+	// 
 	//
+	// note.
+	// 
+	// 座標軸は xyz = rgb で描画される
+	// 
 
 	class MatrixUtility
 	{

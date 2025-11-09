@@ -20,45 +20,45 @@ namespace Lib
         Vector2 normalize() const;
 
         // 内積
-        float dot(const Vector2& other) const
+        float dot(const Vector2& rhs) const
         {
-            return x * other.x + y * other.y;
+            return x * rhs.x + y * rhs.y;
         }
 
         // 外積
-        float cross(const Vector2& other) const
+        float cross(const Vector2& rhs) const
         {
-            return x * other.y - y * other.x;
+            return x * rhs.y - y * rhs.x;
         }
 
-       Vector2 operator+(const Vector2& other) const
+       Vector2 operator+(const Vector2& rhs) const
         {
-            return Vector2(x + other.x, y + other.y);
+            return Vector2(x + rhs.x, y + rhs.y);
         }
 
-        Vector2 operator-(const Vector2& other) const
+        Vector2 operator-(const Vector2& rhs) const
         {
-            return Vector2(x - other.x, y - other.y);
+            return Vector2(x - rhs.x, y - rhs.y);
         }
 
-        Vector2 operator*(float scalar) const
+        Vector2 operator*(float rhs) const
         {
-            return Vector2(x * scalar, y * scalar);
+            return Vector2(x * rhs, y * rhs);
         }
 
-        Vector2 operator/(float scalar) const
+        Vector2 operator/(float rhs) const
         {
-            return Vector2(x / scalar, y / scalar);
+            return Vector2(x / rhs, y / rhs);
         }
+
+        //friend Vector2 operator*(float lhs, const Vector2& rhs)
+        //{
+        //    return Vector2(rhs.x * lhs, rhs.y * lhs);
+        //}
 
         static Vector2 Lerp(const Vector2& v0, const Vector2& v1, float t)
         {
-            return ((1.0f - t) * v0) + (t * v1);
-        }
-
-        friend Vector2 operator*(float scalar, const Vector2& vec)
-        {
-            return Vector2(vec.x * scalar, vec.y * scalar);
+            return (v0 * (1.0f - t)) + (v1 * t);
         }
     };
 
@@ -97,47 +97,47 @@ namespace Lib
         Vector3 normalize() const;
 
         // 内積
-        float dot(const Vector3& other) const
+        float dot(const Vector3& rhs) const
         {
-            return x * other.x + y * other.y + z * other.z;
+            return x * rhs.x + y * rhs.y + z * rhs.z;
         }
 
         // 外積
-        Vector3 cross(const Vector3& other) const
+        Vector3 cross(const Vector3& rhs) const
         {
             return Vector3(
-                y * other.z - z * other.y,
-                z * other.x - x * other.z,
-                x * other.y - y * other.x
+                y * rhs.z - z * rhs.y,
+                z * rhs.x - x * rhs.z,
+                x * rhs.y - y * rhs.x
             );
         }
 
-        Vector3 operator+(const Vector3& other) const
+        Vector3 operator+(const Vector3& rhs) const
         {
-            return Vector3(x + other.x, y + other.y, z + other.z);
+            return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);
         }
 
-        Vector3 operator-(const Vector3& other) const
+        Vector3 operator-(const Vector3& rhs) const
         {
-            return Vector3(x - other.x, y - other.y, z - other.z);
+            return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);
         }
 
-        Vector3 operator/(float scalar) const
+        Vector3 operator/(float rhs) const
         {
-            return Vector3(x / scalar, y / scalar, z / scalar);
+            return Vector3(x / rhs, y / rhs, z / rhs);
         }
 
-        Vector3& operator/=(float scalar)
+        Vector3& operator/=(float rhs)
         {
-            x /= scalar;
-            y /= scalar;
-            z /= scalar;
+            x /= rhs;
+            y /= rhs;
+            z /= rhs;
             return *this;
         }
 
-        friend Vector3 operator*(float scalar, const Vector3& vec)
+        friend Vector3 operator*(float lhs, const Vector3& rhs)
         {
-            return Vector3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
+            return Vector3(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs);
         }
     };
 
@@ -187,57 +187,57 @@ namespace Lib
         }
 
         // 内積
-        float dot(const Vector4& other) const
+        float dot(const Vector4& rhs) const
         {
-            return x * other.x + y * other.y + z * other.z + w * other.w;
+            return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
         }
 
-        Vector4 operator+(const Vector4& other) const
+        Vector4 operator+(const Vector4& rhs) const
         {
-            return Vector4(x + other.x, y + other.y, z + other.z, w + other.w);
+            return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
         }
 
-        Vector4 operator-(const Vector4& other) const
+        Vector4 operator-(const Vector4& rhs) const
         {
-            return Vector4(x - other.x, y - other.y, z - other.z, w - other.w);
+            return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
         }
 
-        Vector4 operator*(float scalar) const
+        Vector4 operator*(float rhs) const
         {
-            return Vector4(x * scalar, y * scalar, z * scalar, w * scalar);
+            return Vector4(x * rhs, y * rhs, z * rhs, w * rhs);
         }
 
-        Vector4 operator/(float scalar) const
+        Vector4 operator/(float rhs) const
         {
-            return Vector4(x / scalar, y / scalar, z / scalar, w / scalar);
+            return Vector4(x / rhs, y / rhs, z / rhs, w / rhs);
         }
 
-        Vector4& operator*=(float scalar)
+        Vector4& operator*=(float rhs)
         {
-            x *= scalar;
-            y *= scalar;
-            z *= scalar;
-            w *= scalar;
+            x *= rhs;
+            y *= rhs;
+            z *= rhs;
+            w *= rhs;
             return *this;
         }
 
-        Vector4& operator/=(float scalar)
+        Vector4& operator/=(float rhs)
         {
-            x /= scalar;
-            y /= scalar;
-            z /= scalar;
-            w /= scalar;
+            x /= rhs;
+            y /= rhs;
+            z /= rhs;
+            w /= rhs;
             return *this;
         }
+
+        //friend Vector4 operator*(float lhs, const Vector4& rhs)
+        //{
+        //    return Vector4(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs, rhs.w * lhs);
+        //}
 
         static Vector4 Lerp(const Vector4& v0, const Vector4& v1, float t)
         {
-            return ((1.0f - t) * v0) + (t * v1);
-        }
-
-        friend Vector4 operator*(float scalar, const Vector4& vec)
-        {
-            return Vector4(vec.x * scalar, vec.y * scalar, vec.z * scalar, vec.w * scalar);
+            return (v0 * (1.0f - t)) + (v1 * t);
         }
     };
 }

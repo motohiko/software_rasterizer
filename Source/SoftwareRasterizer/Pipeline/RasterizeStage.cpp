@@ -340,7 +340,7 @@ namespace SoftwareRasterizer
         }
 
         // •âŠÔ
-        Vector2 wndPosition = (b0 * p0->wndPosition) + (b1 * p1->wndPosition) + (b2 * p2->wndPosition);
+        Vector2 wndPosition = (p0->wndPosition * b0) + (p1->wndPosition * b1) + (p2->wndPosition * b2);
         float depth = (b0 * p0->depth) + (b1 * p1->depth) + (b2 * p2->depth);
         float invW = (b0 * p0->invW) + (b1 * p1->invW) + (b2 * p2->invW);
 
@@ -351,7 +351,7 @@ namespace SoftwareRasterizer
             const Vector4& v0 = p0->varyingsDividedByW[i];
             const Vector4& v1 = p1->varyingsDividedByW[i];
             const Vector4& v2 = p2->varyingsDividedByW[i];
-            varyingVariables[i] = ((b0 * v0) + (b1 * v1) + (b2 * v2));
+            varyingVariables[i] = ((v0 * b0) + (v1 * b1) + (v2 * b2));
         }
 
         assert(0.0f != invW);

@@ -108,13 +108,27 @@ namespace SoftwareRasterizer
                     }
                     break;
                 case ComponentType::kUnsignedByte:
-                    switch (vertexAttributeLayout->size)
+                    if (vertexAttributeLayout->normalized)
                     {
-                    case 4: attribute.w = ((const uint8_t*)ptr)[3];
-                    case 3: attribute.z = ((const uint8_t*)ptr)[2];
-                    case 2: attribute.y = ((const uint8_t*)ptr)[1];
-                    case 1: attribute.x = ((const uint8_t*)ptr)[0];
-                    default: break;
+                        switch (vertexAttributeLayout->size)
+                        {
+                        case 4: attribute.w = Lib::normalizeByte(((const uint8_t*)ptr)[3]);
+                        case 3: attribute.z = Lib::normalizeByte(((const uint8_t*)ptr)[2]);
+                        case 2: attribute.y = Lib::normalizeByte(((const uint8_t*)ptr)[1]);
+                        case 1: attribute.x = Lib::normalizeByte(((const uint8_t*)ptr)[0]);
+                        default: break;
+                        }
+                    }
+                    else
+                    {
+                        switch (vertexAttributeLayout->size)
+                        {
+                        case 4: attribute.w = ((const uint8_t*)ptr)[3];
+                        case 3: attribute.z = ((const uint8_t*)ptr)[2];
+                        case 2: attribute.y = ((const uint8_t*)ptr)[1];
+                        case 1: attribute.x = ((const uint8_t*)ptr)[0];
+                        default: break;
+                        }
                     }
                     break;
                 default:

@@ -17,7 +17,7 @@ namespace Lib
     {
     }
 
-    float Matrix2x2::removeRowAndColumn(int rowIndex, int columnIndex) const
+    Matrix1x1 Matrix2x2::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
         {
@@ -25,18 +25,18 @@ namespace Lib
             switch (columnIndex)
             {
             case 0:
-                return m11;
+                return Matrix1x1(m11);
             case 1:
-                return m10;
+                return Matrix1x1(m10);
             }
             break;
         case 1:
             switch (columnIndex)
             {
             case 0:
-                return m01;
+                return Matrix1x1(m01);
             case 1:
-                return m00;
+                return Matrix1x1(m00);
             }
             break;
         }
@@ -45,16 +45,16 @@ namespace Lib
     }
 
     // 小行列
-    float Matrix2x2::getSubMatrix(int row, int column) const
+    Matrix1x1 Matrix2x2::getSubMatrix(int row, int column) const
     {
-        return removeRowAndColumn(row, column);
+        return getMatrixWithoutRowColumn(row, column);
     }
 
     // 余因子
     float Matrix2x2::getCofactor(int row, int column) const
     {
-        float subMatrix = getSubMatrix(row, column);
-        float det = subMatrix;
+        Matrix1x1 subMatrix = getSubMatrix(row, column);
+        float det = subMatrix.getDeterminant();
         float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
         return det * sign;
     }
@@ -84,7 +84,7 @@ namespace Lib
     {
     }
 
-    Matrix2x2 Matrix3x3::removeRowAndColumn(int rowIndex, int columnIndex) const
+    Matrix2x2 Matrix3x3::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
         {
@@ -156,7 +156,7 @@ namespace Lib
     // 小行列
     Matrix2x2 Matrix3x3::getSubMatrix(int row, int column) const
     {
-        return removeRowAndColumn(row, column);
+        return getMatrixWithoutRowColumn(row, column);
     }
 
     // 余因子
@@ -255,7 +255,7 @@ namespace Lib
         }
     }
 
-    Matrix3x3 Matrix4x4::removeRowAndColumn(int rowIndex, int columnIndex) const
+    Matrix3x3 Matrix4x4::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
         {
@@ -379,21 +379,10 @@ namespace Lib
         return Matrix3x3::kIdentity;
     }
 
-    // 転置行列
-    Matrix4x4 Matrix4x4::getTransposeMatrix() const
-    {
-        return Matrix4x4(
-            m00, m10, m20, m30,
-            m01, m11, m21, m31,
-            m02, m12, m22, m32,
-            m03, m13, m23, m33
-        );
-    }
-
     // 小行列
     Matrix3x3 Matrix4x4::getSubMatrix(int row, int column) const
     {
-        return removeRowAndColumn(row, column);
+        return getMatrixWithoutRowColumn(row, column);
     }
 
     // 余因子
@@ -403,16 +392,6 @@ namespace Lib
         float det = subMatrix.getDeterminant();
         float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
         return det * sign;
-    }
-
-    // 行列式
-    float Matrix4x4::getDeterminant() const
-    {
-        float c00 = getCofactor(0, 0);
-        float c01 = getCofactor(0, 1);
-        float c02 = getCofactor(0, 2);
-        float c03 = getCofactor(0, 3);
-        return m00 * c00 + m01 * c01 + m02 * c02 + m03 * c03;
     }
 
     // 余因子行列
@@ -445,10 +424,29 @@ namespace Lib
         return cofactorMatrix.getTransposeMatrix();
     }
 
-    // 逆行列
+    // 行列式
+    float Matrix4x4::getDeterminant() const
+    {
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
+        float c02 = getCofactor(0, 2);
+        float c03 = getCofactor(0, 3);
+        return m00 * c00 + m01 * c01 + m02 * c02 + m03 * c03;
+    }
+
+    Matrix4x4 Matrix4x4::getTransposeMatrix() const
+    {
+        return Matrix4x4(
+            m00, m10, m20, m30,
+            m01, m11, m21, m31,
+            m02, m12, m22, m32,
+            m03, m13, m23, m33
+        );
+    }
+
     Matrix4x4 Matrix4x4::getInverseMatrix() const
     {
-        Matrix4x4 a = getAdjugateMatrix();
+        Matrix4x4 adj = getAdjugateMatrix();
 
         float det = getDeterminant();
         if (det == 0.0f)
@@ -457,24 +455,24 @@ namespace Lib
         }
 
         return Matrix4x4(
-            a.m00 / det, a.m01 / det, a.m02 / det, a.m03 / det,
-            a.m10 / det, a.m11 / det, a.m12 / det, a.m13 / det,
-            a.m20 / det, a.m21 / det, a.m22 / det, a.m23 / det,
-            a.m30 / det, a.m31 / det, a.m32 / det, a.m33 / det
+            adj.m00 / det, adj.m01 / det, adj.m02 / det, adj.m03 / det,
+            adj.m10 / det, adj.m11 / det, adj.m12 / det, adj.m13 / det,
+            adj.m20 / det, adj.m21 / det, adj.m22 / det, adj.m23 / det,
+            adj.m30 / det, adj.m31 / det, adj.m32 / det, adj.m33 / det
         );
     }
 
-    Matrix4x4 Matrix4x4::operator*(const Matrix4x4& r) const
+    Matrix4x4 Matrix4x4::operator*(const Matrix4x4& rhs) const
     {
         Vector4 r0 = getRow(0);
         Vector4 r1 = getRow(1);
         Vector4 r2 = getRow(2);
         Vector4 r3 = getRow(3);
 
-        Vector4 c0 = r.getColumn(0);
-        Vector4 c1 = r.getColumn(1);
-        Vector4 c2 = r.getColumn(2);
-        Vector4 c3 = r.getColumn(3);
+        Vector4 c0 = rhs.getColumn(0);
+        Vector4 c1 = rhs.getColumn(1);
+        Vector4 c2 = rhs.getColumn(2);
+        Vector4 c3 = rhs.getColumn(3);
 
         return  Matrix4x4(
             r0.dot(c0), r0.dot(c1), r0.dot(c2), r0.dot(c3),
@@ -484,14 +482,14 @@ namespace Lib
         );
     }
 
-    Matrix4x1 Matrix4x4::operator*(const Matrix4x1& r) const
+    Matrix4x1 Matrix4x4::operator*(const Matrix4x1& rhs) const
     {
         Vector4 r0 = getRow(0);
         Vector4 r1 = getRow(1);
         Vector4 r2 = getRow(2);
         Vector4 r3 = getRow(3);
 
-        Vector4 c0 = r.getColumn(0);
+        Vector4 c0 = rhs.getColumn(0);
 
         return  Matrix4x1(
             r0.dot(c0),
@@ -501,8 +499,8 @@ namespace Lib
         );
     }
 
-    Vector4 Matrix4x4::operator*(const Vector4& r) const
+    Vector4 Matrix4x4::operator*(const Vector4& rhs) const
     {
-        return Matrix4x1::asVector4(operator*(Matrix4x1::fromVector4(r)));
+        return Matrix4x1::asVector4((*this) * (Matrix4x1::fromVector4(rhs)));
     }
 }
