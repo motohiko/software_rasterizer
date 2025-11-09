@@ -5,9 +5,9 @@ namespace Lib
 {
     const Vector2 Vector2::kZero(0.0f, 0.0f);
 
-    float Vector2::getLength() const
+    float Vector2::getNorm() const
     {
-        return std::sqrt(getLengthSquared());
+        return std::sqrt(getNormSquared());
     }
 
     const Vector3 Vector3::kZero(0.0f, 0.0f, 0.0f);
@@ -23,9 +23,9 @@ namespace Lib
         }
     }
 
-    float Vector3::getLength() const
+    float Vector3::getNorm() const
     {
-        return std::sqrt(getLengthSquared());
+        return std::sqrt(getNormSquared());
     }
 
     const Vector4 Vector4::kZero(0.0f, 0.0f, 0.0f, 0.0f);

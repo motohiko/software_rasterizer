@@ -12,12 +12,12 @@ namespace Lib
 
         static const Vector2 kZero;
 
-        float getLengthSquared() const
+        float getNormSquared() const
         {
             return (x * x) + (y * y);
         }
 
-        float getLength() const;
+        float getNorm() const;
 
         // 内積
         float dot(const Vector2& rhs) const
@@ -53,7 +53,7 @@ namespace Lib
 
         static Vector2 Normalize(const Vector2& v)
         {
-            float len = v.getLength();
+            float len = v.getNorm();
             return (0.0f == len) ? kZero : (v / len);
         }
 
@@ -81,12 +81,12 @@ namespace Lib
 
         float getComponent(int index) const;
 
-        float getLengthSquared() const
+        float getNormSquared() const
         {
             return x * x + y * y + z * z;
         }
 
-        float getLength() const;
+        float getNorm() const;
 
         // 内積
         float dot(const Vector3& rhs) const
@@ -134,7 +134,7 @@ namespace Lib
 
         static Vector3 Normalize(const Vector3& v)
         {
-            float len = v.getLength();
+            float len = v.getNorm();
             return (0.0f == len) ? kZero : (v / len);
         }
     };

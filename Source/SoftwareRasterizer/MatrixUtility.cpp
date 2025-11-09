@@ -44,13 +44,28 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::createScale(float x, float y, float z, float w)
+    Matrix4x4 MatrixUtility::createRotationZ(float angle)
     {
+        float c = std::cos(angle);
+        float s = std::sin(angle);
+
+        return Matrix4x4(
+            c,    s,    0.0f, 0.0f,
+            -s,   c,    0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+    }
+
+    Matrix4x4 MatrixUtility::createScale(float x, float y, float z)
+    {
+        // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glScale.xml
+
         return Matrix4x4(
             x,    0.0f, 0.0f, 0.0f,
             0.0f, y,    0.0f, 0.0f,
             0.0f, 0.0f, z,    0.0f,
-            0.0f, 0.0f, 0.0f, w
+            0.0f, 0.0f, 0.0f, 1.0f
         );
     }
 
@@ -64,7 +79,21 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::lookAtRH(const Vector3& eye, const Vector3& center, const Vector3& up)
+    static Matrix4x4 createTranslate(float x, float y, float z)
+    {
+        // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml
+
+        return Matrix4x4(
+            1.0f, 0.0f, 0.0f, x,
+            0.0f, 1.0f, 0.0f, y,
+            0.0f, 0.0f, 1.0f, z,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+
+    }
+
+
+    Matrix4x4 MatrixUtility::createLookAt(const Vector3& eye, const Vector3& center, const Vector3& up)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)
@@ -131,7 +160,7 @@ namespace SoftwareRasterizer
             Vector3 yAxis = zAxis.cross(xAxis);
             Matrix4x4 cameraMatrix = MatrixUtility::createBasis(xAxis, yAxis, zAxis, eye);
 
-            return cameraMatrix.getInverseMatrix();// view matrix
+            return cameraMatrix.getInverseMatrix();
         }
     }
 
@@ -191,7 +220,7 @@ namespace SoftwareRasterizer
             // ニアクリップ面の上下左右の範囲を [-1, 1] から [-near, near] にマップ
             float m00 = (2.0f / (right - left)) * nearVal;
             float m11 = (2.0f / (top - bottom)) * nearVal;
-            Matrix4x4 scaleXY = MatrixUtility::createScale(m00, m11, 1.0f, 1.0f);
+            Matrix4x4 scaleXY = MatrixUtility::createScale(m00, m11, 1.0f);
 
             // 視体積の奥行範囲を [-nearVal, -farVal] から [-nearVal, farVal] にマップ
             // z' = m22 * z + m23
@@ -215,7 +244,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    Matrix4x4 MatrixUtility::createProjection(float fovy, float aspect, float zNear, float zFar)
+    Matrix4x4 MatrixUtility::createPerspective(float fovy, float aspect, float zNear, float zFar)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)

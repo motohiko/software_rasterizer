@@ -277,7 +277,7 @@ namespace SoftwareRasterizer
         Vector2 ac(c - a);
         float acLengthClosest = Vector2::Normalize(ab).dot(ac);
 
-        float t = acLengthClosest / ab.getLength();
+        float t = acLengthClosest / ab.getNorm();
         t = Lib::clamp(t, 0.0f, 1.0f);
 
         // ‚Q“_ŠÔ‚ð•âŠÔ

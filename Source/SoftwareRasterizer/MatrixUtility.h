@@ -39,14 +39,21 @@ namespace SoftwareRasterizer
 	public:
 
 		static Matrix4x4 createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon);
+
+		// Transform Matrix
 		static Matrix4x4 createRotationX(float angle);
 		static Matrix4x4 createRotationY(float angle);
-		static Matrix4x4 createScale(float x, float y, float z, float w);
+		static Matrix4x4 createRotationZ(float angle);
+		static Matrix4x4 createScale(float x, float y, float z);
 		static Matrix4x4 createShear(float xy, float xz, float yx, float yz, float zx, float zy);
+		static Matrix4x4 createTranslate(float x, float y, float z);
 
-		static Matrix4x4 lookAtRH(const Vector3& eye, const Vector3& center, const Vector3& up);
+		// View Matrix
+		static Matrix4x4 createLookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
+		
+		// Projection Matrix
 		static Matrix4x4 createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal);
-		static Matrix4x4 createProjection(float fovy, float aspect, float zNear, float zFar);
+		static Matrix4x4 createPerspective(float fovy, float aspect, float zNear, float zFar);
 
 	};
 }

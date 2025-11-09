@@ -124,7 +124,7 @@ namespace Test
             int screenWidth = g_renderingContext->getViewportWidth();
             int screenHeight = g_renderingContext->getViewportHeight();
             float aspect = (float)screenWidth / (float)screenHeight;
-            uniformBlock.projectionMatrix = MatrixUtility::createProjection(camera->fovY, aspect, camera->nearZ, camera->farZ);
+            uniformBlock.projectionMatrix = MatrixUtility::createPerspective(camera->fovY, aspect, camera->nearZ, camera->farZ);
 
             Matrix4x4 rotationX = MatrixUtility::createRotationX(camera->angleX);
             Matrix4x4 rotationY = MatrixUtility::createRotationY(camera->angleY);
@@ -133,7 +133,7 @@ namespace Test
             Vector3 eye = Vector3(camera->focusPositionX, camera->focusPositionY, camera->focusPositionZ) + Vector3(offset.x, offset.y, offset.z);
             Vector3 center(camera->focusPositionX, camera->focusPositionY, camera->focusPositionZ);
             Vector3 up(0.0f, 1.0f, 0.0f);
-            uniformBlock.viewMatrix = MatrixUtility::lookAtRH(eye, center, up);
+            uniformBlock.viewMatrix = MatrixUtility::createLookAt(eye, center, up);
         }
 
         // グリッドを描画
