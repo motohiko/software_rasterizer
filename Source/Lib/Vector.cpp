@@ -3,19 +3,24 @@
 
 namespace Lib
 {
+    const Vector2 Vector2::kZero(0.0f, 0.0f);
+
     float Vector2::getLength() const
     {
         return std::sqrt(getLengthSquared());
     }
 
-    Vector2 Vector2::normalize() const
+    const Vector3 Vector3::kZero(0.0f, 0.0f, 0.0f);
+
+    float Vector3::getComponent(int index) const
     {
-        float length = getLength();
-        if (0.0f == length)
+        switch (index)
         {
-            return Vector2(0.0f, 0.0f);
+        case 0: return x;
+        case 1: return y;
+        case 2: return z;
+        default: return 0.0f;
         }
-        return Vector2(x / length, y / length);
     }
 
     float Vector3::getLength() const
@@ -23,13 +28,17 @@ namespace Lib
         return std::sqrt(getLengthSquared());
     }
 
-    Vector3 Vector3::normalize() const
+    const Vector4 Vector4::kZero(0.0f, 0.0f, 0.0f, 0.0f);
+
+    float Vector4::getComponent(int index) const
     {
-        float length = getLength();
-        if (0.0f == length)
+        switch (index)
         {
-            return Vector3(0.0f, 0.0f, 0.0f);
+        case 0: return x;
+        case 1: return y;
+        case 2: return z;
+        case 3: return w;
+        default: return 0.0f;
         }
-        return Vector3(x / length, y / length, z / length);
     }
 }

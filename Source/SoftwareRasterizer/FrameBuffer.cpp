@@ -115,8 +115,7 @@ namespace SoftwareRasterizer
             //g = std::min(g, 0xffu);
             //b = std::min(b, 0xffu);
 
-            *colorDst = (r << 16) | (g << 8) | (b);
-
+            *colorDst = (r << 16) | (g << 8) | (b);// BI_RGB
 
             size_t depthOffset = (_depthBufferWidthBytes * y) + (sizeof(float) * x);
             float* depthDst = (float*)(((uintptr_t)_depthBuffer) + (_depthBufferWidthBytes * y) + (sizeof(float) * x));

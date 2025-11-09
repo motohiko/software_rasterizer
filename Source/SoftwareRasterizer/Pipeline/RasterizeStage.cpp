@@ -275,7 +275,7 @@ namespace SoftwareRasterizer
         Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
         Vector2 ab(b - a);
         Vector2 ac(c - a);
-        float acLengthClosest = ab.normalize().dot(ac);
+        float acLengthClosest = Vector2::Normalize(ab).dot(ac);
 
         float t = acLengthClosest / ab.getLength();
         t = Lib::clamp(t, 0.0f, 1.0f);

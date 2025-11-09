@@ -73,10 +73,12 @@ namespace SoftwareRasterizer
 
             Vector3 F = center - eye;
 
-            Vector3 f = F.normalize();
-            Vector3 UP = up.normalize();
+            
 
-            Vector3 s = f.cross(UP).normalize();// fix
+            Vector3 f = Vector3::Normalize(F);
+            Vector3 UP = Vector3::Normalize(up);
+
+            Vector3 s = Vector3::Normalize(f.cross(UP));// fix
             Vector3 u = s.cross(f);
 
             Matrix4x4 r(
@@ -124,8 +126,8 @@ namespace SoftwareRasterizer
             //   (1, 0, 0) x (0, 1, 0) = (0, 0, 1)
             // 
 
-            Vector3 zAxis = (eye - center).normalize();
-            Vector3 xAxis = (up.cross(zAxis)).normalize();
+            Vector3 zAxis = Vector3::Normalize(eye - center);
+            Vector3 xAxis = Vector3::Normalize(up.cross(zAxis));
             Vector3 yAxis = zAxis.cross(xAxis);
             Matrix4x4 cameraMatrix = MatrixUtility::createBasis(xAxis, yAxis, zAxis, eye);
 

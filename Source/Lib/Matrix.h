@@ -12,18 +12,15 @@ namespace Lib
     {
     private:
 
-        struct
-        {
-            float m00;
-        };
+        float m00;
 
     public:
 
         Matrix1x1() = default;
         Matrix1x1(float m00) : m00(m00) {};
 
-        // 行列式
         float getDeterminant() const { return m00; }
+
     };
 
     // 2x2行列
@@ -33,15 +30,11 @@ namespace Lib
     //
     struct Matrix2x2
     {
-        static const Matrix2x2 kIdentity;
 
     private:
 
-        struct
-        {
-            float m00, m01;
-            float m10, m11;
-        };
+        float m00, m01;
+        float m10, m11;
 
     public:
 
@@ -51,20 +44,18 @@ namespace Lib
             float m10, float m11
         );
 
+        static const Matrix2x2 kIdentity;
+
     private:
 
         Matrix1x1 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-
-        // 小行列
-        Matrix1x1 getSubMatrix(int row, int column) const;
-
-        // 余因子
-        float getCofactor(int row, int column) const;
+        Matrix1x1 getSubMatrix(int rowIndex, int columnIndex) const;
+        float getCofactor(int rowIndex, int columnIndex) const;
 
     public:
 
-        // 行列式
         float getDeterminant() const;
+
     };
 
     // 3x3行列
@@ -75,16 +66,12 @@ namespace Lib
     //
     struct Matrix3x3
     {
-        static const Matrix3x3 kIdentity;
 
     private:
 
-        struct
-        {
-            float m00, m01, m02;
-            float m10, m11, m12;
-            float m20, m21, m22;
-        };
+        float m00, m01, m02;
+        float m10, m11, m12;
+        float m20, m21, m22;
 
     public:
 
@@ -95,20 +82,18 @@ namespace Lib
             float m20, float m21, float m22
         );
 
+        static const Matrix3x3 kIdentity;
+
     private:
 
         Matrix2x2 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-
-        // 小行列
-        Matrix2x2 getSubMatrix(int row, int column) const;
-
-        // 余因子
-        float getCofactor(int row, int column) const;
+        Matrix2x2 getSubMatrix(int rowIndex, int columnIndex) const;
+        float getCofactor(int rowIndex, int columnIndex) const;
 
     public:
 
-        // 行列式
         float getDeterminant() const;
+
     };
 
     // 4x1行列
@@ -123,13 +108,10 @@ namespace Lib
 
     private:
 
-        struct
-        {
-            float m00;
-            float m10;
-            float m20;
-            float m30;
-        };
+        float m00;
+        float m10;
+        float m20;
+        float m30;
 
     public:
 
@@ -164,17 +146,13 @@ namespace Lib
     //
     struct Matrix4x4
     {
-        static const Matrix4x4 kIdentity;
 
     private:
 
-        struct
-        {
-            float m00, m01, m02, m03;
-            float m10, m11, m12, m13;
-            float m20, m21, m22, m23;
-            float m30, m31, m32, m33;
-        };
+        float m00, m01, m02, m03;
+        float m10, m11, m12, m13;
+        float m20, m21, m22, m23;
+        float m30, m31, m32, m33;
 
     public:
 
@@ -186,29 +164,23 @@ namespace Lib
             float m30, float m31, float m32, float m33
         );
 
+        static const Matrix4x4 kIdentity;
+
         Vector4 getRow(int rowIndex) const;
         Vector4 getColumn(int columnIndex) const;
 
     private:
 
         Matrix3x3 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-
-        // 小行列
-        Matrix3x3 getSubMatrix(int row, int column) const;
-
-        // 余因子
-        float getCofactor(int row, int column) const;
-
-        // 余因子行列
+        Matrix3x3 getSubMatrix(int rowIndex, int columnIndex) const;
+        float getCofactor(int rowIndex, int columnIndex) const;
         Matrix4x4 getAdjugateMatrix() const;
 
     public:
 
-        // 行列式
         float getDeterminant() const;
 
         Matrix4x4 getTransposeMatrix() const;
-
         Matrix4x4 getInverseMatrix() const;
 
         Matrix4x4 operator*(const Matrix4x4& rhs) const;

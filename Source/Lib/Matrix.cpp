@@ -3,11 +3,6 @@
 
 namespace Lib
 {
-    const Matrix2x2 Matrix2x2::kIdentity(
-        1.0f, 0.0f,
-        0.0f, 1.0f
-    );
-
     Matrix2x2::Matrix2x2(
         float m00, float m01,
         float m10, float m11
@@ -16,6 +11,11 @@ namespace Lib
         m10(m10), m11(m11)
     {
     }
+
+    const Matrix2x2 Matrix2x2::kIdentity(
+        1.0f, 0.0f,
+        0.0f, 1.0f
+    );
 
     Matrix1x1 Matrix2x2::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
@@ -45,33 +45,26 @@ namespace Lib
     }
 
     // 小行列
-    Matrix1x1 Matrix2x2::getSubMatrix(int row, int column) const
+    Matrix1x1 Matrix2x2::getSubMatrix(int rowIndex, int columnIndex) const
     {
-        return getMatrixWithoutRowColumn(row, column);
+        return getMatrixWithoutRowColumn(rowIndex, columnIndex);
     }
 
     // 余因子
-    float Matrix2x2::getCofactor(int row, int column) const
+    float Matrix2x2::getCofactor(int rowIndex, int columnIndex) const
     {
-        Matrix1x1 subMatrix = getSubMatrix(row, column);
+        Matrix1x1 subMatrix = getSubMatrix(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
-        float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)(rowIndex + columnIndex));// 偶数 +、奇数 -
         return det * sign;
     }
 
-    // 行列式
     float Matrix2x2::getDeterminant() const
     {
         float c00 = getCofactor(0, 0);
         float c01 = getCofactor(0, 1);
-        return m00 * c00 + m01 * c01;
+        return (m00 * c00) + (m01 * c01);
     }
-
-    const Matrix3x3 Matrix3x3::kIdentity(
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    );
 
     Matrix3x3::Matrix3x3(
         float m00, float m01, float m02,
@@ -83,6 +76,12 @@ namespace Lib
         m20(m20), m21(m21), m22(m22)
     {
     }
+
+    const Matrix3x3 Matrix3x3::kIdentity(
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    );
 
     Matrix2x2 Matrix3x3::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
@@ -154,27 +153,26 @@ namespace Lib
     }
 
     // 小行列
-    Matrix2x2 Matrix3x3::getSubMatrix(int row, int column) const
+    Matrix2x2 Matrix3x3::getSubMatrix(int rowIndex, int columnIndex) const
     {
-        return getMatrixWithoutRowColumn(row, column);
+        return getMatrixWithoutRowColumn(rowIndex, columnIndex);
     }
 
     // 余因子
-    float Matrix3x3::getCofactor(int row, int column) const
+    float Matrix3x3::getCofactor(int rowIndex, int columnIndex) const
     {
-        Matrix2x2 subMatrix = getSubMatrix(row, column);
+        Matrix2x2 subMatrix = getSubMatrix(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
-        float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)(rowIndex + columnIndex));// 偶数 +、奇数 -
         return det * sign;
     }
 
-    // 行列式
     float Matrix3x3::getDeterminant() const
     {
         float c00 = getCofactor(0, 0);
         float c01 = getCofactor(0, 1);
         float c02 = getCofactor(0, 2);
-        return m00 * c00 + m01 * c01 + m02 * c02;
+        return (m00 * c00) + (m01 * c01) + (m02 * c02);
     }
 
     Matrix4x1::Matrix4x1(
@@ -197,16 +195,9 @@ namespace Lib
         case 0:
             return Vector4(m00, m10, m20, m30);
         default:
-            return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            return Vector4::kZero;
         }
     }
-
-    const Matrix4x4 Matrix4x4::kIdentity(
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    );
 
     Matrix4x4::Matrix4x4(
         float m00, float m01, float m02, float m03,
@@ -221,6 +212,13 @@ namespace Lib
     {
     }
 
+    const Matrix4x4 Matrix4x4::kIdentity(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+
     Vector4 Matrix4x4::getRow(int rowIndex) const
     {
         switch (rowIndex)
@@ -234,7 +232,7 @@ namespace Lib
         case 3:
             return Vector4(m30, m31, m32, m33);
         default:
-            return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            return Vector4::kZero;
         }
     }
 
@@ -251,7 +249,7 @@ namespace Lib
         case 3:
             return Vector4(m03, m13, m23, m33);
         default:
-            return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+            return Vector4::kZero;
         }
     }
 
@@ -380,17 +378,17 @@ namespace Lib
     }
 
     // 小行列
-    Matrix3x3 Matrix4x4::getSubMatrix(int row, int column) const
+    Matrix3x3 Matrix4x4::getSubMatrix(int rowIndex, int columnIndex) const
     {
-        return getMatrixWithoutRowColumn(row, column);
+        return getMatrixWithoutRowColumn(rowIndex, columnIndex);
     }
 
     // 余因子
-    float Matrix4x4::getCofactor(int row, int column) const
+    float Matrix4x4::getCofactor(int rowIndex, int columnIndex) const
     {
-        Matrix3x3 subMatrix = getSubMatrix(row, column);
+        Matrix3x3 subMatrix = getSubMatrix(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
-        float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)(rowIndex + columnIndex));// 偶数 +、奇数 -
         return det * sign;
     }
 
@@ -424,14 +422,13 @@ namespace Lib
         return cofactorMatrix.getTransposeMatrix();
     }
 
-    // 行列式
     float Matrix4x4::getDeterminant() const
     {
         float c00 = getCofactor(0, 0);
         float c01 = getCofactor(0, 1);
         float c02 = getCofactor(0, 2);
         float c03 = getCofactor(0, 3);
-        return m00 * c00 + m01 * c01 + m02 * c02 + m03 * c03;
+        return (m00 * c00) + (m01 * c01) + (m02 * c02) + (m03 * c03);
     }
 
     Matrix4x4 Matrix4x4::getTransposeMatrix() const

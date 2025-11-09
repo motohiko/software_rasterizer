@@ -10,25 +10,25 @@ namespace Lib
         Vector2() = default;
         Vector2(float x, float y) : x(x), y(y) {}
 
+        static const Vector2 kZero;
+
         float getLengthSquared() const
         {
-            return x * x + y * y;
+            return (x * x) + (y * y);
         }
 
         float getLength() const;
 
-        Vector2 normalize() const;
-
         // 内積
         float dot(const Vector2& rhs) const
         {
-            return x * rhs.x + y * rhs.y;
+            return (x * rhs.x) + (y * rhs.y);
         }
 
         // 外積
         float cross(const Vector2& rhs) const
         {
-            return x * rhs.y - y * rhs.x;
+            return (x * rhs.y) - (y * rhs.x);
         }
 
        Vector2 operator+(const Vector2& rhs) const
@@ -51,10 +51,11 @@ namespace Lib
             return Vector2(x / rhs, y / rhs);
         }
 
-        //friend Vector2 operator*(float lhs, const Vector2& rhs)
-        //{
-        //    return Vector2(rhs.x * lhs, rhs.y * lhs);
-        //}
+        static Vector2 Normalize(const Vector2& v)
+        {
+            float len = v.getLength();
+            return (0.0f == len) ? kZero : (v / len);
+        }
 
         static Vector2 Lerp(const Vector2& v0, const Vector2& v1, float t)
         {
@@ -71,21 +72,14 @@ namespace Lib
         Vector3() = default;
         Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
+        static const Vector3 kZero;
+
         Vector2 getXY() const
         {
             return Vector2(x, y);
         }
 
-        float getComponent(int index) const
-        {
-            switch (index)
-            {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            default: return 0.0f;
-            }
-        }
+        float getComponent(int index) const;
 
         float getLengthSquared() const
         {
@@ -94,12 +88,10 @@ namespace Lib
 
         float getLength() const;
 
-        Vector3 normalize() const;
-
         // 内積
         float dot(const Vector3& rhs) const
         {
-            return x * rhs.x + y * rhs.y + z * rhs.z;
+            return (x * rhs.x) + (y * rhs.y) + (z * rhs.z);
         }
 
         // 外積
@@ -139,6 +131,12 @@ namespace Lib
         {
             return Vector3(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs);
         }
+
+        static Vector3 Normalize(const Vector3& v)
+        {
+            float len = v.getLength();
+            return (0.0f == len) ? kZero : (v / len);
+        }
     };
 
     struct Vector4
@@ -153,6 +151,8 @@ namespace Lib
         Vector4(const Vector2& v2, float z, float w) : x(v2.x), y(v2.y), z(z), w(w) {}
         Vector4(const Vector3& v3, float w) : x(v3.x), y(v3.y), z(v3.z), w(w) {}
 
+        static const Vector4 kZero;
+
         Vector2 getXY() const
         {
             return Vector2(x, y);
@@ -163,33 +163,12 @@ namespace Lib
             return Vector3(x, y, z);
         }
 
-        void setComponent(int index, float value)
-        {
-            switch (index)
-            {
-            case 0: x = value;
-            case 1: y = value;
-            case 2: z = value;
-            case 3: w = value;
-            }
-        }
-
-        float getComponent(int index) const
-        {
-            switch (index)
-            {
-            case 0: return x;
-            case 1: return y;
-            case 2: return z;
-            case 3: return w;
-            default: return 0.0f;
-            }
-        }
+        float getComponent(int index) const;
 
         // 内積
         float dot(const Vector4& rhs) const
         {
-            return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
+            return (x * rhs.x) + (y * rhs.y) + (z * rhs.z) + (w * rhs.w);
         }
 
         Vector4 operator+(const Vector4& rhs) const
@@ -229,11 +208,6 @@ namespace Lib
             w /= rhs;
             return *this;
         }
-
-        //friend Vector4 operator*(float lhs, const Vector4& rhs)
-        //{
-        //    return Vector4(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs, rhs.w * lhs);
-        //}
 
         static Vector4 Lerp(const Vector4& v0, const Vector4& v1, float t)
         {

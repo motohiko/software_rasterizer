@@ -338,7 +338,8 @@ namespace Test
                 g_camera.focusPositionY -= 0.1f;
                 break;
             }
-            InvalidateRect(hwnd, NULL, TRUE); // 再描画を要求
+            // 再描画を要求
+            InvalidateRect(hwnd, NULL, TRUE);
             return 0;
 
         case WM_SIZE:
@@ -368,6 +369,8 @@ namespace Test
             bih.biSize = sizeof(BITMAPINFOHEADER);
             bih.biWidth = clientRect.right;
             bih.biHeight = clientRect.bottom;
+            //bih.biWidth = clientRect.right / 2;
+            //bih.biHeight = clientRect.bottom / 2;
             bih.biPlanes = 1;
             bih.biBitCount = 32;
             bih.biCompression = BI_RGB;
@@ -383,10 +386,13 @@ namespace Test
 
             g_depthBuffer = (float*)malloc(sizeof(float) * dibSection.dsBm.bmWidth * dibSection.dsBm.bmHeight);
 
-            g_renderingContext.setFrameSize(dibSection.dsBm.bmWidth, dibSection.dsBm.bmHeight);
+            int frameWidth = dibSection.dsBm.bmWidth;
+            int frameHeight = dibSection.dsBm.bmHeight;
+            g_renderingContext.setFrameSize(frameWidth, frameHeight);
             g_renderingContext.setFrameColorBuffer(dibSection.dsBm.bmBits, dibSection.dsBm.bmWidthBytes);
             g_renderingContext.setFrameDepthBuffer(g_depthBuffer, sizeof(float) * dibSection.dsBm.bmWidth);
-            g_renderingContext.setViewport(100, 0, dibSection.dsBm.bmWidth, dibSection.dsBm.bmHeight);
+
+            g_renderingContext.setViewport(0, 0, frameWidth, frameHeight);
  
             // 再描画を要求
             InvalidateRect(hwnd, NULL, TRUE);
@@ -405,6 +411,7 @@ namespace Test
             HDC hdcSrc = CreateCompatibleDC(ps.hdc);
             HGDIOBJ hBmPrev = SelectObject(hdcSrc, g_hDibBm);
             BitBlt(ps.hdc, 0, 0, g_renderingContext.getFrameWidth(), g_renderingContext.getFrameHeight(), hdcSrc, 0, 0, SRCCOPY);
+            //StretchBlt(ps.hdc, 0, 0, g_renderingContext.getFrameWidth() * 2, g_renderingContext.getFrameHeight() * 2, hdcSrc, 0, 0, g_renderingContext.getFrameWidth(), g_renderingContext.getFrameHeight(), SRCCOPY);
             SelectObject(hdcSrc, hBmPrev);
             DeleteDC(hdcSrc);
 
@@ -436,11 +443,20 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
 {
     const TCHAR CLASS_NAME[] = TEXT("Sample Window Class");
 
-    WNDCLASS wc = {};
-    wc.lpfnWndProc = Test::WindowProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-    RegisterClass(&wc);
+    WNDCLASSEX wcex = {};
+    wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = (WNDPROC)Test::WindowProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)NULL;
+    wcex.lpszMenuName = NULL;
+    wcex.lpszClassName = CLASS_NAME;
+    wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+    RegisterClassEx(&wcex);
 
     HWND hwnd = CreateWindowEx(
         0,
