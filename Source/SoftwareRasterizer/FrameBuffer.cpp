@@ -97,7 +97,7 @@ namespace SoftwareRasterizer
     
     void FrameBuffer::writePixel(int x, int y, const Vector4& color, float depth)
     {
-        // x, y はウィンドウ相対座標
+        // x, y はウィンドウ座標
         
         if (0 <= x && x < _freameWidth || 0 <= y || y < _freameHeight)
         {
@@ -107,7 +107,16 @@ namespace SoftwareRasterizer
             uint32_t r = Lib::denormalizeByte(color.x);
             uint32_t g = Lib::denormalizeByte(color.y);
             uint32_t b = Lib::denormalizeByte(color.z);
+
+            //r += (*colorDst >> 16) & 0xff;
+            //g += (*colorDst >> 8) & 0xff;
+            //b += (*colorDst >> 0) & 0xff;
+            //r = std::min(r, 0xffu);
+            //g = std::min(g, 0xffu);
+            //b = std::min(b, 0xffu);
+
             *colorDst = (r << 16) | (g << 8) | (b);
+
 
             size_t depthOffset = (_depthBufferWidthBytes * y) + (sizeof(float) * x);
             float* depthDst = (float*)(((uintptr_t)_depthBuffer) + (_depthBufferWidthBytes * y) + (sizeof(float) * x));

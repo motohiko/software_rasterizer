@@ -42,7 +42,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\FrameBuffer.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\RenderingMatrix.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp">
@@ -86,7 +86,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\FrameBuffer.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\RenderingMatrix.h">
+    <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h">

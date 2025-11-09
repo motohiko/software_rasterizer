@@ -1,10 +1,13 @@
 #pragma once
 
+#include "Types.h"
 #include "..\Lib\Vector.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer
 {
+    using Lib::Vector4;
+
     class FrameBuffer
     {
 

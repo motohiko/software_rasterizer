@@ -1,8 +1,8 @@
 #include "Vector.h"
 #include <cmath>
 
-//namespace Lib
-//{
+namespace Lib
+{
     float Vector2::getLength() const
     {
         return std::sqrt(getLengthSquared());
@@ -32,4 +32,4 @@
         }
         return Vector3(x / length, y / length, z / length);
     }
-//}
+}

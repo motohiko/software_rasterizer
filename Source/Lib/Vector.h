@@ -1,13 +1,7 @@
 ﻿#pragma once
 
-//namespace Lib
-//{
-    //
-    // 列ベクトル
-    //
-
-    // v = | x |
-    //     | y |
+namespace Lib
+{
     struct Vector2
     {
         float x;
@@ -68,10 +62,6 @@
         }
     };
 
-
-    //     | x |
-    // v = | y |
-    //     | z |
     struct Vector3
     {
         float x;
@@ -149,13 +139,8 @@
         {
             return Vector3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
         }
-
     };
 
-    //     | x |
-    // v = | y |
-    //     | z |
-    //     | w |
     struct Vector4
     {
         float x;
@@ -199,6 +184,12 @@
             case 3: return w;
             default: return 0.0f;
             }
+        }
+
+        // 内積
+        float dot(const Vector4& other) const
+        {
+            return x * other.x + y * other.y + z * other.z + w * other.w;
         }
 
         Vector4 operator+(const Vector4& other) const
@@ -249,4 +240,4 @@
             return Vector4(vec.x * scalar, vec.y * scalar, vec.z * scalar, vec.w * scalar);
         }
     };
-//}
+}

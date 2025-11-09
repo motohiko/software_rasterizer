@@ -1,4 +1,4 @@
-#include "RenderingMatrix.h"
+#include "MatrixUtility.h"
 #include <cmath>
 
 // note.
@@ -21,7 +21,64 @@
 
 namespace SoftwareRasterizer
 {
-    Matrix4x4 RenderingMatrix::lookAtRH(const Vector3& eye, const Vector3& center, const Vector3& up)
+    Matrix4x4 MatrixUtility::createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon)
+    {
+        return Matrix4x4(
+            xAxis.x, yAxis.x, zAxis.x, origon.x,
+            xAxis.y, yAxis.y, zAxis.y, origon.y,
+            xAxis.z, yAxis.z, zAxis.z, origon.z,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+    }
+
+    Matrix4x4 MatrixUtility::createRotationX(float angle)
+    {
+        float c = std::cosf(angle);
+        float s = std::sinf(angle);
+
+        return Matrix4x4(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, c, s, 0.0f,
+            0.0f, -s, c, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+    }
+
+    Matrix4x4 MatrixUtility::createRotationY(float angle)
+    {
+        float c = std::cosf(angle);
+        float s = std::sinf(angle);
+
+        return Matrix4x4(
+            c, 0.0f, -s, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            s, 0.0f, c, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+    }
+
+    Matrix4x4 MatrixUtility::createScale(float x, float y, float z, float w)
+    {
+        return Matrix4x4(
+            x, 0.0f, 0.0f, 0.0f,
+            0.0f, y, 0.0f, 0.0f,
+            0.0f, 0.0f, z, 0.0f,
+            0.0f, 0.0f, 0.0f, w
+        );
+    }
+
+    Matrix4x4 MatrixUtility::createShear(float xy, float xz, float yx, float yz, float zx, float zy)
+    {
+        return Matrix4x4(
+            1.0f, yx, zx, 0.0f,
+            xy, 1.0f, zy, 0.0f,
+            xz, yz, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+    }
+
+
+    Matrix4x4 MatrixUtility::lookAtRH(const Vector3& eye, const Vector3& center, const Vector3& up)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)
@@ -84,13 +141,13 @@ namespace SoftwareRasterizer
             Vector3 zAxis = (eye - center).normalize();
             Vector3 xAxis = (up.cross(zAxis)).normalize();
             Vector3 yAxis = zAxis.cross(xAxis);
-            Matrix4x4 cameraMatrix = Matrix4x4::createBasis(xAxis, yAxis, zAxis, eye);
+            Matrix4x4 cameraMatrix = MatrixUtility::createBasis(xAxis, yAxis, zAxis, eye);
 
-            return cameraMatrix.inverse();// view matrix
+            return cameraMatrix.getInverseMatrix();// view matrix
         }
     }
 
-    Matrix4x4 RenderingMatrix::createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
+    Matrix4x4 MatrixUtility::createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
     {
         // note.
         // 
@@ -141,12 +198,12 @@ namespace SoftwareRasterizer
             // ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を中央に移動
             float m02 = (right + left) / (right - left);
             float m12 = (top + bottom) / (top - bottom);
-            Matrix4x4 shearXY = Matrix4x4::createShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
+            Matrix4x4 shearXY = MatrixUtility::createShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
 
             // ニアクリップ面の上下左右の範囲を [-1, 1] から [-near, near] にマップ
             float m00 = (2.0f / (right - left)) * nearVal;
             float m11 = (2.0f / (top - bottom)) * nearVal;
-            Matrix4x4 scaleXY = Matrix4x4::createScale(m00, m11, 1.0f, 1.0f);
+            Matrix4x4 scaleXY = MatrixUtility::createScale(m00, m11, 1.0f, 1.0f);
 
             // 視体積の奥行範囲を [-nearVal, -farVal] から [-nearVal, farVal] にマップ
             // z' = m22 * z + m23
@@ -170,7 +227,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    Matrix4x4 RenderingMatrix::createProjection(float fovy, float aspect, float zNear, float zFar)
+    Matrix4x4 MatrixUtility::createProjection(float fovy, float aspect, float zNear, float zFar)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)

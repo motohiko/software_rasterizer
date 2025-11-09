@@ -1,8 +1,8 @@
 ﻿#include "Matrix.h"
 #include <cmath>
 
-//namespace Lib
-//{
+namespace Lib
+{
     const Matrix2x2 Matrix2x2::kIdentity(
         1.0f, 0.0f,
         0.0f, 1.0f
@@ -17,7 +17,6 @@
     {
     }
 
-    // 特定の行および列を取り除いた小行列
     float Matrix2x2::removeRowAndColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
@@ -45,12 +44,19 @@
         return 1.0f;
     }
 
+    // 小行列
+    float Matrix2x2::getSubMatrix(int row, int column) const
+    {
+        return removeRowAndColumn(row, column);
+    }
+
     // 余因子
     float Matrix2x2::getCofactor(int row, int column) const
     {
-        float subMatrix = removeRowAndColumn(row, column);
+        float subMatrix = getSubMatrix(row, column);
         float det = subMatrix;
-        return det * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        return det * sign;
     }
 
     // 行列式
@@ -78,7 +84,6 @@
     {
     }
 
-    // 特定の行および列を取り除いた小行列
     Matrix2x2 Matrix3x3::removeRowAndColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
@@ -148,12 +153,19 @@
         return Matrix2x2::kIdentity;
     }
 
+    // 小行列
+    Matrix2x2 Matrix3x3::getSubMatrix(int row, int column) const
+    {
+        return removeRowAndColumn(row, column);
+    }
+
     // 余因子
     float Matrix3x3::getCofactor(int row, int column) const
     {
-        Matrix2x2 subMatrix = removeRowAndColumn(row, column);
+        Matrix2x2 subMatrix = getSubMatrix(row, column);
         float det = subMatrix.getDeterminant();
-        return det * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        return det * sign;
     }
 
     // 行列式
@@ -163,6 +175,30 @@
         float c01 = getCofactor(0, 1);
         float c02 = getCofactor(0, 2);
         return m00 * c00 + m01 * c01 + m02 * c02;
+    }
+
+    Matrix4x1::Matrix4x1(
+        float m00,
+        float m10,
+        float m20,
+        float m30
+    ) :
+        m00(m00),
+        m10(m10),
+        m20(m20),
+        m30(m30)
+    {
+    }
+
+    Vector4 Matrix4x1::getColumn(int columnIndex) const
+    {
+        switch (columnIndex)
+        {
+        case 0:
+            return Vector4(m00, m10, m20, m30);
+        default:
+            return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+        }
     }
 
     const Matrix4x4 Matrix4x4::kIdentity(
@@ -185,72 +221,40 @@
     {
     }
 
-    void Matrix4x4::setRow(int index, const Vector4& row)
+    Vector4 Matrix4x4::getRow(int rowIndex) const
     {
-        switch (index)
-        {
-        case 0: m00 = row.x; m01 = row.y; m02 = row.z; m03 = row.w; break;
-        case 1: m11 = row.x; m11 = row.y; m12 = row.z; m13 = row.w; break;
-        case 2: m20 = row.x; m21 = row.y; m22 = row.z; m23 = row.w; break;
-        case 3: m30 = row.x; m31 = row.y; m32 = row.z; m33 = row.w; break;
-        }
-    }
-
-    Vector4 Matrix4x4::getRow(int index) const
-    {
-        switch (index)
-        {
-        case 0: return Vector4(m00, m01, m02, m03);
-        case 1: return Vector4(m10, m11, m12, m13);
-        case 2: return Vector4(m20, m21, m22, m23);
-        case 3: return Vector4(m30, m31, m32, m33);
-        default: return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-        }
-    }
-
-    void Matrix4x4::setColumn(int index, const Vector4& column)
-    {
-        switch (index)
+        switch (rowIndex)
         {
         case 0:
-            m00 = column.x;
-            m10 = column.y;
-            m20 = column.z;
-            m30 = column.w;
-            break;
+            return Vector4(m00, m01, m02, m03);
         case 1:
-            m01 = column.x;
-            m11 = column.y;
-            m21 = column.z;
-            m31 = column.w;
-            break;
+            return Vector4(m10, m11, m12, m13);
         case 2:
-            m02 = column.x;
-            m12 = column.y;
-            m22 = column.z;
-            m32 = column.w;
-            break;
+            return Vector4(m20, m21, m22, m23);
         case 3:
-            m03 = column.x;
-            m13 = column.y;
-            m23 = column.z;
-            m33 = column.w;
-            break;
+            return Vector4(m30, m31, m32, m33);
+        default:
+            return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
         }
     }
 
-    // 転置
-    Matrix4x4 Matrix4x4::transpose() const
+    Vector4 Matrix4x4::getColumn(int columnIndex) const
     {
-        return Matrix4x4(
-            m00, m10, m20, m30,
-            m01, m11, m21, m31,
-            m02, m12, m22, m32,
-            m03, m13, m23, m33
-        );
+        switch (columnIndex)
+        {
+        case 0:
+            return Vector4(m00, m10, m20, m30);
+        case 1:
+            return Vector4(m01, m11, m21, m31);
+        case 2:
+            return Vector4(m02, m12, m22, m32);
+        case 3:
+            return Vector4(m03, m13, m23, m33);
+        default:
+            return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+        }
     }
 
-    // 特定の行および列を取り除いた小行列
     Matrix3x3 Matrix4x4::removeRowAndColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
@@ -375,12 +379,30 @@
         return Matrix3x3::kIdentity;
     }
 
+    // 転置行列
+    Matrix4x4 Matrix4x4::getTransposeMatrix() const
+    {
+        return Matrix4x4(
+            m00, m10, m20, m30,
+            m01, m11, m21, m31,
+            m02, m12, m22, m32,
+            m03, m13, m23, m33
+        );
+    }
+
+    // 小行列
+    Matrix3x3 Matrix4x4::getSubMatrix(int row, int column) const
+    {
+        return removeRowAndColumn(row, column);
+    }
+
     // 余因子
     float Matrix4x4::getCofactor(int row, int column) const
     {
-        Matrix3x3 subMatrix = removeRowAndColumn(row, column);
+        Matrix3x3 subMatrix = getSubMatrix(row, column);
         float det = subMatrix.getDeterminant();
-        return det * std::powf(-1.0f, (float)(row + column));// 偶数 +、奇数 -;
+        float sign = std::pow(-1.0f, (float)(row + column));// 偶数 +、奇数 -
+        return det * sign;
     }
 
     // 行列式
@@ -420,11 +442,11 @@
             c30, c31, c32, c33
         );
 
-        return cofactorMatrix.transpose();
+        return cofactorMatrix.getTransposeMatrix();
     }
 
     // 逆行列
-    Matrix4x4 Matrix4x4::inverse() const
+    Matrix4x4 Matrix4x4::getInverseMatrix() const
     {
         Matrix4x4 a = getAdjugateMatrix();
 
@@ -442,99 +464,45 @@
         );
     }
 
-    Matrix4x4 Matrix4x4::createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon)
-    {
-        return Matrix4x4(
-            xAxis.x, yAxis.x, zAxis.x, origon.x,
-            xAxis.y, yAxis.y, zAxis.y, origon.y,
-            xAxis.z, yAxis.z, zAxis.z, origon.z,
-            0.0f,    0.0f,    0.0f,    1.0f
-        );
-    }
-
-    Matrix4x4 Matrix4x4::createRotationX(float angle)
-    {
-        float c = std::cosf(angle);
-        float s = std::sinf(angle);
-
-        return Matrix4x4(
-            1.0f,  0.0f, 0.0f, 0.0f,
-            0.0f,  c,    s,    0.0f,
-            0.0f, -s,    c,    0.0f,
-            0.0f,  0.0f, 0.0f, 1.0f
-        );
-    }
-
-    Matrix4x4 Matrix4x4::createRotationY(float angle)
-    {
-        float c = std::cosf(angle);
-        float s = std::sinf(angle);
-
-        return Matrix4x4(
-            c,    0.0f, -s,    0.0f,
-            0.0f, 1.0f,  0.0f, 0.0f,
-            s,    0.0f,  c,    0.0f,
-            0.0f, 0.0f,  0.0f, 1.0f
-        );
-    }
-
-    Matrix4x4 Matrix4x4::createScale(float x, float y, float z, float w)
-    {
-        return Matrix4x4(
-            x,    0.0f, 0.0f, 0.0f,
-            0.0f, y,    0.0f, 0.0f,
-            0.0f, 0.0f, z,    0.0f,
-            0.0f, 0.0f, 0.0f, w
-        );
-    }
-
-    Matrix4x4 Matrix4x4::createShear(float xy, float xz, float yx, float yz, float zx, float zy)
-    {
-        return Matrix4x4(
-            1.0f, yx,   zx,   0.0f,
-            xy,   1.0f, zy,   0.0f,
-            xz,   yz,   1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        );
-    }
-
     Matrix4x4 Matrix4x4::operator*(const Matrix4x4& r) const
     {
+        Vector4 r0 = getRow(0);
+        Vector4 r1 = getRow(1);
+        Vector4 r2 = getRow(2);
+        Vector4 r3 = getRow(3);
+
+        Vector4 c0 = r.getColumn(0);
+        Vector4 c1 = r.getColumn(1);
+        Vector4 c2 = r.getColumn(2);
+        Vector4 c3 = r.getColumn(3);
+
         return  Matrix4x4(
-
-            // m00, m01, m02, m03
-            m00 * r.m00 + m01 * r.m10 + m02 * r.m20 + m03 * r.m30,
-            m00 * r.m01 + m01 * r.m11 + m02 * r.m21 + m03 * r.m31,
-            m00 * r.m02 + m01 * r.m12 + m02 * r.m22 + m03 * r.m32,
-            m00 * r.m03 + m01 * r.m13 + m02 * r.m23 + m03 * r.m33,
-
-            // m10, m11, m12, m13
-            m10 * r.m00 + m11 * r.m10 + m12 * r.m20 + m13 * r.m30,
-            m10 * r.m01 + m11 * r.m11 + m12 * r.m21 + m13 * r.m31,
-            m10 * r.m02 + m11 * r.m12 + m12 * r.m22 + m13 * r.m32,
-            m10 * r.m03 + m11 * r.m13 + m12 * r.m23 + m13 * r.m33,
-
-            // m20, m21, m22, m23
-            m20 * r.m00 + m21 * r.m10 + m22 * r.m20 + m23 * r.m30,
-            m20 * r.m01 + m21 * r.m11 + m22 * r.m21 + m23 * r.m31,
-            m20 * r.m02 + m21 * r.m12 + m22 * r.m22 + m23 * r.m32,
-            m20 * r.m03 + m21 * r.m13 + m22 * r.m23 + m23 * r.m33,
-
-            // m30, m31, m32, m33
-            m30 * r.m00 + m31 * r.m10 + m32 * r.m20 + m33 * r.m30,
-            m30 * r.m01 + m31 * r.m11 + m32 * r.m21 + m33 * r.m31,
-            m30 * r.m02 + m31 * r.m12 + m32 * r.m22 + m33 * r.m32,
-            m30 * r.m03 + m31 * r.m13 + m32 * r.m23 + m33 * r.m33
+            r0.dot(c0), r0.dot(c1), r0.dot(c2), r0.dot(c3),
+            r1.dot(c0), r1.dot(c1), r1.dot(c2), r1.dot(c3),
+            r2.dot(c0), r2.dot(c1), r2.dot(c2), r2.dot(c3),
+            r3.dot(c0), r3.dot(c1), r3.dot(c2), r3.dot(c3)
         );
     }
 
-    Vector4 operator*(const Matrix4x4& mat, const Vector4& vec)
+    Matrix4x1 Matrix4x4::operator*(const Matrix4x1& r) const
     {
-        return Vector4(
-            mat.m00 * vec.x + mat.m01 * vec.y + mat.m02 * vec.z + mat.m03 * vec.w,
-            mat.m10 * vec.x + mat.m11 * vec.y + mat.m12 * vec.z + mat.m13 * vec.w,
-            mat.m20 * vec.x + mat.m21 * vec.y + mat.m22 * vec.z + mat.m23 * vec.w,
-            mat.m30 * vec.x + mat.m31 * vec.y + mat.m32 * vec.z + mat.m33 * vec.w
+        Vector4 r0 = getRow(0);
+        Vector4 r1 = getRow(1);
+        Vector4 r2 = getRow(2);
+        Vector4 r3 = getRow(3);
+
+        Vector4 c0 = r.getColumn(0);
+
+        return  Matrix4x1(
+            r0.dot(c0),
+            r1.dot(c0),
+            r2.dot(c0),
+            r3.dot(c0)
         );
     }
-//}
+
+    Vector4 Matrix4x4::operator*(const Vector4& r) const
+    {
+        return Matrix4x1::asVector4(operator*(Matrix4x1::fromVector4(r)));
+    }
+}

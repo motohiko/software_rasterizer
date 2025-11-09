@@ -1,10 +1,16 @@
 #pragma once
 
 #include "..\Lib\Vector.h"
+#include "..\Lib\Matrix.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer
 {
+    using Lib::Vector2;
+    using Lib::Vector3;
+    using Lib::Vector4;
+    using Lib::Matrix4x4;
+
     enum class PrimitiveTopologyType
     {
         kUndefined,

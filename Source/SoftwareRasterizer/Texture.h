@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Types.h"
 #include "..\Lib\Algorithm.h"
 #include "..\Lib\Vector.h"
 #include <cstdint>

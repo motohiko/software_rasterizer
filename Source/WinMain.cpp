@@ -7,7 +7,7 @@
 #include "SoftwareRasterizer\RenderingContext.h"
 #include "SoftwareRasterizer\FrameBuffer.h"
 #include "SoftwareRasterizer\Texture.h"
-#include "SoftwareRasterizer\RenderingMatrix.h"
+#include "SoftwareRasterizer\MatrixUtility.h"
 #include "Lib\Matrix.h"
 #include "Lib\Vector.h"
 #include "MeshData.h"
@@ -124,16 +124,16 @@ namespace Test
             int screenWidth = g_renderingContext->getViewportWidth();
             int screenHeight = g_renderingContext->getViewportHeight();
             float aspect = (float)screenWidth / (float)screenHeight;
-            uniformBlock.projectionMatrix = RenderingMatrix::createProjection(camera->fovY, aspect, camera->nearZ, camera->farZ);
+            uniformBlock.projectionMatrix = MatrixUtility::createProjection(camera->fovY, aspect, camera->nearZ, camera->farZ);
 
-            Matrix4x4 rotationX = Matrix4x4::createRotationX(camera->angleX);
-            Matrix4x4 rotationY = Matrix4x4::createRotationY(camera->angleY);
+            Matrix4x4 rotationX = MatrixUtility::createRotationX(camera->angleX);
+            Matrix4x4 rotationY = MatrixUtility::createRotationY(camera->angleY);
             Vector4 offset(0.0f, 0.0f, camera->zoom, 1.0f);
             offset = (rotationY * rotationX) * offset;
             Vector3 eye = Vector3(camera->focusPositionX, camera->focusPositionY, camera->focusPositionZ) + Vector3(offset.x, offset.y, offset.z);
             Vector3 center(camera->focusPositionX, camera->focusPositionY, camera->focusPositionZ);
             Vector3 up(0.0f, 1.0f, 0.0f);
-            uniformBlock.viewMatrix = RenderingMatrix::lookAtRH(eye, center, up);
+            uniformBlock.viewMatrix = MatrixUtility::lookAtRH(eye, center, up);
         }
 
         // グリッドを描画
@@ -233,7 +233,7 @@ namespace Test
 
         // モデル（１メッシュ）を描画
         {
-            uniformBlock.modelMatrix = Matrix4x4::createRotationX(90.0f * 3.14f / 180.0f);
+            uniformBlock.modelMatrix = MatrixUtility::createRotationX(90.0f * 3.14f / 180.0f);
 
             Texture meshTexture = {};
             meshTexture.addr = kTexture;
