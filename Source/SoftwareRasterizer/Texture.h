@@ -32,10 +32,10 @@ namespace SoftwareRasterizer
 
         const Texel* texel = ((const Texel*)tex->addr) + ty * tex->width + tx;
         Vector4 color(
-            Lib::normalizeByte(texel->r),
-            Lib::normalizeByte(texel->g),
-            Lib::normalizeByte(texel->b),
-            Lib::normalizeByte(texel->a)
+            Lib::NormalizeByte(texel->r),
+            Lib::NormalizeByte(texel->g),
+            Lib::NormalizeByte(texel->b),
+            Lib::NormalizeByte(texel->a)
         );
         return color;
     }

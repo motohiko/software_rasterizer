@@ -498,6 +498,6 @@ namespace Lib
 
     Vector4 Matrix4x4::operator*(const Vector4& rhs) const
     {
-        return Matrix4x1::asVector4((*this) * (Matrix4x1::fromVector4(rhs)));
+        return Matrix4x1::AsVector4((*this) * (Matrix4x1::FromVector4(rhs)));
     }
 }

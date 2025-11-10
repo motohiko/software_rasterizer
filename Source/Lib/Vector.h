@@ -28,7 +28,8 @@ namespace Lib
         // 外積
         float cross(const Vector2& rhs) const
         {
-            return (x * rhs.y) - (y * rhs.x);
+            float z = (x * rhs.y) - (y * rhs.x);
+            return z;
         }
 
        Vector2 operator+(const Vector2& rhs) const
@@ -53,8 +54,8 @@ namespace Lib
 
         static Vector2 Normalize(const Vector2& v)
         {
-            float len = v.getNorm();
-            return (0.0f == len) ? kZero : (v / len);
+            float norm = v.getNorm();
+            return (0.0f == norm) ? kZero : (v / norm);
         }
 
         static Vector2 Lerp(const Vector2& v0, const Vector2& v1, float t)
@@ -83,7 +84,7 @@ namespace Lib
 
         float getNormSquared() const
         {
-            return x * x + y * y + z * z;
+            return (x * x) + (y * y) + (z * z);
         }
 
         float getNorm() const;
@@ -98,9 +99,9 @@ namespace Lib
         Vector3 cross(const Vector3& rhs) const
         {
             return Vector3(
-                y * rhs.z - z * rhs.y,
-                z * rhs.x - x * rhs.z,
-                x * rhs.y - y * rhs.x
+                (y * rhs.z) - (z * rhs.y),
+                (z * rhs.x) - (x * rhs.z),
+                (x * rhs.y) - (y * rhs.x)
             );
         }
 
@@ -127,15 +128,10 @@ namespace Lib
             return *this;
         }
 
-        friend Vector3 operator*(float lhs, const Vector3& rhs)
-        {
-            return Vector3(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs);
-        }
-
         static Vector3 Normalize(const Vector3& v)
         {
-            float len = v.getNorm();
-            return (0.0f == len) ? kZero : (v / len);
+            float norm = v.getNorm();
+            return (0.0f == norm) ? kZero : (v / norm);
         }
     };
 

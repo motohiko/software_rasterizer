@@ -112,10 +112,10 @@ namespace SoftwareRasterizer
                     {
                         switch (vertexAttributeLayout->size)
                         {
-                        case 4: attribute.w = Lib::normalizeByte(((const uint8_t*)ptr)[3]);
-                        case 3: attribute.z = Lib::normalizeByte(((const uint8_t*)ptr)[2]);
-                        case 2: attribute.y = Lib::normalizeByte(((const uint8_t*)ptr)[1]);
-                        case 1: attribute.x = Lib::normalizeByte(((const uint8_t*)ptr)[0]);
+                        case 4: attribute.w = Lib::NormalizeByte(((const uint8_t*)ptr)[3]);
+                        case 3: attribute.z = Lib::NormalizeByte(((const uint8_t*)ptr)[2]);
+                        case 2: attribute.y = Lib::NormalizeByte(((const uint8_t*)ptr)[1]);
+                        case 1: attribute.x = Lib::NormalizeByte(((const uint8_t*)ptr)[0]);
                         default: break;
                         }
                     }

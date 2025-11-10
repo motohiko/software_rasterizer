@@ -53,7 +53,7 @@ namespace SoftwareRasterizer
 
     void FrameBuffer::setClearColor(float r, float g, float b, float a)
     {
-        _clearColor = (Lib::denormalizeByte(a) << 24) | (Lib::denormalizeByte(r) << 16) | (Lib::denormalizeByte(g) << 8) | Lib::denormalizeByte(b);
+        _clearColor = (Lib::DenormalizeByte(a) << 24) | (Lib::DenormalizeByte(r) << 16) | (Lib::DenormalizeByte(g) << 8) | Lib::DenormalizeByte(b);
     }
 
     void FrameBuffer::setClearDepth(float depth)
@@ -104,9 +104,9 @@ namespace SoftwareRasterizer
             // DIB‚à¶‰º‚ª(0,0)‚È‚Ì‚Åã‰º”½“]‚Í•s—v
             size_t colorOffset = (_colorBufferWidthBytes * y) + (sizeof(uint32_t) * x);
             uint32_t* colorDst = (uint32_t*)(((uintptr_t)_colorBuffer) + colorOffset);
-            uint32_t r = Lib::denormalizeByte(color.x);
-            uint32_t g = Lib::denormalizeByte(color.y);
-            uint32_t b = Lib::denormalizeByte(color.z);
+            uint32_t r = Lib::DenormalizeByte(color.x);
+            uint32_t g = Lib::DenormalizeByte(color.y);
+            uint32_t b = Lib::DenormalizeByte(color.z);
 
             //r += (*colorDst >> 16) & 0xff;
             //g += (*colorDst >> 8) & 0xff;

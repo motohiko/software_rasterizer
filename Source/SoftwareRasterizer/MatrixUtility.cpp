@@ -3,7 +3,7 @@
 
 namespace SoftwareRasterizer
 {
-    Matrix4x4 MatrixUtility::createBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon)
+    Matrix4x4 MatrixUtility::CreateBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon)
     {
         //     | xAxis.x yAxis.x zAxis.x origon.x |
         // m = | xAxis.y yAxis.y zAxis.y origon.y |
@@ -18,7 +18,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::createRotationX(float angle)
+    Matrix4x4 MatrixUtility::CreateRotationX(float angle)
     {
         float c = std::cos(angle);
         float s = std::sin(angle);
@@ -31,7 +31,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::createRotationY(float angle)
+    Matrix4x4 MatrixUtility::CreateRotationY(float angle)
     {
         float c = std::cos(angle);
         float s = std::sin(angle);
@@ -44,7 +44,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::createRotationZ(float angle)
+    Matrix4x4 MatrixUtility::CreateRotationZ(float angle)
     {
         float c = std::cos(angle);
         float s = std::sin(angle);
@@ -57,7 +57,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::createScale(float x, float y, float z)
+    Matrix4x4 MatrixUtility::CreateScale(float x, float y, float z)
     {
         // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glScale.xml
 
@@ -69,7 +69,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::createShear(float xy, float xz, float yx, float yz, float zx, float zy)
+    Matrix4x4 MatrixUtility::CreateShear(float xy, float xz, float yx, float yz, float zx, float zy)
     {
         return Matrix4x4(
             1.0f, yx,   zx,   0.0f,
@@ -79,7 +79,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    static Matrix4x4 createTranslate(float x, float y, float z)
+    static Matrix4x4 CreateTranslate(float x, float y, float z)
     {
         // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml
 
@@ -93,7 +93,7 @@ namespace SoftwareRasterizer
     }
 
 
-    Matrix4x4 MatrixUtility::createLookAt(const Vector3& eye, const Vector3& center, const Vector3& up)
+    Matrix4x4 MatrixUtility::CreateLookAt(const Vector3& eye, const Vector3& center, const Vector3& up)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)
@@ -101,8 +101,6 @@ namespace SoftwareRasterizer
             // 参考 https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
 
             Vector3 F = center - eye;
-
-            
 
             Vector3 f = Vector3::Normalize(F);
             Vector3 UP = Vector3::Normalize(up);
@@ -158,13 +156,13 @@ namespace SoftwareRasterizer
             Vector3 zAxis = Vector3::Normalize(eye - center);
             Vector3 xAxis = Vector3::Normalize(up.cross(zAxis));
             Vector3 yAxis = zAxis.cross(xAxis);
-            Matrix4x4 cameraMatrix = MatrixUtility::createBasis(xAxis, yAxis, zAxis, eye);
+            Matrix4x4 cameraMatrix = MatrixUtility::CreateBasis(xAxis, yAxis, zAxis, eye);
 
             return cameraMatrix.getInverseMatrix();
         }
     }
 
-    Matrix4x4 MatrixUtility::createFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
+    Matrix4x4 MatrixUtility::CreateFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
     {
         // note.
         // 
@@ -215,12 +213,12 @@ namespace SoftwareRasterizer
             // ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を中央に移動
             float m02 = (right + left) / (right - left);
             float m12 = (top + bottom) / (top - bottom);
-            Matrix4x4 shearXY = MatrixUtility::createShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
+            Matrix4x4 shearXY = MatrixUtility::CreateShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
 
             // ニアクリップ面の上下左右の範囲を [-1, 1] から [-near, near] にマップ
             float m00 = (2.0f / (right - left)) * nearVal;
             float m11 = (2.0f / (top - bottom)) * nearVal;
-            Matrix4x4 scaleXY = MatrixUtility::createScale(m00, m11, 1.0f);
+            Matrix4x4 scaleXY = MatrixUtility::CreateScale(m00, m11, 1.0f);
 
             // 視体積の奥行範囲を [-nearVal, -farVal] から [-nearVal, farVal] にマップ
             // z' = m22 * z + m23
@@ -244,7 +242,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    Matrix4x4 MatrixUtility::createPerspective(float fovy, float aspect, float zNear, float zFar)
+    Matrix4x4 MatrixUtility::CreatePerspective(float fovy, float aspect, float zNear, float zFar)
     {
         const bool referenceImplementation = false;
         if (referenceImplementation)
@@ -264,7 +262,7 @@ namespace SoftwareRasterizer
         {
             float halfHeight = zNear * std:: tan(fovy / 2.0f);
             float halfWidth = halfHeight * aspect;
-            return createFrustum(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear, zFar);
+            return CreateFrustum(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear, zFar);
         }
     }
 }

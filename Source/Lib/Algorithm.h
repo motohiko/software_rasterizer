@@ -23,12 +23,12 @@ namespace Lib
         return std::min(std::max(low, v), high);
     }
 
-    inline float normalizeByte(uint8_t val)
+    inline float NormalizeByte(uint8_t val)
     {
         return val / 255.0f;
     }
 
-    inline uint8_t denormalizeByte(float val)
+    inline uint8_t DenormalizeByte(float val)
     {
         return (uint8_t)(255.0f * clamp(val, 0.0f, 1.0f));
     }

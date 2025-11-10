@@ -125,12 +125,12 @@ namespace Lib
 
         Vector4 getColumn(int column) const;
 
-        static const Matrix4x1& fromVector4(const Vector4& v)
+        static const Matrix4x1& FromVector4(const Vector4& v)
         {
             return *reinterpret_cast<const Matrix4x1*>(&v);
         }
 
-        static const Vector4& asVector4(const Matrix4x1& m)
+        static const Vector4& AsVector4(const Matrix4x1& m)
         {
             return *reinterpret_cast<const Vector4*>(&m);
         }
