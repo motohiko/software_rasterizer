@@ -183,9 +183,25 @@ namespace Lib
         Matrix4x4 getTransposeMatrix() const;
         Matrix4x4 getInverseMatrix() const;
 
-        Matrix4x4 operator*(const Matrix4x4& rhs) const;
-        Matrix4x1 operator*(const Matrix4x1& rhs) const;
-        Vector4 operator*(const Vector4& rhs) const;
+        // スカラー積
+        static Matrix4x4 Scale(const Matrix4x4& lhs, float rhs);
+
+        // 行列積
+        static Matrix4x4 Multiply(const Matrix4x4& lhs, const Matrix4x4& rhs);
+        static Matrix4x1 Multiply(const Matrix4x4& lhs, const Matrix4x1& rhs);
+        static Vector4 Multiply(const Matrix4x4& lhs, const Vector4& rhs)
+        {
+            return Matrix4x1::AsVector4(Multiply(lhs, (Matrix4x1::FromVector4(rhs))));
+        }
+
+        // スカラー積
+        Matrix4x4 operator*(float rhs) const { return Scale(*this, rhs); }
+        Matrix4x4 operator/(float rhs) const { return Scale(*this, 1.0f / rhs); }
+
+        // 行列積
+        Matrix4x4 operator*(const Matrix4x4& rhs) const { return Multiply(*this, rhs); }
+        Matrix4x1 operator*(const Matrix4x1& rhs) const { return Multiply(*this, rhs); }
+        Vector4 operator*(const Vector4& rhs) const { return Multiply(*this, rhs); }
 
     };
 }

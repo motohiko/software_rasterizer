@@ -451,20 +451,27 @@ namespace Lib
             return Matrix4x4::kIdentity;
         }
 
+        return Scale(adj, 1.0f / det);
+    }
+
+    // スカラー積
+    Matrix4x4 Matrix4x4::Scale(const Matrix4x4& lhs, float rhs)
+    {
         return Matrix4x4(
-            adj.m00 / det, adj.m01 / det, adj.m02 / det, adj.m03 / det,
-            adj.m10 / det, adj.m11 / det, adj.m12 / det, adj.m13 / det,
-            adj.m20 / det, adj.m21 / det, adj.m22 / det, adj.m23 / det,
-            adj.m30 / det, adj.m31 / det, adj.m32 / det, adj.m33 / det
+            lhs.m00 * rhs, lhs.m01 * rhs, lhs.m02 * rhs, lhs.m03 * rhs,
+            lhs.m10 * rhs, lhs.m11 * rhs, lhs.m12 * rhs, lhs.m13 * rhs,
+            lhs.m20 * rhs, lhs.m21 * rhs, lhs.m22 * rhs, lhs.m23 * rhs,
+            lhs.m30 * rhs, lhs.m31 * rhs, lhs.m32 * rhs, lhs.m33 * rhs
         );
     }
 
-    Matrix4x4 Matrix4x4::operator*(const Matrix4x4& rhs) const
+    // 行列積
+    Matrix4x4 Matrix4x4::Multiply(const Matrix4x4& lhs, const Matrix4x4& rhs)
     {
-        Vector4 r0 = getRow(0);
-        Vector4 r1 = getRow(1);
-        Vector4 r2 = getRow(2);
-        Vector4 r3 = getRow(3);
+        Vector4 r0 = lhs.getRow(0);
+        Vector4 r1 = lhs.getRow(1);
+        Vector4 r2 = lhs.getRow(2);
+        Vector4 r3 = lhs.getRow(3);
 
         Vector4 c0 = rhs.getColumn(0);
         Vector4 c1 = rhs.getColumn(1);
@@ -479,12 +486,13 @@ namespace Lib
         );
     }
 
-    Matrix4x1 Matrix4x4::operator*(const Matrix4x1& rhs) const
+    // 行列積
+    Matrix4x1 Matrix4x4::Multiply(const Matrix4x4& lhs, const Matrix4x1& rhs)
     {
-        Vector4 r0 = getRow(0);
-        Vector4 r1 = getRow(1);
-        Vector4 r2 = getRow(2);
-        Vector4 r3 = getRow(3);
+        Vector4 r0 = lhs.getRow(0);
+        Vector4 r1 = lhs.getRow(1);
+        Vector4 r2 = lhs.getRow(2);
+        Vector4 r3 = lhs.getRow(3);
 
         Vector4 c0 = rhs.getColumn(0);
 
@@ -494,10 +502,5 @@ namespace Lib
             r2.dot(c0),
             r3.dot(c0)
         );
-    }
-
-    Vector4 Matrix4x4::operator*(const Vector4& rhs) const
-    {
-        return Matrix4x1::AsVector4((*this) * (Matrix4x1::FromVector4(rhs)));
     }
 }

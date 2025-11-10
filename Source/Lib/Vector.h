@@ -161,53 +161,53 @@ namespace Lib
 
         float getComponent(int index) const;
 
+        // 加減算
+        static Vector4 Add(const Vector4& lhs, const Vector4& rhs)
+        {
+            return Vector4(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w);
+        }
+
+        static Vector4 Subtract(const Vector4& lhs, const Vector4& rhs)
+        {
+            return Vector4(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w);
+        }
+
+        // スカラー積
+        static Vector4 Scale(const Vector4& lhs, float rhs)
+        {
+            return Vector4(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs);
+        }
+
+        // 要素ごとの積（アダマール積）
+        static Vector4 Multiply(const Vector4& lhs, const Vector4& rhs)
+        {
+            return Vector4(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w);
+        }
+
         // 内積
-        float dot(const Vector4& rhs) const
+        static float InnerProduct(const Vector4& lhs, const Vector4& rhs)
         {
-            return (x * rhs.x) + (y * rhs.y) + (z * rhs.z) + (w * rhs.w);
+            return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
         }
 
-        Vector4 operator+(const Vector4& rhs) const
-        {
-            return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
-        }
-
-        Vector4 operator-(const Vector4& rhs) const
-        {
-            return Vector4(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
-        }
-
-        Vector4 operator*(float rhs) const
-        {
-            return Vector4(x * rhs, y * rhs, z * rhs, w * rhs);
-        }
-
-        Vector4 operator/(float rhs) const
-        {
-            return Vector4(x / rhs, y / rhs, z / rhs, w / rhs);
-        }
-
-        Vector4& operator*=(float rhs)
-        {
-            x *= rhs;
-            y *= rhs;
-            z *= rhs;
-            w *= rhs;
-            return *this;
-        }
-
-        Vector4& operator/=(float rhs)
-        {
-            x /= rhs;
-            y /= rhs;
-            z /= rhs;
-            w /= rhs;
-            return *this;
-        }
-
+        // 線形補間
         static Vector4 Lerp(const Vector4& v0, const Vector4& v1, float t)
         {
             return (v0 * (1.0f - t)) + (v1 * t);
         }
+
+        // 内積
+        float dot(const Vector4& rhs) const { return InnerProduct(*this, rhs); }
+
+        // 加減算
+        Vector4 operator+(const Vector4& rhs) const { return Add(*this, rhs); }
+        Vector4 operator-(const Vector4& rhs) const { return Subtract(*this, rhs); }
+
+        // スカラー積
+        Vector4 operator*(float rhs) const { return Scale(*this, rhs); }
+        Vector4 operator/(float rhs) const { return Scale(*this, 1.0f / rhs); }
+        Vector4& operator*=(float rhs) { *this = Scale(*this, rhs); return *this; }
+        Vector4& operator/=(float rhs) { *this = Scale(*this, 1.0f / rhs); return *this; }
+
     };
 }
