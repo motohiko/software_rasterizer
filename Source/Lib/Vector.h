@@ -19,49 +19,67 @@ namespace Lib
 
         float getNorm() const;
 
-        // 内積
-        float dot(const Vector2& rhs) const
-        {
-            return (x * rhs.x) + (y * rhs.y);
-        }
-
-        // 外積
-        float cross(const Vector2& rhs) const
-        {
-            float z = (x * rhs.y) - (y * rhs.x);
-            return z;
-        }
-
-       Vector2 operator+(const Vector2& rhs) const
-        {
-            return Vector2(x + rhs.x, y + rhs.y);
-        }
-
-        Vector2 operator-(const Vector2& rhs) const
-        {
-            return Vector2(x - rhs.x, y - rhs.y);
-        }
-
-        Vector2 operator*(float rhs) const
-        {
-            return Vector2(x * rhs, y * rhs);
-        }
-
-        Vector2 operator/(float rhs) const
-        {
-            return Vector2(x / rhs, y / rhs);
-        }
-
         static Vector2 Normalize(const Vector2& v)
         {
             float norm = v.getNorm();
             return (0.0f == norm) ? kZero : (v / norm);
         }
 
-        static Vector2 Lerp(const Vector2& v0, const Vector2& v1, float t)
+        static Vector2 Add(const Vector2& lhs, const Vector2& rhs)
         {
-            return (v0 * (1.0f - t)) + (v1 * t);
+            return Vector2(lhs.x + rhs.x, lhs.y + rhs.y);
         }
+
+        static Vector2 Subtract(const Vector2& lhs, const Vector2& rhs)
+        {
+            return Vector2(lhs.x - rhs.x, lhs.y - rhs.y);
+        }
+
+        static Vector2 ScalarProduct(const Vector2& lhs, float rhs)
+        {
+            return Vector2(lhs.x * rhs, lhs.y * rhs);
+        }
+
+        // 要素ごとの積（アダマール積）
+        static Vector2 HadamardProduct(const Vector2& lhs, const Vector2& rhs)
+        {
+            return Vector2(lhs.x * rhs.x, lhs.y * rhs.y);
+        }
+
+        static float InnerProduct(const Vector2& lhs, const Vector2& rhs)
+        {
+            return (lhs.x * rhs.x) + (lhs.y * rhs.y);
+        }
+
+        // 疑似外積
+        static float OuterProduct(const Vector2& lhs, const Vector2& rhs)
+        {
+            float z = (lhs.x * rhs.y) - (lhs.y * rhs.x);
+            return z;
+        }
+
+        static Vector2 LerpUnclamped(const Vector2& v0, const Vector2& v1, float t)
+        {
+            return ScalarProduct(v0, 1.0f - t) + ScalarProduct(v1, t);
+        }
+
+        // 加減算
+        Vector2 operator+(const Vector2& rhs) const { return Add(*this, rhs); }
+        Vector2 operator-(const Vector2& rhs) const { return Subtract(*this, rhs); }
+
+        // スカラー積
+        Vector2 operator*(float rhs) const { return ScalarProduct(*this, rhs); }
+        Vector2 operator/(float rhs) const { return ScalarProduct(*this, 1.0f / rhs); }
+
+        // 要素ごとの積（アダマール積）
+        Vector2 operator*(const Vector2& rhs) const { return HadamardProduct(*this, rhs); }
+
+        // 内積
+        float dot(const Vector2& rhs) const { return InnerProduct(*this, rhs); }
+
+        // 疑似外積
+        float cross(const Vector2& rhs) const { return OuterProduct(*this, rhs); }
+
     };
 
     struct Vector3
@@ -89,50 +107,71 @@ namespace Lib
 
         float getNorm() const;
 
-        // 内積
-        float dot(const Vector3& rhs) const
-        {
-            return (x * rhs.x) + (y * rhs.y) + (z * rhs.z);
-        }
-
-        // 外積
-        Vector3 cross(const Vector3& rhs) const
-        {
-            return Vector3(
-                (y * rhs.z) - (z * rhs.y),
-                (z * rhs.x) - (x * rhs.z),
-                (x * rhs.y) - (y * rhs.x)
-            );
-        }
-
-        Vector3 operator+(const Vector3& rhs) const
-        {
-            return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);
-        }
-
-        Vector3 operator-(const Vector3& rhs) const
-        {
-            return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);
-        }
-
-        Vector3 operator/(float rhs) const
-        {
-            return Vector3(x / rhs, y / rhs, z / rhs);
-        }
-
-        Vector3& operator/=(float rhs)
-        {
-            x /= rhs;
-            y /= rhs;
-            z /= rhs;
-            return *this;
-        }
-
         static Vector3 Normalize(const Vector3& v)
         {
             float norm = v.getNorm();
             return (0.0f == norm) ? kZero : (v / norm);
         }
+
+        static Vector3 Add(const Vector3& lhs, const Vector3& rhs)
+        {
+            return Vector3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+        }
+
+        static Vector3 Subtract(const Vector3& lhs, const Vector3& rhs)
+        {
+            return Vector3(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+        }
+
+        static Vector3 ScalarProduct(const Vector3& lhs, float rhs)
+        {
+            return Vector3(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
+        }
+
+        // 要素ごとの積（アダマール積）
+        static Vector3 HadamardProduct(const Vector3& lhs, const Vector3& rhs)
+        {
+            return Vector3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+        }
+
+        static float InnerProduct(const Vector3& lhs, const Vector3& rhs)
+        {
+            return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
+        }
+
+        static Vector3 OuterProduct(const Vector3& lhs, const Vector3& rhs)
+        {
+            return Vector3(
+                (lhs.y * rhs.z) - (lhs.z * rhs.y),
+                (lhs.z * rhs.x) - (lhs.x * rhs.z),
+                (lhs.x * rhs.y) - (lhs.y * rhs.x)
+            );
+        }
+
+        static Vector3 LerpUnclamped(const Vector3& v0, const Vector3& v1, float t)
+        {
+            return ScalarProduct(v0, 1.0f - t) + ScalarProduct(v1, t);
+        }
+
+        // 加減算
+        Vector3 operator+(const Vector3& rhs) const { return Add(*this, rhs); }
+        Vector3 operator-(const Vector3& rhs) const { return Subtract(*this, rhs); }
+
+        // スカラー積
+        Vector3 operator*(float rhs) const { return ScalarProduct(*this, rhs); }
+        Vector3 operator/(float rhs) const { return ScalarProduct(*this, 1.0f / rhs); }
+        Vector3& operator*=(float rhs) { *this = ScalarProduct(*this, rhs); return *this; }
+        Vector3& operator/=(float rhs) { *this = ScalarProduct(*this, 1.0f / rhs); return *this; }
+
+        // 要素ごとの積（アダマール積）
+        Vector3 operator*(const Vector3& rhs) const { return HadamardProduct(*this, rhs); }
+
+        // 内積
+        float dot(const Vector3& rhs) const { return InnerProduct(*this, rhs); }
+
+        // 外積
+        Vector3 cross(const Vector3& rhs) const { return OuterProduct(*this, rhs); }
+
     };
 
     struct Vector4
@@ -161,7 +200,6 @@ namespace Lib
 
         float getComponent(int index) const;
 
-        // 加減算
         static Vector4 Add(const Vector4& lhs, const Vector4& rhs)
         {
             return Vector4(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w);
@@ -172,42 +210,42 @@ namespace Lib
             return Vector4(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w);
         }
 
-        // スカラー積
-        static Vector4 Scale(const Vector4& lhs, float rhs)
+        static Vector4 ScalarProduct(const Vector4& lhs, float rhs)
         {
             return Vector4(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs);
         }
 
         // 要素ごとの積（アダマール積）
-        static Vector4 Multiply(const Vector4& lhs, const Vector4& rhs)
+        static Vector4 HadamardProduct(const Vector4& lhs, const Vector4& rhs)
         {
             return Vector4(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w);
         }
 
-        // 内積
         static float InnerProduct(const Vector4& lhs, const Vector4& rhs)
         {
             return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
         }
 
-        // 線形補間
-        static Vector4 Lerp(const Vector4& v0, const Vector4& v1, float t)
+        static Vector4 LerpUnclamped(const Vector4& v0, const Vector4& v1, float t)
         {
-            return (v0 * (1.0f - t)) + (v1 * t);
+            return ScalarProduct(v0, 1.0f - t) + ScalarProduct(v1, t);
         }
-
-        // 内積
-        float dot(const Vector4& rhs) const { return InnerProduct(*this, rhs); }
 
         // 加減算
         Vector4 operator+(const Vector4& rhs) const { return Add(*this, rhs); }
         Vector4 operator-(const Vector4& rhs) const { return Subtract(*this, rhs); }
 
         // スカラー積
-        Vector4 operator*(float rhs) const { return Scale(*this, rhs); }
-        Vector4 operator/(float rhs) const { return Scale(*this, 1.0f / rhs); }
-        Vector4& operator*=(float rhs) { *this = Scale(*this, rhs); return *this; }
-        Vector4& operator/=(float rhs) { *this = Scale(*this, 1.0f / rhs); return *this; }
+        Vector4 operator*(float rhs) const { return ScalarProduct(*this, rhs); }
+        Vector4 operator/(float rhs) const { return ScalarProduct(*this, 1.0f / rhs); }
+        Vector4& operator*=(float rhs) { *this = ScalarProduct(*this, rhs); return *this; }
+        Vector4& operator/=(float rhs) { *this = ScalarProduct(*this, 1.0f / rhs); return *this; }
+
+        // 要素ごとの積（アダマール積）
+        Vector4 operator*(const Vector4& rhs) const { return HadamardProduct(*this, rhs); }
+
+        // 内積
+        float dot(const Vector4& rhs) const { return InnerProduct(*this, rhs); }
 
     };
 }
