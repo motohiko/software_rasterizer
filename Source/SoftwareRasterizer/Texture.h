@@ -27,8 +27,8 @@ namespace SoftwareRasterizer
     {
         int tx = (int)std::floor((uv.x * tex->width) + 0.5f);// 切り捨て
         int ty = (int)std::floor((uv.y * tex->height) + 0.5f);
-        tx = Lib::clamp(tx, 0, tex->width - 1);
-        ty = Lib::clamp(ty, 0, tex->height - 1);
+        tx = std::clamp(tx, 0, tex->width - 1);
+        ty = std::clamp(ty, 0, tex->height - 1);
 
         const Texel* texel = ((const Texel*)tex->addr) + ty * tex->width + tx;
         Vector4 color(

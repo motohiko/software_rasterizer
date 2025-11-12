@@ -79,7 +79,7 @@ namespace SoftwareRasterizer
 
         // 正規化デバイス座標の z を深度範囲にマップ
         float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
-        rasterizationPoint->depth = Lib::lerp(_rasterizeStageState->depthRangeNearVal, _rasterizeStageState->depthRangeFarVal, t);
+        rasterizationPoint->depth = std::lerp(_rasterizeStageState->depthRangeNearVal, _rasterizeStageState->depthRangeFarVal, t);
 
         // パースペクティブコレクト用に 1/W を保存
         float w = clippedPrimitiveVertex->clipPosition.w;
@@ -282,8 +282,8 @@ namespace SoftwareRasterizer
 
         // ２点間を補間
         Vector2 wndPosition = Vector2::LerpUnclamped(p0->wndPosition, p1->wndPosition, t);
-        float depth = Lib::lerp(p0->depth, p1->depth, t);
-        float invW = Lib::lerp(p0->invW, p1->invW, t);
+        float depth = std::lerp(p0->depth, p1->depth, t);
+        float invW = std::lerp(p0->invW, p1->invW, t);
 
         Vector4 varyingVariables[kMaxVaryings] = {};
         int varyingNum = p0->varyingNum;// TODO:

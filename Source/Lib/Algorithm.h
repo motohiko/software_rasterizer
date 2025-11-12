@@ -7,16 +7,17 @@ namespace Lib
 {
     // std::lerp : c++20 
 
-    inline float lerp(float a, float b, float t)
-    {
-        return a + t * (b - a);
-    }
+    //inline float lerp(float a, float b, float t)
+    //{
+    //    return a + t * (b - a);
+    //}
 
     // std::clamp : c++20 
-    inline int clamp(int v, int low, int high)
-    {
-        return std::min(std::max(low, v), high);
-    }
+    
+    //inline int clamp(int v, int low, int high)
+    //{
+    //    return std::min(std::max(low, v), high);
+    //}
 
     inline float clamp(float v, float low, float high)
     {
