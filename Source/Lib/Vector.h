@@ -58,9 +58,10 @@ namespace Lib
             return z;
         }
 
-        static Vector2 LerpUnclamped(const Vector2& v0, const Vector2& v1, float t)
+        static Vector2 Lerp(const Vector2& a, const Vector2& b, float t)
         {
-            return ScalarProduct(v0, 1.0f - t) + ScalarProduct(v1, t);
+            // a + ((b - a) * t);
+            return Add(a, ScalarProduct(Subtract(b, a), t));
         }
 
         // 加減算
@@ -148,9 +149,10 @@ namespace Lib
             );
         }
 
-        static Vector3 LerpUnclamped(const Vector3& v0, const Vector3& v1, float t)
+        static Vector3 Lerp(const Vector3& a, const Vector3& b, float t)
         {
-            return ScalarProduct(v0, 1.0f - t) + ScalarProduct(v1, t);
+            // a + ((b - a) * t);
+            return Add(a, ScalarProduct(Subtract(b, a), t));
         }
 
         // 加減算
@@ -226,9 +228,10 @@ namespace Lib
             return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
         }
 
-        static Vector4 LerpUnclamped(const Vector4& v0, const Vector4& v1, float t)
+        static Vector4 Lerp(const Vector4& a, const Vector4& b, float t)
         {
-            return ScalarProduct(v0, 1.0f - t) + ScalarProduct(v1, t);
+            // a + ((b - a) * t);
+            return Add(a, ScalarProduct(Subtract(b, a), t));
         }
 
         // 加減算

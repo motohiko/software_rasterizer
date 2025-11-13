@@ -3,6 +3,7 @@
 #include "..\..\Lib\Algorithm.h"
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 namespace SoftwareRasterizer
 {
@@ -278,10 +279,10 @@ namespace SoftwareRasterizer
         float acLengthClosest = Vector2::Normalize(ab).dot(ac);
 
         float t = acLengthClosest / ab.getNorm();
-        t = Lib::clamp(t, 0.0f, 1.0f);
+        t = std::clamp(t, 0.0f, 1.0f);
 
         // ‚Q“_ŠÔ‚ð•âŠÔ
-        Vector2 wndPosition = Vector2::LerpUnclamped(p0->wndPosition, p1->wndPosition, t);
+        Vector2 wndPosition = Vector2::Lerp(p0->wndPosition, p1->wndPosition, t);
         float depth = std::lerp(p0->depth, p1->depth, t);
         float invW = std::lerp(p0->invW, p1->invW, t);
 
@@ -291,7 +292,7 @@ namespace SoftwareRasterizer
         {
             const Vector4& v0 = p0->varyingsDividedByW[i];
             const Vector4& v1 = p1->varyingsDividedByW[i];
-            varyingVariables[i] = Vector4::LerpUnclamped(v0, v1, t);
+            varyingVariables[i] = Vector4::Lerp(v0, v1, t);
         }
 
         assert(0.0f != invW);

@@ -12,7 +12,15 @@ namespace Lib
     {
     private:
 
-        float m00;
+        union
+        {
+            struct
+            {
+                float m00;
+            };
+
+            // TODO:
+        };
 
     public:
 
@@ -33,8 +41,16 @@ namespace Lib
 
     private:
 
-        float m00, m01;
-        float m10, m11;
+        union
+        {
+            struct
+            {
+                float m00, m01;
+                float m10, m11;
+            };
+
+            // TODO:
+        };
 
     public:
 
@@ -69,9 +85,17 @@ namespace Lib
 
     private:
 
-        float m00, m01, m02;
-        float m10, m11, m12;
-        float m20, m21, m22;
+        union
+        {
+            struct
+            {
+                float m00, m01, m02;
+                float m10, m11, m12;
+                float m20, m21, m22;
+            };
+
+            // TODO:
+        };
 
     public:
 
@@ -108,10 +132,18 @@ namespace Lib
 
     private:
 
-        float m00;
-        float m10;
-        float m20;
-        float m30;
+        union
+        {
+            struct
+            {
+                float m00;
+                float m10;
+                float m20;
+                float m30;
+            };
+
+            // TODO:
+        };
 
     public:
 
@@ -149,10 +181,18 @@ namespace Lib
 
     private:
 
-        float m00, m01, m02, m03;
-        float m10, m11, m12, m13;
-        float m20, m21, m22, m23;
-        float m30, m31, m32, m33;
+        union
+        {
+            struct
+            {
+                float m00, m01, m02, m03;
+                float m10, m11, m12, m13;
+                float m20, m21, m22, m23;
+                float m30, m31, m32, m33;
+            };
+
+            // TODO:
+        };
 
     public:
 
@@ -184,19 +224,16 @@ namespace Lib
         Matrix4x4 getInverseMatrix() const;
 
         // スカラー積
-        static Matrix4x4 Scale(const Matrix4x4& lhs, float rhs);
+        static Matrix4x4 ScalarProduct(const Matrix4x4& lhs, float rhs);
 
         // 行列積
         static Matrix4x4 Multiply(const Matrix4x4& lhs, const Matrix4x4& rhs);
         static Matrix4x1 Multiply(const Matrix4x4& lhs, const Matrix4x1& rhs);
-        static Vector4 Multiply(const Matrix4x4& lhs, const Vector4& rhs)
-        {
-            return Matrix4x1::AsVector4(Multiply(lhs, (Matrix4x1::FromVector4(rhs))));
-        }
+        static Vector4 Multiply(const Matrix4x4& lhs, const Vector4& rhs);
 
         // スカラー積
-        Matrix4x4 operator*(float rhs) const { return Scale(*this, rhs); }
-        Matrix4x4 operator/(float rhs) const { return Scale(*this, 1.0f / rhs); }
+        Matrix4x4 operator*(float rhs) const { return ScalarProduct(*this, rhs); }
+        Matrix4x4 operator/(float rhs) const { return ScalarProduct(*this, 1.0f / rhs); }
 
         // 行列積
         Matrix4x4 operator*(const Matrix4x4& rhs) const { return Multiply(*this, rhs); }

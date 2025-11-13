@@ -81,9 +81,6 @@
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Texture.h">
-      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Types.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
@@ -95,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStageState.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Texture.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +136,12 @@
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Lib\Algorithm.cpp">
+      <Filter>ソース ファイル\Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Texture.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

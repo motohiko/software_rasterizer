@@ -150,6 +150,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Lib\Algorithm.cpp" />
     <ClCompile Include="Source\Lib\Matrix.cpp" />
     <ClCompile Include="Source\Lib\Vector.cpp" />
     <ClCompile Include="Source\MeshData.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Texture.cpp" />
     <ClCompile Include="Source\WinMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

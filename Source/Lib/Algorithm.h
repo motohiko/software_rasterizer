@@ -1,38 +1,11 @@
 ﻿#pragma once
 
 #include <cstdint>
-#include <algorithm>
 
 namespace Lib
 {
-    // std::lerp : c++20 
-
-    //inline float lerp(float a, float b, float t)
-    //{
-    //    return a + t * (b - a);
-    //}
-
-    // std::clamp : c++20 
-    
-    //inline int clamp(int v, int low, int high)
-    //{
-    //    return std::min(std::max(low, v), high);
-    //}
-
-    inline float clamp(float v, float low, float high)
-    {
-        return std::min(std::max(low, v), high);
-    }
-
-    inline float NormalizeByte(uint8_t val)
-    {
-        return val / 255.0f;
-    }
-
-    inline uint8_t DenormalizeByte(float val)
-    {
-        return (uint8_t)(255.0f * clamp(val, 0.0f, 1.0f));
-    }
+    float NormalizeByte(uint8_t val);
+    uint8_t DenormalizeByte(float val);
 
     // Bresenham's line algorithm
     class BresenhamLine

@@ -108,7 +108,7 @@ namespace Test
         const Vector2 uv = input->varyings[0].getXY();
         const Vector4& normal = input->varyings[1];
 
-        output->fragColor = sampleTexture(uniformBlock->meshTexture, uv);
+        output->fragColor = SampleTexture(uniformBlock->meshTexture, uv);
     }
 
     void RenderScene(RenderingContext* g_renderingContext, const Camera* camera)
@@ -311,7 +311,7 @@ namespace Test
         {
             int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
             g_camera.zoom += zDelta * -0.001f;
-            g_camera.zoom = Lib::clamp(g_camera.zoom, 0.001f, FLT_MAX);
+            g_camera.zoom = std::clamp(g_camera.zoom, 0.001f, FLT_MAX);
             InvalidateRect(hwnd, NULL, TRUE); // 再描画を要求
             return 0;
         }

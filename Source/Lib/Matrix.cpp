@@ -55,7 +55,7 @@ namespace Lib
     {
         Matrix1x1 subMatrix = getSubMatrix(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
-        float sign = std::pow(-1.0f, (float)(rowIndex + columnIndex));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)((1 + rowIndex) + (1 + columnIndex)));// 偶数 +、奇数 -
         return det * sign;
     }
 
@@ -163,7 +163,7 @@ namespace Lib
     {
         Matrix2x2 subMatrix = getSubMatrix(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
-        float sign = std::pow(-1.0f, (float)(rowIndex + columnIndex));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)((1 + rowIndex) + (1 + columnIndex)));// 偶数 +、奇数 -
         return det * sign;
     }
 
@@ -388,7 +388,7 @@ namespace Lib
     {
         Matrix3x3 subMatrix = getSubMatrix(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
-        float sign = std::pow(-1.0f, (float)(rowIndex + columnIndex));// 偶数 +、奇数 -
+        float sign = std::pow(-1.0f, (float)((1 + rowIndex) + (1 + columnIndex)));// 偶数 +、奇数 -
         return det * sign;
     }
 
@@ -451,11 +451,11 @@ namespace Lib
             return Matrix4x4::kIdentity;
         }
 
-        return Scale(adj, 1.0f / det);
+        return ScalarProduct(adj, 1.0f / det);
     }
 
     // スカラー積
-    Matrix4x4 Matrix4x4::Scale(const Matrix4x4& lhs, float rhs)
+    Matrix4x4 Matrix4x4::ScalarProduct(const Matrix4x4& lhs, float rhs)
     {
         return Matrix4x4(
             lhs.m00 * rhs, lhs.m01 * rhs, lhs.m02 * rhs, lhs.m03 * rhs,
@@ -486,7 +486,6 @@ namespace Lib
         );
     }
 
-    // 行列積
     Matrix4x1 Matrix4x4::Multiply(const Matrix4x4& lhs, const Matrix4x1& rhs)
     {
         Vector4 r0 = lhs.getRow(0);
@@ -503,4 +502,11 @@ namespace Lib
             r3.dot(c0)
         );
     }
+
+    Vector4 Matrix4x4::Multiply(const Matrix4x4& lhs, const Vector4& rhs)
+    {
+        Matrix4x1 ret = Multiply(lhs, (Matrix4x1::FromVector4(rhs)));
+        return Matrix4x1::AsVector4(ret);
+    }
+
 }

@@ -47,10 +47,10 @@ namespace SoftwareRasterizer
 
         int varyingNum = p0.varyingNum;// TODO:
 
-        dst->clipPosition = Vector4::LerpUnclamped(p0.clipPosition, p1.clipPosition, t);
+        dst->clipPosition = Vector4::Lerp(p0.clipPosition, p1.clipPosition, t);
         for (int i = 0; i < varyingNum; ++i)
         {
-            dst->varyings[i] = Vector4::LerpUnclamped(p0.varyings[i], p1.varyings[i], t);
+            dst->varyings[i] = Vector4::Lerp(p0.varyings[i], p1.varyings[i], t);
         }
         dst->varyingNum = varyingNum;
     }
