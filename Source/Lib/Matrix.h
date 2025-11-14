@@ -25,9 +25,13 @@ namespace Lib
     public:
 
         Matrix1x1() = default;
-        Matrix1x1(float m00) : m00(m00) {};
+        Matrix1x1(float m00);
 
-        float getDeterminant() const { return m00; }
+        static const Matrix1x1 kIdentity;
+
+    public:
+
+        float getDeterminant() const;
 
     };
 
@@ -65,8 +69,8 @@ namespace Lib
     private:
 
         Matrix1x1 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-        Matrix1x1 getSubMatrix(int rowIndex, int columnIndex) const;
         float getCofactor(int rowIndex, int columnIndex) const;
+        float cofactorExpansionByFirstRow() const;
 
     public:
 
@@ -111,8 +115,8 @@ namespace Lib
     private:
 
         Matrix2x2 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-        Matrix2x2 getSubMatrix(int rowIndex, int columnIndex) const;
         float getCofactor(int rowIndex, int columnIndex) const;
+        float cofactorExpansionByFirstRow() const;
 
     public:
 
@@ -212,9 +216,9 @@ namespace Lib
     private:
 
         Matrix3x3 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-        Matrix3x3 getSubMatrix(int rowIndex, int columnIndex) const;
         float getCofactor(int rowIndex, int columnIndex) const;
         Matrix4x4 getAdjugateMatrix() const;
+        float cofactorExpansionByFirstRow() const;
 
     public:
 

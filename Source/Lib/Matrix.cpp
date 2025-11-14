@@ -3,6 +3,23 @@
 
 namespace Lib
 {
+
+    Matrix1x1::Matrix1x1(
+        float m00
+    ) : 
+        m00(m00)
+    {
+    };
+
+    const Matrix1x1 Matrix1x1::kIdentity(
+        1.0f
+    );
+
+    float Matrix1x1::getDeterminant() const
+    {
+        return m00;
+    }
+
     Matrix2x2::Matrix2x2(
         float m00, float m01,
         float m10, float m11
@@ -17,6 +34,7 @@ namespace Lib
         0.0f, 1.0f
     );
 
+    // 小行列
     Matrix1x1 Matrix2x2::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
@@ -25,45 +43,57 @@ namespace Lib
             switch (columnIndex)
             {
             case 0:
-                return Matrix1x1(m11);
+                return Matrix1x1(
+                    /**/ /**/
+                    /**/ m11
+                );
             case 1:
-                return Matrix1x1(m10);
+                return Matrix1x1(
+                    /**/ /**/
+                    m10  /**/
+                );
             }
             break;
         case 1:
             switch (columnIndex)
             {
             case 0:
-                return Matrix1x1(m01);
+                return Matrix1x1(
+                    /**/ m01
+                    /**/ /**/
+                );
             case 1:
-                return Matrix1x1(m00);
+                return Matrix1x1(
+                    m00  /**/
+                    /**/ /**/
+                );
             }
             break;
         }
 
-        return 1.0f;
-    }
-
-    // 小行列
-    Matrix1x1 Matrix2x2::getSubMatrix(int rowIndex, int columnIndex) const
-    {
-        return getMatrixWithoutRowColumn(rowIndex, columnIndex);
+        return Matrix1x1::kIdentity;
     }
 
     // 余因子
     float Matrix2x2::getCofactor(int rowIndex, int columnIndex) const
     {
-        Matrix1x1 subMatrix = getSubMatrix(rowIndex, columnIndex);
+        Matrix1x1 subMatrix = getMatrixWithoutRowColumn(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
         float sign = std::pow(-1.0f, (float)((1 + rowIndex) + (1 + columnIndex)));// 偶数 +、奇数 -
         return det * sign;
     }
 
-    float Matrix2x2::getDeterminant() const
+    // 余因子展開
+    float  Matrix2x2::cofactorExpansionByFirstRow() const
     {
         float c00 = getCofactor(0, 0);
         float c01 = getCofactor(0, 1);
         return (m00 * c00) + (m01 * c01);
+    }
+
+    float Matrix2x2::getDeterminant() const
+    {
+        return cofactorExpansionByFirstRow();
     }
 
     Matrix3x3::Matrix3x3(
@@ -83,6 +113,7 @@ namespace Lib
         0.0f, 0.0f, 1.0f
     );
 
+    // 小行列
     Matrix2x2 Matrix3x3::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
@@ -92,18 +123,21 @@ namespace Lib
             {
             case 0:
                 return Matrix2x2(
-                    m11, m12,
-                    m21, m22
+                    /**/ /**/ /**/
+                    /**/ m11, m12,
+                    /**/ m21, m22
                 );
             case 1:
                 return Matrix2x2(
-                    m10, m12,
-                    m20, m22
+                    /**/ /**/ /**/
+                    m10, /**/ m12,
+                    m20, /**/ m22
                 );
             case 2:
                 return Matrix2x2(
-                    m10, m11,
-                    m20, m21
+                    /**/ /**/ /**/
+                    m10, m11, /**/
+                    m20, m21  /**/
                 );
             }
             break;
@@ -112,18 +146,21 @@ namespace Lib
             {
             case 0:
                 return Matrix2x2(
-                    m01, m02,
-                    m21, m22
+                    /**/ m01, m02,
+                    /**/ /**/ /**/
+                    /**/ m21, m22
                 );
             case 1:
                 return Matrix2x2(
-                    m00, m02,
-                    m20, m22
+                    m00, /**/ m02,
+                    /**/ /**/ /**/
+                    m20, /**/ m22
                 );
             case 2:
                 return Matrix2x2(
-                    m00, m01,
-                    m20, m21
+                    m00, m01, /**/
+                    /**/ /**/ /**/
+                    m20, m21  /**/
                 );
             }
             break;
@@ -132,18 +169,21 @@ namespace Lib
             {
             case 0:
                 return Matrix2x2(
-                    m01, m02,
-                    m11, m12
+                    /**/ m01, m02,
+                    /**/ m11, m12
+                    /**/ /**/ /**/
                 );
             case 1:
                 return Matrix2x2(
-                    m00, m02,
-                    m10, m12
+                    m00, /**/ m02,
+                    m10, /**/ m12
+                    /**/ /**/ /**/
                 );
             case 2:
                 return Matrix2x2(
-                    m00, m01,
-                    m10, m11
+                    m00, m01, /**/
+                    m10, m11  /**/
+                    /**/ /**/ /**/
                 );
             }
             break;
@@ -152,27 +192,27 @@ namespace Lib
         return Matrix2x2::kIdentity;
     }
 
-    // 小行列
-    Matrix2x2 Matrix3x3::getSubMatrix(int rowIndex, int columnIndex) const
-    {
-        return getMatrixWithoutRowColumn(rowIndex, columnIndex);
-    }
-
     // 余因子
     float Matrix3x3::getCofactor(int rowIndex, int columnIndex) const
     {
-        Matrix2x2 subMatrix = getSubMatrix(rowIndex, columnIndex);
+        Matrix2x2 subMatrix = getMatrixWithoutRowColumn(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
         float sign = std::pow(-1.0f, (float)((1 + rowIndex) + (1 + columnIndex)));// 偶数 +、奇数 -
         return det * sign;
     }
 
-    float Matrix3x3::getDeterminant() const
+    // 余因子展開
+    float Matrix3x3::cofactorExpansionByFirstRow() const
     {
         float c00 = getCofactor(0, 0);
         float c01 = getCofactor(0, 1);
         float c02 = getCofactor(0, 2);
         return (m00 * c00) + (m01 * c01) + (m02 * c02);
+    }
+
+    float Matrix3x3::getDeterminant() const
+    {
+        return cofactorExpansionByFirstRow();
     }
 
     Matrix4x1::Matrix4x1(
@@ -253,6 +293,7 @@ namespace Lib
         }
     }
 
+    // 小行列
     Matrix3x3 Matrix4x4::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
     {
         switch (rowIndex)
@@ -262,27 +303,31 @@ namespace Lib
             {
             case 0:
                 return Matrix3x3(
-                    m11, m12, m13,
-                    m21, m22, m23,
-                    m31, m32, m33
+                    /**/ /**/ /**/ /**/
+                    /**/ m11, m12, m13,
+                    /**/ m21, m22, m23,
+                    /**/ m31, m32, m33
                 );
             case 1:
                 return Matrix3x3(
-                    m10, m12, m13,
-                    m20, m22, m23,
-                    m30, m32, m33
+                    /**/ /**/ /**/ /**/
+                    m10, /**/ m12, m13,
+                    m20, /**/ m22, m23,
+                    m30, /**/ m32, m33
                 );
             case 2:
                 return Matrix3x3(
-                    m10, m11, m13,
-                    m20, m21, m23,
-                    m30, m31, m33
+                    /**/ /**/ /**/ /**/
+                    m10, m11, /**/ m13,
+                    m20, m21, /**/ m23,
+                    m30, m31, /**/ m33
                 );
             case 3:
                 return Matrix3x3(
-                    m10, m11, m12,
-                    m20, m21, m22,
-                    m30, m31, m32
+                    /**/ /**/ /**/ /**/
+                    m10, m11, m12, /**/
+                    m20, m21, m22, /**/
+                    m30, m31, m32  /**/
                 );
             }
             break;
@@ -291,27 +336,31 @@ namespace Lib
             {
             case 0:
                 return Matrix3x3(
-                    m01, m02, m03,
-                    m21, m22, m23,
-                    m31, m32, m33
+                    /**/ m01, m02, m03,
+                    /**/ /**/ /**/ /**/
+                    /**/ m21, m22, m23,
+                    /**/ m31, m32, m33
                 );
             case 1:
                 return Matrix3x3(
-                    m00, m02, m03,
-                    m20, m22, m23,
-                    m30, m32, m33
+                    m00, /**/ m02, m03,
+                    /**/ /**/ /**/ /**/
+                    m20, /**/ m22, m23,
+                    m30, /**/ m32, m33
                 );
             case 2:
                 return Matrix3x3(
-                    m00, m01, m03,
-                    m20, m21, m23,
-                    m30, m31, m33
+                    m00, m01, /**/ m03,
+                    /**/ /**/ /**/ /**/
+                    m20, m21, /**/ m23,
+                    m30, m31, /**/ m33
                 );
             case 3:
                 return Matrix3x3(
-                    m00, m01, m02,
-                    m20, m21, m22,
-                    m30, m31, m32
+                    m00, m01, m02, /**/
+                    /**/ /**/ /**/ /**/
+                    m20, m21, m22, /**/
+                    m30, m31, m32  /**/
                 );
             }
             break;
@@ -320,27 +369,31 @@ namespace Lib
             {
             case 0:
                 return Matrix3x3(
-                    m01, m02, m03,
-                    m11, m12, m13,
-                    m31, m32, m33
+                    /**/ m01, m02, m03,
+                    /**/ m11, m12, m13,
+                    /**/ /**/ /**/ /**/
+                    /**/ m31, m32, m33
                 );
             case 1:
                 return Matrix3x3(
-                    m00, m02, m03,
-                    m10, m12, m13,
-                    m30, m32, m33
+                    m00, /**/ m02, m03,
+                    m10, /**/ m12, m13,
+                    /**/ /**/ /**/ /**/
+                    m30, /**/ m32, m33
                 );
             case 2:
                 return Matrix3x3(
-                    m00, m01, m03,
-                    m10, m11, m13,
-                    m30, m31, m33
+                    m00, m01, /**/ m03,
+                    m10, m11, /**/ m13,
+                    /**/ /**/ /**/ /**/
+                    m30, m31, /**/ m33
                 );
             case 3:
                 return Matrix3x3(
-                    m00, m01, m02,
-                    m10, m11, m12,
-                    m30, m31, m32
+                    m00, m01, m02, /**/
+                    m10, m11, m12, /**/
+                    /**/ /**/ /**/ /**/
+                    m30, m31, m32  /**/
                 );
             }
             break;
@@ -349,27 +402,31 @@ namespace Lib
             {
             case 0:
                 return Matrix3x3(
-                    m01, m02, m03,
-                    m11, m12, m13,
-                    m21, m22, m23
+                    /**/ m01, m02, m03,
+                    /**/ m11, m12, m13,
+                    /**/ m21, m22, m23
+                    /**/ /**/ /**/ /**/
                 );
             case 1:
                 return Matrix3x3(
-                    m00, m02, m03,
-                    m10, m12, m13,
-                    m20, m22, m23
+                    m00, /**/ m02, m03,
+                    m10, /**/ m12, m13,
+                    m20, /**/ m22, m23
+                    /**/ /**/ /**/ /**/
                 );
             case 2:
                 return Matrix3x3(
-                    m00, m01, m03,
-                    m10, m11, m13,
-                    m20, m21, m23
+                    m00, m01, /**/ m03,
+                    m10, m11, /**/ m13,
+                    m20, m21, /**/ m23
+                    /**/ /**/ /**/ /**/
                 );
             case 3:
                 return Matrix3x3(
-                    m00, m01, m02,
-                    m10, m11, m12,
-                    m20, m21, m22
+                    m00, m01, m02, /**/
+                    m10, m11, m12, /**/
+                    m20, m21, m22  /**/
+                    /**/ /**/ /**/ /**/
                 );
             }
             break;
@@ -377,16 +434,10 @@ namespace Lib
         return Matrix3x3::kIdentity;
     }
 
-    // 小行列
-    Matrix3x3 Matrix4x4::getSubMatrix(int rowIndex, int columnIndex) const
-    {
-        return getMatrixWithoutRowColumn(rowIndex, columnIndex);
-    }
-
     // 余因子
     float Matrix4x4::getCofactor(int rowIndex, int columnIndex) const
     {
-        Matrix3x3 subMatrix = getSubMatrix(rowIndex, columnIndex);
+        Matrix3x3 subMatrix = getMatrixWithoutRowColumn(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
         float sign = std::pow(-1.0f, (float)((1 + rowIndex) + (1 + columnIndex)));// 偶数 +、奇数 -
         return det * sign;
@@ -422,13 +473,19 @@ namespace Lib
         return cofactorMatrix.getTransposeMatrix();
     }
 
-    float Matrix4x4::getDeterminant() const
+    // 余因子展開
+    float Matrix4x4::cofactorExpansionByFirstRow() const
     {
         float c00 = getCofactor(0, 0);
         float c01 = getCofactor(0, 1);
         float c02 = getCofactor(0, 2);
         float c03 = getCofactor(0, 3);
         return (m00 * c00) + (m01 * c01) + (m02 * c02) + (m03 * c03);
+    }
+
+    float Matrix4x4::getDeterminant() const
+    {
+        return cofactorExpansionByFirstRow();
     }
 
     Matrix4x4 Matrix4x4::getTransposeMatrix() const
