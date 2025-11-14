@@ -13,10 +13,7 @@
 #include "MeshData.h"
 
 #include <cstdint>
-#include <cassert>
-#include <vector>
 #include <algorithm>
-#include <cmath>// abs
 
 namespace Test
 {
@@ -51,7 +48,7 @@ namespace Test
         Matrix4x4 projectionMatrix;
         Matrix4x4 viewMatrix;
         Matrix4x4 modelMatrix;
-        const Texture* meshTexture;
+        const Sampler2D* meshTexture;
     };
 
     void printDebugLog(const TCHAR* format, ...)
@@ -108,7 +105,7 @@ namespace Test
         const Vector2 uv = input->varyings[0].getXY();
         const Vector4& normal = input->varyings[1];
 
-        output->fragColor = SampleTexture(uniformBlock->meshTexture, uv);
+        output->fragColor = texture2D(uniformBlock->meshTexture, uv);
     }
 
     void RenderScene(RenderingContext* g_renderingContext, const Camera* camera)
@@ -235,11 +232,12 @@ namespace Test
         {
             uniformBlock.modelMatrix = MatrixUtility::CreateRotationX(90.0f * 3.14f / 180.0f);
 
-            Texture meshTexture = {};
-            meshTexture.addr = kTexture;
-            meshTexture.width = 256;
-            meshTexture.height = 256;
-            uniformBlock.meshTexture = &meshTexture;
+            Texture2D texture = {};
+            Sampler2D sampler2D = { &texture };
+            texture.addr = kTexture;
+            texture.width = 256;
+            texture.height = 256;
+            uniformBlock.meshTexture = &sampler2D;
 
             g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::kTriangleList);
             g_renderingContext->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
@@ -254,11 +252,17 @@ namespace Test
             g_renderingContext->setVertexAttribute(2, SemanticsType::kNormal, 3, ComponentType::kFloat, sizeof(float) * 3);
             g_renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
             g_renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
+
+            g_renderingContext->setFrontFaceType(FrontFaceType::kCounterClockwise);
+            g_renderingContext->setCullFaceType(CullFaceType::kBack);
+
             g_renderingContext->drawIndexed();
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
             g_renderingContext->disableVertexAttribute(2);
+            g_renderingContext->setFrontFaceType(FrontFaceType::kDefault);
+            g_renderingContext->setCullFaceType(CullFaceType::kDefault);
 
             uniformBlock.modelMatrix = Matrix4x4::kIdentity;
             uniformBlock.meshTexture = nullptr;

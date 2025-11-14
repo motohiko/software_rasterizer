@@ -10,7 +10,11 @@
 
 namespace SoftwareRasterizer
 {
-    RenderingContext::RenderingContext()
+    RenderingContext::RenderingContext() :
+        _inputAssemblyStage(this),
+        _vertexShaderStage(this),
+        _rasterizeStage(this),
+        _fragmentShaderStage(this)
     {
     }
 
@@ -152,12 +156,15 @@ namespace SoftwareRasterizer
         RasterizeStage::validateState(&_rasterizeStageState);
         FragmentShaderStage::validateState(&_fragmentShaderStageState);
 
-        InputAssemblyStage inputAssemblyStage(this);
-        inputAssemblyStage.prepareReadPrimitive();
-        inputAssemblyStage.prepareReadVertex();
+        _inputAssemblyStage.prepareReadPrimitive();
+        _inputAssemblyStage.prepareReadVertex();
+
+        _rasterizeStage.setFrameSize(_frameBuffer.getFrameWidth(), _frameBuffer.getFrameHeight());
+        _rasterizeStage.prepareRasterize();
+
 
         InputAssemblyStage::Primitive primitive;
-        while (inputAssemblyStage.readPrimitive(&primitive))
+        while (_inputAssemblyStage.readPrimitive(&primitive))
         {
             ShadedVertex shadedVertices[3];
 
@@ -166,10 +173,9 @@ namespace SoftwareRasterizer
                 uint16_t vertexIndex = primitive.vertexIndices[i];
 
                 AttributeVertex attributeVertex;
-                inputAssemblyStage.readVertex(vertexIndex, &attributeVertex);
+                _inputAssemblyStage.readVertex(vertexIndex, &attributeVertex);
 
-                VertexShaderStage vertexShaderStage(this);
-                vertexShaderStage.executeShader(&attributeVertex, &(shadedVertices[i]));
+                _vertexShaderStage.executeShader(&attributeVertex, &(shadedVertices[i]));
             }
 
             outputPrimitive(primitive.primitiveType, shadedVertices, primitive.vertexNum);
@@ -197,10 +203,6 @@ namespace SoftwareRasterizer
         {
             // （分割された）各プリミティブをラスタライズ
 
-            RasterizeStage _rasterizeStage(this);
-            _rasterizeStage.setFrameSize(_frameBuffer.getFrameWidth(), _frameBuffer.getFrameHeight());
-            _rasterizeStage.prepareRasterize();
-
             RasterPrimitive rasterPrimitive;
             rasterPrimitive.primitiveType = dividedPrimitive.primitiveType;
             for (int i = 0; i < dividedPrimitive.vertexNum; i++)
@@ -216,8 +218,6 @@ namespace SoftwareRasterizer
 
     void RenderingContext::outputFragment(const Fragment* fragment)
     {
-        FragmentShaderStage _fragmentShaderStage(this);
-
         Vector4 color;
         _fragmentShaderStage.executeShader(fragment, &color);
 
@@ -229,4 +229,12 @@ namespace SoftwareRasterizer
 
         _frameBuffer.writePixel(fragment->x, fragment->y, color, fragment->depth);
     }
+
+    bool RenderingContext::depthTest(int x, int y, float depth)
+    {
+        float bufferDepth = _frameBuffer.readDepth(x, y);
+        bool passed = (depth < bufferDepth);// GL_LESS (OpenGL Default)
+        return passed;
+    }
+
 }

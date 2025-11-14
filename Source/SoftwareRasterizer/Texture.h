@@ -5,13 +5,24 @@
 
 namespace SoftwareRasterizer
 {
-    struct Texture
+    struct Texture2D
     {
         const void* addr;
+
+        //internalformat = 4
+
         int width;
         int height;
+
+        //format = GL_RGBA
+
     };
 
-    Vector4 SampleTexture(const Texture* tex, const Vector2& uv);
+    struct Sampler2D
+    {
+        const Texture2D* texture;
+    };
+
+    Vector4 texture2D(const Sampler2D* sampler, const Vector2& uv);
 
 }

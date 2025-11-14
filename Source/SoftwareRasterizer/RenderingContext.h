@@ -1,14 +1,18 @@
 #pragma once
 
-#include "FrameBuffer.h"
+#include "Pipeline\InputAssemblyStage.h"
+#include "Pipeline\VertexShaderStage.h"
+#include "Pipeline\RasterizeStage.h"
+#include "Pipeline\FragmentShaderStage.h"
 #include "Pipeline\InputAssemblyStageState.h"
 #include "Pipeline\VertexShaderStageState.h"
 #include "Pipeline\RasterizeStageState.h"
 #include "Pipeline\FragmentShaderStageState.h"
+#include "FrameBuffer.h"
 #include "Types.h"
 #include "..\Lib\Vector.h"
 #include <cstdint>
-#include <functional>
+#include <memory>
 
 namespace SoftwareRasterizer
 {
@@ -22,10 +26,16 @@ namespace SoftwareRasterizer
     private:
 
         FrameBuffer _frameBuffer;
+
         InputAssemblyStageState _inputAssemblyStageState;
         VertexShaderStageState _vertexShaderStageState;
         RasterizeStageState _rasterizeStageState;
         FragmentShaderStageState _fragmentShaderStageState;
+
+        InputAssemblyStage _inputAssemblyStage;
+        VertexShaderStage _vertexShaderStage;
+        RasterizeStage _rasterizeStage;
+        FragmentShaderStage _fragmentShaderStage;
 
     public:
 
@@ -65,7 +75,6 @@ namespace SoftwareRasterizer
         void setFrontFaceType(FrontFaceType frontFacetype);// glFrontFace
         void setCullFaceType(CullFaceType cullFaceType);// glCullFace
 
-
         void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);
 
         void drawIndexed();
@@ -75,18 +84,7 @@ namespace SoftwareRasterizer
         void outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum);
         void outputFragment(const Fragment* fragment);
 
-        bool depthTest(int x, int y, float depth)
-        {
-            float bufferDepth = _frameBuffer.readDepth(x, y);
-            bool passed = (depth < bufferDepth);// GL_LESS (OpenGL Default)
-            return passed;
-        }
-
-    public:
-
-        using OutputPixelHandler = std::function<void()>;
-        OutputPixelHandler onOutputPixel;
-        void setOnOutputPixel(OutputPixelHandler handler) { onOutputPixel = std::move(handler); }
+        bool depthTest(int x, int y, float depth);
 
     };
 }
