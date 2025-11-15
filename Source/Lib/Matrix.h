@@ -69,8 +69,8 @@ namespace Lib
     private:
 
         Matrix1x1 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-        float getCofactor(int rowIndex, int columnIndex) const;
-        float cofactorExpansionByFirstRow() const;
+        float getCofactorAt(int rowIndex, int columnIndex) const;
+        float computeCofactorExpansionByFirstRow() const;
 
     public:
 
@@ -115,8 +115,8 @@ namespace Lib
     private:
 
         Matrix2x2 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-        float getCofactor(int rowIndex, int columnIndex) const;
-        float cofactorExpansionByFirstRow() const;
+        float getCofactorAt(int rowIndex, int columnIndex) const;
+        float computeCofactorExpansionByFirstRow() const;
 
     public:
 
@@ -213,36 +213,40 @@ namespace Lib
         Vector4 getRow(int rowIndex) const;
         Vector4 getColumn(int columnIndex) const;
 
+        Matrix4x4 getTransposeMatrix() const;
+
     private:
 
         Matrix3x3 getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const;
-        float getCofactor(int rowIndex, int columnIndex) const;
+        float getCofactorAt(int rowIndex, int columnIndex) const;
         Matrix4x4 getAdjugateMatrix() const;
-        float cofactorExpansionByFirstRow() const;
+        float computeCofactorExpansionByFirstRow() const;
 
     public:
 
         float getDeterminant() const;
-
-        Matrix4x4 getTransposeMatrix() const;
         Matrix4x4 getInverseMatrix() const;
 
-        // スカラー積
-        static Matrix4x4 ScalarProduct(const Matrix4x4& lhs, float rhs);
+        // スカラー倍
+        static Matrix4x4 ScaleByScalar(const Matrix4x4& lhs, float rhs);
 
         // 行列積
-        static Matrix4x4 Multiply(const Matrix4x4& lhs, const Matrix4x4& rhs);
-        static Matrix4x1 Multiply(const Matrix4x4& lhs, const Matrix4x1& rhs);
-        static Vector4 Multiply(const Matrix4x4& lhs, const Vector4& rhs);
+        static Matrix4x4 ComputeMatrixProduct(const Matrix4x4& lhs, const Matrix4x4& rhs);
+        static Matrix4x1 ComputeMatrixProduct(const Matrix4x4& lhs, const Matrix4x1& rhs);
+
+        // 変換
+        static Vector4 ApplyMatrixToColumnVector(const Matrix4x4& lhs, const Vector4& rhs);
 
         // スカラー積
-        Matrix4x4 operator*(float rhs) const { return ScalarProduct(*this, rhs); }
-        Matrix4x4 operator/(float rhs) const { return ScalarProduct(*this, 1.0f / rhs); }
+        Matrix4x4 operator*(float rhs) const { return ScaleByScalar(*this, rhs); }
+        Matrix4x4 operator/(float rhs) const { return ScaleByScalar(*this, 1.0f / rhs); }
 
         // 行列積
-        Matrix4x4 operator*(const Matrix4x4& rhs) const { return Multiply(*this, rhs); }
-        Matrix4x1 operator*(const Matrix4x1& rhs) const { return Multiply(*this, rhs); }
-        Vector4 operator*(const Vector4& rhs) const { return Multiply(*this, rhs); }
+        Matrix4x4 operator*(const Matrix4x4& rhs) const { return ComputeMatrixProduct(*this, rhs); }
+        Matrix4x1 operator*(const Matrix4x1& rhs) const { return ComputeMatrixProduct(*this, rhs); }
+
+        // 変換
+        Vector4 operator*(const Vector4& rhs) const { return ApplyMatrixToColumnVector(*this, rhs); }
 
     };
 }
