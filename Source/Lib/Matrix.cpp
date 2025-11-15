@@ -15,6 +15,7 @@ namespace Lib
         1.0f
     );
 
+    // 行列式
     float Matrix1x1::getDeterminant() const
     {
         return m00;
@@ -75,7 +76,7 @@ namespace Lib
     }
 
     // 余因子
-    float Matrix2x2::getCofactorAt(int rowIndex, int columnIndex) const
+    float Matrix2x2::getCofactor(int rowIndex, int columnIndex) const
     {
         Matrix1x1 subMatrix = getMatrixWithoutRowColumn(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
@@ -86,11 +87,12 @@ namespace Lib
     // 余因子展開
     float  Matrix2x2::computeCofactorExpansionByFirstRow() const
     {
-        float c00 = getCofactorAt(0, 0);
-        float c01 = getCofactorAt(0, 1);
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
         return (m00 * c00) + (m01 * c01);
     }
 
+    // 行列式
     float Matrix2x2::getDeterminant() const
     {
         return computeCofactorExpansionByFirstRow();
@@ -193,7 +195,7 @@ namespace Lib
     }
 
     // 余因子
-    float Matrix3x3::getCofactorAt(int rowIndex, int columnIndex) const
+    float Matrix3x3::getCofactor(int rowIndex, int columnIndex) const
     {
         Matrix2x2 subMatrix = getMatrixWithoutRowColumn(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
@@ -204,12 +206,13 @@ namespace Lib
     // 余因子展開
     float Matrix3x3::computeCofactorExpansionByFirstRow() const
     {
-        float c00 = getCofactorAt(0, 0);
-        float c01 = getCofactorAt(0, 1);
-        float c02 = getCofactorAt(0, 2);
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
+        float c02 = getCofactor(0, 2);
         return (m00 * c00) + (m01 * c01) + (m02 * c02);
     }
 
+    // 行列式
     float Matrix3x3::getDeterminant() const
     {
         return computeCofactorExpansionByFirstRow();
@@ -234,6 +237,24 @@ namespace Lib
         {
         case 0:
             return Vector4(m00, m10, m20, m30);
+        default:
+            return Vector4::kZero;
+        }
+    }
+
+    Matrix1x4::Matrix1x4(
+        float m00, float m01, float m02, float m03
+    ) :
+        m00(m00), m01(m01), m02(m02), m03(m03)
+    {
+    }
+
+    Vector4 Matrix1x4::getRow(int rowIndex) const
+    {
+        switch (rowIndex)
+        {
+        case 0:
+            return Vector4(m00, m01, m02, m03);
         default:
             return Vector4::kZero;
         }
@@ -293,6 +314,7 @@ namespace Lib
         }
     }
 
+    // 転置行列
     Matrix4x4 Matrix4x4::getTransposeMatrix() const
     {
         return Matrix4x4(
@@ -445,7 +467,7 @@ namespace Lib
     }
 
     // 余因子
-    float Matrix4x4::getCofactorAt(int rowIndex, int columnIndex) const
+    float Matrix4x4::getCofactor(int rowIndex, int columnIndex) const
     {
         Matrix3x3 subMatrix = getMatrixWithoutRowColumn(rowIndex, columnIndex);
         float det = subMatrix.getDeterminant();
@@ -454,50 +476,57 @@ namespace Lib
     }
 
     // 余因子行列
-    Matrix4x4 Matrix4x4::getAdjugateMatrix() const
+    Matrix4x4 Matrix4x4::getCofactorMatrix() const
     {
-        float c00 = getCofactorAt(0, 0);
-        float c01 = getCofactorAt(0, 1);
-        float c02 = getCofactorAt(0, 2);
-        float c03 = getCofactorAt(0, 3);
-        float c10 = getCofactorAt(1, 0);
-        float c11 = getCofactorAt(1, 1);
-        float c12 = getCofactorAt(1, 2);
-        float c13 = getCofactorAt(1, 3);
-        float c20 = getCofactorAt(2, 0);
-        float c21 = getCofactorAt(2, 1);
-        float c22 = getCofactorAt(2, 2);
-        float c23 = getCofactorAt(2, 3);
-        float c30 = getCofactorAt(3, 0);
-        float c31 = getCofactorAt(3, 1);
-        float c32 = getCofactorAt(3, 2);
-        float c33 = getCofactorAt(3, 3);
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
+        float c02 = getCofactor(0, 2);
+        float c03 = getCofactor(0, 3);
+        float c10 = getCofactor(1, 0);
+        float c11 = getCofactor(1, 1);
+        float c12 = getCofactor(1, 2);
+        float c13 = getCofactor(1, 3);
+        float c20 = getCofactor(2, 0);
+        float c21 = getCofactor(2, 1);
+        float c22 = getCofactor(2, 2);
+        float c23 = getCofactor(2, 3);
+        float c30 = getCofactor(3, 0);
+        float c31 = getCofactor(3, 1);
+        float c32 = getCofactor(3, 2);
+        float c33 = getCofactor(3, 3);
 
-        Matrix4x4 cofactorMatrix(
+        return Matrix4x4(
             c00, c01, c02, c03,
             c10, c11, c12, c13,
             c20, c21, c22, c23,
             c30, c31, c32, c33
         );
+    }
 
+    // 余因子行列（随伴行列）
+    Matrix4x4 Matrix4x4::getAdjugateMatrix() const
+    {
+        Matrix4x4 cofactorMatrix = getCofactorMatrix();
         return cofactorMatrix.getTransposeMatrix();
     }
 
     // 余因子展開
     float Matrix4x4::computeCofactorExpansionByFirstRow() const
     {
-        float c00 = getCofactorAt(0, 0);
-        float c01 = getCofactorAt(0, 1);
-        float c02 = getCofactorAt(0, 2);
-        float c03 = getCofactorAt(0, 3);
+        float c00 = getCofactor(0, 0);
+        float c01 = getCofactor(0, 1);
+        float c02 = getCofactor(0, 2);
+        float c03 = getCofactor(0, 3);
         return (m00 * c00) + (m01 * c01) + (m02 * c02) + (m03 * c03);
     }
 
+    // 行列式
     float Matrix4x4::getDeterminant() const
     {
         return computeCofactorExpansionByFirstRow();
     }
 
+    // 逆行列
     Matrix4x4 Matrix4x4::getInverseMatrix() const
     {
         Matrix4x4 adj = getAdjugateMatrix();
@@ -511,7 +540,7 @@ namespace Lib
         return ScaleByScalar(adj, 1.0f / det);
     }
 
-    // スカラー積
+    // スカラー倍
     Matrix4x4 Matrix4x4::ScaleByScalar(const Matrix4x4& lhs, float rhs)
     {
         return Matrix4x4(
@@ -560,10 +589,50 @@ namespace Lib
         );
     }
 
+    Matrix1x4 Matrix4x4::ComputeMatrixProduct(const Matrix1x4& lhs, const Matrix4x4& rhs)
+    {
+        Vector4 r0 = lhs.getRow(0);
+
+        Vector4 c0 = rhs.getColumn(0);
+        Vector4 c1 = rhs.getColumn(1);
+        Vector4 c2 = rhs.getColumn(2);
+        Vector4 c3 = rhs.getColumn(3);
+
+        return  Matrix1x4(
+            r0.dot(c0), r0.dot(c1), r0.dot(c2), r0.dot(c3)
+        );
+    }
+
+    // ベクトル変換
     Vector4 Matrix4x4::ApplyMatrixToColumnVector(const Matrix4x4& lhs, const Vector4& rhs)
     {
-        Matrix4x1 ret = ComputeMatrixProduct(lhs, (Matrix4x1::FromVector4(rhs)));
-        return Matrix4x1::AsVector4(ret);
+        // | x'|   | m00 m01 m02 m03 | | x |
+        // | y'| = | m10 m11 m12 m13 | | y |
+        // | z'|   | m20 m21 m22 m23 | | z |
+        // | w'|   | m30 m31 m32 m33 | | w |
+
+        Matrix4x1 tmp(
+            rhs.x,
+            rhs.y,
+            rhs.z,
+            rhs.w
+        );
+        Matrix4x1 ret = ComputeMatrixProduct(lhs, tmp);
+        return ret.getColumn(0);
+    }
+
+    Vector4 Matrix4x4::ApplyMatrixToRowVector(const Vector4& lhs, const Matrix4x4& rhs)
+    {
+        //                           |m00 m01 m02 m03|
+        // |x' y' z' w'| = |x y z w| |m10 m11 m12 m13|
+        //                           |m20 m21 m22 m23|
+        //                           |m30 m31 m32 m33|
+
+        Matrix1x4 tmp(
+            lhs.x, lhs.y, lhs.z, lhs.w
+        );
+        Matrix1x4 ret = ComputeMatrixProduct(tmp, rhs);
+        return ret.getRow(0);
     }
 
 }

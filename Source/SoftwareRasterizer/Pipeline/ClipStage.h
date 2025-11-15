@@ -5,7 +5,7 @@
 
 namespace SoftwareRasterizer
 {
-    const int kTriangleClippingPointMaxNum = 7;
+    const int kClippingPointMaxNum = 7;
 
 	class ClipStage
 	{

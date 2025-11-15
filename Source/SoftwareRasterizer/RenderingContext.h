@@ -10,7 +10,6 @@
 #include "Pipeline\FragmentShaderStageState.h"
 #include "FrameBuffer.h"
 #include "Types.h"
-#include "..\Lib\Vector.h"
 #include <cstdint>
 #include <memory>
 
@@ -18,24 +17,6 @@ namespace SoftwareRasterizer
 {
     class RenderingContext
     {
-        friend class InputAssemblyStage;
-        friend class VertexShaderStage;
-        friend class RasterizeStage;
-        friend class FragmentShaderStage;
-
-    private:
-
-        FrameBuffer _frameBuffer;
-
-        InputAssemblyStageState _inputAssemblyStageState;
-        VertexShaderStageState _vertexShaderStageState;
-        RasterizeStageState _rasterizeStageState;
-        FragmentShaderStageState _fragmentShaderStageState;
-
-        InputAssemblyStage _inputAssemblyStage;
-        VertexShaderStage _vertexShaderStage;
-        RasterizeStage _rasterizeStage;
-        FragmentShaderStage _fragmentShaderStage;
 
     public:
 
@@ -48,13 +29,12 @@ namespace SoftwareRasterizer
         void setFrameColorBuffer(void* addr, size_t widthBytes);
         void setFrameDepthBuffer(void* addr, size_t widthBytes);
 
-        void setClearColor(float r, float g, float b, float a);
-        void setClearDepth(float depth);
-        void clearFrameBuffer();
+        void setClearColor(float r, float g, float b, float a);// glClearColor
+        void setClearDepth(float depth);// glClearDepth
+        void clearFrameBuffer();// glClear
 
         void enableVertexAttribute(int index);
         void disableVertexAttribute(int index);
-
         void setVertexBuffer(int index, const void* buffer);
         void setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride);
 
@@ -70,12 +50,14 @@ namespace SoftwareRasterizer
         int getViewportWidth() const;
         int getViewportHeight() const;
 
-        void setDepthRange(float nearVal, float farVal);
+        void setDepthRange(float nearVal, float farVal);// glDepthRange
 
         void setFrontFaceType(FrontFaceType frontFacetype);// glFrontFace
         void setCullFaceType(CullFaceType cullFaceType);// glCullFace
 
         void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);
+
+        void setDepthFunc(ComparisonType depthFunc);// glDepthFunc
 
         void drawIndexed();
 
@@ -86,5 +68,24 @@ namespace SoftwareRasterizer
 
         bool depthTest(int x, int y, float depth);
 
+    private:
+
+        FrameBuffer _frameBuffer;
+
+        InputAssemblyStageState _inputAssemblyStageState;
+        VertexShaderStageState _vertexShaderStageState;
+        RasterizeStageState _rasterizeStageState;
+        FragmentShaderStageState _fragmentShaderStageState;
+        ComparisonType _depthFunc = ComparisonType::kDefault;
+
+        InputAssemblyStage _inputAssemblyStage;
+        VertexShaderStage _vertexShaderStage;
+        RasterizeStage _rasterizeStage;
+        FragmentShaderStage _fragmentShaderStage;
+
+        friend class InputAssemblyStage;
+        friend class VertexShaderStage;
+        friend class RasterizeStage;
+        friend class FragmentShaderStage;
     };
 }

@@ -48,7 +48,7 @@ namespace SoftwareRasterizer
             break;
         }
 
-        assembledPrimitive->primitiveType = PrimitiveType::kUndefined;
+        assembledPrimitive->primitiveType = PrimitiveType::kNone;
         assembledPrimitive->vertexNum = 0;
         return false;
     }

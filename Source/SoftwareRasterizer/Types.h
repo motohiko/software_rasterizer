@@ -13,13 +13,14 @@ namespace SoftwareRasterizer
 
     enum class PrimitiveTopologyType
     {
-        kUndefined,
-        kLineList,
-        kTriangleList,
+        kNone,
+        kLineList,      // GL_LINES
+        kTriangleList,  // GL_TRIANGLES
     };
 
     enum class SemanticsType
     {
+        kNone,
         kPosition,
         kNormal,
         kTexCoord,
@@ -28,39 +29,56 @@ namespace SoftwareRasterizer
 
     enum class ComponentType
     {
-        kFloat,// GL_FLOAT
-        kUnsignedByte,// GL_UNSIGNED_BYTE
+        kNone,
+        kFloat,         // GL_FLOAT
+        kUnsignedByte,  // GL_UNSIGNED_BYTE
     };
 
     enum class FrontFaceType
     {
-        kClockwise, //GL_CW
-        kCounterClockwise,// GL_CCW
+        kNone,
+        kClockwise,         //GL_CW
+        kCounterClockwise,  // GL_CCW
         kDefault = kCounterClockwise,
     };
 
     enum class CullFaceType
     {
         kNone,
-        kFront, // GL_FRONT
-        kBack, // GL_BACK
-        kFrontAndBack, // GL_FRONT_AND_BACK
+        kFront,         // GL_FRONT
+        kBack,          // GL_BACK
+        kFrontAndBack,  // GL_FRONT_AND_BACK
         kDefault = kBack,
     };
 
-    const int kMaxVertexAttributes = 16;// GL_MAX_VERTEX_ATTRIBS
-    const int kMaxVaryings = 15;// GL_MAX_VARYING_VECTORS
+    enum class ComparisonType
+    {
+        kNone,
+        kNever,         // GL_NEVER
+        kLess,          // GL_LESS
+        kEqual,         // GL_EQUAL
+        kLessEqual,     // GL_LEQUAL
+        kGreater,       // GL_GREATER
+        kNotEqual,      // GL_NOTEQUAL
+        kGreaterEqual,  // GL_GEQUAL
+        kAlways,        // GL_ALWAYS
+        kDefault = kLess,
+    };
 
     enum class PrimitiveType
     {
-        kUndefined,
+        kNone,
         kLine,
         kTriangle,
     };
 
+    const int kMaxVertexAttributes = 16;// GL_MAX_VERTEX_ATTRIBS
+    const int kMaxVaryings = 15;        // GL_MAX_VARYING_VECTORS
+
     struct AttributeVertex
     {
         Vector4 attributes[kMaxVertexAttributes];
+        uint32_t attributeEnableBits;
     };
 
     struct ShadedVertex

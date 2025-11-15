@@ -23,6 +23,12 @@ namespace SoftwareRasterizer
         const Texture2D* texture;
     };
 
-    Vector4 texture2D(const Sampler2D* sampler, const Vector2& uv);
+    class TextureUtility
+    {
+
+    public:
+
+        static Vector4 texture2D(const Sampler2D* sampler, const Vector2& uv);// texture2D
+    };
 
 }

@@ -8,14 +8,13 @@ namespace SoftwareRasterizer
     struct FragmentShaderInput
     {
         const void* uniformBlock;
-        Vector4 fragCoord;// gl_FragCoord, xy = window relative coordinates, z = depth, w = 1 / clip space pos w
+        Vector4 fragCoord;// gl_FragCoord
         const Vector4* varyings;
-        bool helperInvocation;//  gl_helperinvocation
     };
 
     struct FragmentShaderOutput
     {
-        Vector4 fragColor;// gl_FragColor, xyzw = rgba 
+        Vector4 fragColor;// gl_FragColor 
     };
 
     typedef void (*FragmentShaderFuncPtr)(const FragmentShaderInput* input, FragmentShaderOutput* output);

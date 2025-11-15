@@ -41,17 +41,18 @@ namespace SoftwareRasterizer
 #endif
     }
 
-    static void lerpVertex(ShadedVertex* dst, const ShadedVertex& p0, const ShadedVertex& p1, float t)
+    static void lerpVertex(ShadedVertex* dst, const ShadedVertex& a, const ShadedVertex& b, float t)
     {
-        // ¦ w ‚à xyz ‚Æ“¯—l‚ÉüŒ`•âŠÔ‚·‚é
+        // ¦ w ‚àŠÜ‚ßüŒ`•âŠÔ
 
-        int varyingNum = p0.varyingNum;// TODO:
+        int varyingNum = a.varyingNum;
 
-        dst->clipPosition = Vector4::Lerp(p0.clipPosition, p1.clipPosition, t);
+        dst->clipPosition = Vector4::Lerp(a.clipPosition, b.clipPosition, t);
         for (int i = 0; i < varyingNum; ++i)
         {
-            dst->varyings[i] = Vector4::Lerp(p0.varyings[i], p1.varyings[i], t);
+            dst->varyings[i] = Vector4::Lerp(a.varyings[i], b.varyings[i], t);
         }
+
         dst->varyingNum = varyingNum;
     }
 
@@ -181,10 +182,10 @@ namespace SoftwareRasterizer
             return;
         }
 
-        ShadedVertex inputList[kTriangleClippingPointMaxNum] = {};
+        ShadedVertex inputList[kClippingPointMaxNum] = {};
         int inputListCount = 0;
 
-        ShadedVertex outputList[kTriangleClippingPointMaxNum] = {};
+        ShadedVertex outputList[kClippingPointMaxNum] = {};
         int outputListCount = 0;
 
         // List outputList = subjectPolygon;
@@ -234,9 +235,9 @@ namespace SoftwareRasterizer
                         lerpVertex(&intersectingPoint, p1, p0, t);
 
                         // outputList.add(Intersecting_point);
-                        if (!(outputListCount < kTriangleClippingPointMaxNum))
+                        if (!(outputListCount < kClippingPointMaxNum))
                         {
-                            assert(outputListCount < kTriangleClippingPointMaxNum);
+                            assert(outputListCount < kClippingPointMaxNum);
                             continue;
                         }
                         outputList[outputListCount] = intersectingPoint;
@@ -244,8 +245,8 @@ namespace SoftwareRasterizer
                     }
 
                     // outputList.add(current_point);
-                    assert(outputListCount < kTriangleClippingPointMaxNum);
-                    if (!(outputListCount < kTriangleClippingPointMaxNum))
+                    assert(outputListCount < kClippingPointMaxNum);
+                    if (!(outputListCount < kClippingPointMaxNum))
                     {
                         continue;
                     }
@@ -260,8 +261,8 @@ namespace SoftwareRasterizer
                     lerpVertex(&intersectingPoint, p1, p0, t);
 
                     // outputList.add(Intersecting_point);
-                    assert(outputListCount < kTriangleClippingPointMaxNum);
-                    if (!(outputListCount < kTriangleClippingPointMaxNum))
+                    assert(outputListCount < kClippingPointMaxNum);
+                    if (!(outputListCount < kClippingPointMaxNum))
                     {
                         continue;
                     }

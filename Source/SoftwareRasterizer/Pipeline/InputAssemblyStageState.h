@@ -20,7 +20,7 @@ namespace SoftwareRasterizer
 
     public:
 
-        PrimitiveTopologyType primitiveTopologyType = PrimitiveTopologyType::kUndefined;
+        PrimitiveTopologyType primitiveTopologyType = PrimitiveTopologyType::kNone;
 
         VertexAttributeLayout vertexAttributeLayouts[kMaxVertexAttributes] = {};
 

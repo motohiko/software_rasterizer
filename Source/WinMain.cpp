@@ -6,7 +6,7 @@
 
 #include "SoftwareRasterizer\RenderingContext.h"
 #include "SoftwareRasterizer\FrameBuffer.h"
-#include "SoftwareRasterizer\Texture.h"
+#include "SoftwareRasterizer\TextureUtility.h"
 #include "SoftwareRasterizer\MatrixUtility.h"
 #include "Lib\Matrix.h"
 #include "Lib\Vector.h"
@@ -29,15 +29,17 @@ namespace Test
             return indices;
         } ();
 
-    struct Camera
+    struct TestCamera
     {
         float fovY = 60.0f * (3.14159265359f / 180.0f); // 上下の視野角
+
         float nearZ = 0.3f; // ニアクリップ面までの距離
         float farZ = 1000.0f; // ファークリップ面までの距離
 
         float focusPositionX = 0.0f;// 注視点
         float focusPositionY = 0.5f;
         float focusPositionZ = 0.0f;
+
         float angleX = 0.0f; // X軸回転角度
         float angleY = 0.0f; // Y軸回転角度
         float zoom = 3.0f;
@@ -51,7 +53,7 @@ namespace Test
         const Sampler2D* meshTexture;
     };
 
-    void printDebugLog(const TCHAR* format, ...)
+    void PrintDebugLog(const TCHAR* format, ...)
     {
         TCHAR buffer[512];
         va_list args;
@@ -105,10 +107,10 @@ namespace Test
         const Vector2 uv = input->varyings[0].getXY();
         const Vector4& normal = input->varyings[1];
 
-        output->fragColor = texture2D(uniformBlock->meshTexture, uv);
+        output->fragColor = TextureUtility::texture2D(uniformBlock->meshTexture, uv);
     }
 
-    void RenderScene(RenderingContext* g_renderingContext, const Camera* camera)
+    void RenderScene(RenderingContext* g_renderingContext, const TestCamera* camera)
     {
         UniformBlock uniformBlock = {};
         uniformBlock.modelMatrix = Matrix4x4::kIdentity;
@@ -162,6 +164,7 @@ namespace Test
             g_renderingContext->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
             g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
+
             g_renderingContext->drawIndexed();
 
             g_renderingContext->disableVertexAttribute(0);
@@ -187,6 +190,7 @@ namespace Test
             g_renderingContext->setIndexBuffer(kDefaultIndices, 2);
             g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
+
             g_renderingContext->drawIndexed();
 
             g_renderingContext->setVertexBuffer(0, yAxisPositions);
@@ -195,10 +199,15 @@ namespace Test
 
             g_renderingContext->setVertexBuffer(0, zAxisPositions);
             g_renderingContext->setVertexBuffer(1, zAxisColors);
+
+            g_renderingContext->setDepthFunc(ComparisonType::kLessEqual);
+
             g_renderingContext->drawIndexed();
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
+            g_renderingContext->setDepthFunc(ComparisonType::kDefault);
+
         }
 
         // 色付き三角形を描画（頂点色は赤緑青の順、反時計周り）
@@ -273,7 +282,7 @@ namespace Test
     float* g_depthBuffer = nullptr;
     POINT g_lastMousePos;
     bool g_isDragging = false;
-    Camera g_camera;
+    TestCamera g_camera;
     RenderingContext g_renderingContext;
 
     LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -465,7 +474,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, 
     HWND hwnd = CreateWindowEx(
         0,
         CLASS_NAME,
-        TEXT("Sample Window"),
+        TEXT("SoftwareRasterizer"),
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         CW_USEDEFAULT, CW_USEDEFAULT,

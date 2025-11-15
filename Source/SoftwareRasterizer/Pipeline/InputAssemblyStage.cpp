@@ -29,7 +29,7 @@ namespace SoftwareRasterizer
             _primitiveVertexNum = 3;
             break;
         default:
-            _primitiveType = PrimitiveType::kUndefined;
+            _primitiveType = PrimitiveType::kNone;
             _primitiveVertexNum = 0;
             break;
         }
@@ -42,7 +42,7 @@ namespace SoftwareRasterizer
         int remainingVertexCount = _inputAssemblyStageState->indexBuffer.indexNum - _readVertexCount;
         if (remainingVertexCount < _primitiveVertexNum)
         {
-            primitive->primitiveType = PrimitiveType::kUndefined;
+            primitive->primitiveType = PrimitiveType::kNone;
             primitive->vertexNum = 0;
             return false;
         }
@@ -63,20 +63,11 @@ namespace SoftwareRasterizer
 
     void InputAssemblyStage::prepareReadVertex()
     {
-        _vertexAttributeNum = 0;
-        for (int i = sizeof(_inputAssemblyStageState->vertexAttributeEnableBits) - 1; 0 <= i; i--)
-        {
-            if (_inputAssemblyStageState->vertexAttributeEnableBits & (1u << i))
-            {
-                _vertexAttributeNum = 1 + i;
-                break;
-            }
-        }
     }
 
-    void InputAssemblyStage::readVertex(uint16_t vertexIndex, AttributeVertex* vertex) const
+    void InputAssemblyStage::readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const
     {
-        for (int i = 0; i < _vertexAttributeNum; i++)
+        for (int i = 0; i < kMaxVertexAttributes; i++)
         {
             if (_inputAssemblyStageState->vertexAttributeEnableBits & (1u << i))
             {
@@ -100,11 +91,20 @@ namespace SoftwareRasterizer
                 case ComponentType::kFloat:
                     switch (vertexAttributeLayout->size)
                     {
-                    case 4: attribute.w = ((const float*)ptr)[3];
-                    case 3: attribute.z = ((const float*)ptr)[2];
-                    case 2: attribute.y = ((const float*)ptr)[1];
-                    case 1: attribute.x = ((const float*)ptr)[0];
-                    default: break;
+                    case 4:
+                        attribute.w = ((const float*)ptr)[3];
+                        [[fallthrough]];
+                    case 3:
+                        attribute.z = ((const float*)ptr)[2];
+                        [[fallthrough]];
+                    case 2:
+                        attribute.y = ((const float*)ptr)[1];
+                        [[fallthrough]];
+                    case 1:
+                        attribute.x = ((const float*)ptr)[0];
+                        [[fallthrough]];
+                    default:
+                        break;
                     }
                     break;
                 case ComponentType::kUnsignedByte:
@@ -112,22 +112,40 @@ namespace SoftwareRasterizer
                     {
                         switch (vertexAttributeLayout->size)
                         {
-                        case 4: attribute.w = Lib::NormalizeByte(((const uint8_t*)ptr)[3]);
-                        case 3: attribute.z = Lib::NormalizeByte(((const uint8_t*)ptr)[2]);
-                        case 2: attribute.y = Lib::NormalizeByte(((const uint8_t*)ptr)[1]);
-                        case 1: attribute.x = Lib::NormalizeByte(((const uint8_t*)ptr)[0]);
-                        default: break;
+                        case 4:
+                            attribute.w = Lib::NormalizeByte(((const uint8_t*)ptr)[3]);
+                            [[fallthrough]];
+                        case 3:
+                            attribute.z = Lib::NormalizeByte(((const uint8_t*)ptr)[2]);
+                            [[fallthrough]];
+                        case 2:
+                            attribute.y = Lib::NormalizeByte(((const uint8_t*)ptr)[1]);
+                            [[fallthrough]];
+                        case 1:
+                            attribute.x = Lib::NormalizeByte(((const uint8_t*)ptr)[0]);
+                            [[fallthrough]];
+                        default:
+                            break;
                         }
                     }
                     else
                     {
                         switch (vertexAttributeLayout->size)
                         {
-                        case 4: attribute.w = ((const uint8_t*)ptr)[3];
-                        case 3: attribute.z = ((const uint8_t*)ptr)[2];
-                        case 2: attribute.y = ((const uint8_t*)ptr)[1];
-                        case 1: attribute.x = ((const uint8_t*)ptr)[0];
-                        default: break;
+                        case 4:
+                            attribute.w = ((const uint8_t*)ptr)[3];
+                            [[fallthrough]];
+                        case 3:
+                            attribute.z = ((const uint8_t*)ptr)[2];
+                            [[fallthrough]];
+                        case 2:
+                            attribute.y = ((const uint8_t*)ptr)[1];
+                            [[fallthrough]];
+                        case 1:
+                            attribute.x = ((const uint8_t*)ptr)[0];
+                            [[fallthrough]];
+                        default:
+                            break;
                         }
                     }
                     break;
@@ -138,5 +156,7 @@ namespace SoftwareRasterizer
                 vertex->attributes[i] = attribute;
             }
         }
+
+        vertex->attributeEnableBits = _inputAssemblyStageState->vertexAttributeEnableBits;
     }
 }

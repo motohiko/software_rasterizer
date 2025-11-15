@@ -93,7 +93,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStageState.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Texture.h">
+    <ClInclude Include="Source\SoftwareRasterizer\TextureUtility.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -140,7 +140,7 @@
     <ClCompile Include="Source\Lib\Algorithm.cpp">
       <Filter>ソース ファイル\Lib</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Texture.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\TextureUtility.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
   </ItemGroup>

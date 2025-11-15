@@ -7,10 +7,10 @@ namespace Lib
         float x;
         float y;
 
+        static const Vector2 kZero;
+
         Vector2() = default;
         Vector2(float x, float y) : x(x), y(y) {}
-
-        static const Vector2 kZero;
 
         float getNormSquared() const
         {
@@ -89,10 +89,10 @@ namespace Lib
         float y;
         float z;
 
+        static const Vector3 kZero;
+
         Vector3() = default;
         Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
-
-        static const Vector3 kZero;
 
         Vector2 getXY() const
         {
@@ -183,12 +183,12 @@ namespace Lib
         float z;
         float w;
 
+        static const Vector4 kZero;
+
         Vector4() = default;
         Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
         Vector4(const Vector2& v2, float z, float w) : x(v2.x), y(v2.y), z(z), w(w) {}
         Vector4(const Vector3& v3, float w) : x(v3.x), y(v3.y), z(v3.z), w(w) {}
-
-        static const Vector4 kZero;
 
         Vector2 getXY() const
         {

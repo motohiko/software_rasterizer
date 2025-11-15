@@ -1,4 +1,4 @@
-#include "Texture.h"
+#include "TextureUtility.h"
 #include "..\Lib\Algorithm.h"
 #include <cstdint>
 #include <cmath>// floor
@@ -14,7 +14,7 @@ namespace SoftwareRasterizer
         uint8_t a;
     };
 
-    Vector4 texture2D(const Sampler2D* sampler, const Vector2& uv)
+    Vector4 TextureUtility::texture2D(const Sampler2D* sampler, const Vector2& uv)
     {
         int tx = (int)std::floor((uv.x * sampler->texture->width) + 0.5f);// Ø‚èŽÌ‚Ä
         int ty = (int)std::floor((uv.y * sampler->texture->height) + 0.5f);

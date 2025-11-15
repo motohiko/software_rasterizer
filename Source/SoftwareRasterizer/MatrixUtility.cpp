@@ -5,11 +5,6 @@ namespace SoftwareRasterizer
 {
     Matrix4x4 MatrixUtility::CreateBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon)
     {
-        //     | xAxis.x yAxis.x zAxis.x origon.x |
-        // m = | xAxis.y yAxis.y zAxis.y origon.y |
-        //     | xAxis.z yAxis.z zAxis.z origon.z |
-        //     | 0       0       0       1        |
-
         return Matrix4x4(
             xAxis.x, yAxis.x, zAxis.x, origon.x,
             xAxis.y, yAxis.y, zAxis.y, origon.y,
@@ -18,10 +13,10 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::CreateRotationX(float angle)
+    Matrix4x4 MatrixUtility::CreateRotationX(float rad)
     {
-        float c = std::cos(angle);
-        float s = std::sin(angle);
+        float c = std::cos(rad);
+        float s = std::sin(rad);
 
         return Matrix4x4(
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -31,10 +26,10 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::CreateRotationY(float angle)
+    Matrix4x4 MatrixUtility::CreateRotationY(float rad)
     {
-        float c = std::cos(angle);
-        float s = std::sin(angle);
+        float c = std::cos(rad);
+        float s = std::sin(rad);
 
         return Matrix4x4(
             c,    0.0f, -s,   0.0f,
@@ -44,10 +39,10 @@ namespace SoftwareRasterizer
         );
     }
 
-    Matrix4x4 MatrixUtility::CreateRotationZ(float angle)
+    Matrix4x4 MatrixUtility::CreateRotationZ(float rad)
     {
-        float c = std::cos(angle);
-        float s = std::sin(angle);
+        float c = std::cos(rad);
+        float s = std::sin(rad);
 
         return Matrix4x4(
             c,    s,    0.0f, 0.0f,
@@ -79,7 +74,7 @@ namespace SoftwareRasterizer
         );
     }
 
-    static Matrix4x4 CreateTranslate(float x, float y, float z)
+    Matrix4x4 MatrixUtility::CreateTranslate(float x, float y, float z)
     {
         // https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml
 
@@ -91,7 +86,6 @@ namespace SoftwareRasterizer
         );
 
     }
-
 
     Matrix4x4 MatrixUtility::CreateLookAt(const Vector3& eye, const Vector3& center, const Vector3& up)
     {
@@ -126,8 +120,6 @@ namespace SoftwareRasterizer
         }
         else
         {
-            // note.
-            // 
             // ÉJÉÅÉâçsóÒ
             // 
             //           + center
@@ -140,7 +132,7 @@ namespace SoftwareRasterizer
             //  +z
             // 
 
-            // 
+            // note.
             // 
             // äOêœÇ∆íºåäÓíÍÇÃä÷åW
             // 

@@ -149,6 +149,11 @@ namespace SoftwareRasterizer
         _fragmentShaderStageState.fragmentShaderMain = fragmentShaderMain;
     }
 
+    void RenderingContext::setDepthFunc(ComparisonType depthFunc)
+    {
+        _depthFunc = depthFunc;
+    }
+
     void RenderingContext::drawIndexed()
     {
         InputAssemblyStage::validateState(&_inputAssemblyStageState);
@@ -162,7 +167,6 @@ namespace SoftwareRasterizer
         _rasterizeStage.setFrameSize(_frameBuffer.getFrameWidth(), _frameBuffer.getFrameHeight());
         _rasterizeStage.prepareRasterize();
 
-
         InputAssemblyStage::Primitive primitive;
         while (_inputAssemblyStage.readPrimitive(&primitive))
         {
@@ -173,7 +177,7 @@ namespace SoftwareRasterizer
                 uint16_t vertexIndex = primitive.vertexIndices[i];
 
                 AttributeVertex attributeVertex;
-                _inputAssemblyStage.readVertex(vertexIndex, &attributeVertex);
+                _inputAssemblyStage.readAttributeVertex(vertexIndex, &attributeVertex);
 
                 _vertexShaderStage.executeShader(&attributeVertex, &(shadedVertices[i]));
             }
@@ -185,7 +189,7 @@ namespace SoftwareRasterizer
     void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum)
     {
         // プリミティブをクリップ
-        ShadedVertex clippedVertices[kTriangleClippingPointMaxNum];
+        ShadedVertex clippedVertices[kClippingPointMaxNum];
         int clippedVertiexNum = 0;
         {
             ClipStage clipStage;
@@ -232,8 +236,40 @@ namespace SoftwareRasterizer
 
     bool RenderingContext::depthTest(int x, int y, float depth)
     {
-        float bufferDepth = _frameBuffer.readDepth(x, y);
-        bool passed = (depth < bufferDepth);// GL_LESS (OpenGL Default)
+        float storedDepth = _frameBuffer.readDepth(x, y);
+
+        bool passed;
+        switch (_depthFunc)
+        {
+        case ComparisonType::kNever:
+            passed = false;
+            break;
+        case ComparisonType::kLess:
+            passed = (depth < storedDepth);
+            break;
+        case ComparisonType::kEqual:
+            passed = (depth == storedDepth);
+            break;
+        case ComparisonType::kLessEqual:
+            passed = (depth <= storedDepth);
+            break;
+        case ComparisonType::kGreater:
+            passed = (depth > storedDepth);
+            break;
+        case ComparisonType::kNotEqual:
+            passed = (depth != storedDepth);
+            break;
+        case ComparisonType::kGreaterEqual:
+            passed = (depth >= storedDepth);
+            break;
+        case ComparisonType::kAlways:
+            passed = true;
+            break;
+        default:
+            passed = false;
+            break;
+        }
+        
         return passed;
     }
 

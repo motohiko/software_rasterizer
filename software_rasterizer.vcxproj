@@ -146,7 +146,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStageState.h" />
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Texture.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\TextureUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Types.h" />
   </ItemGroup>
   <ItemGroup>
@@ -163,7 +163,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Texture.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\TextureUtility.cpp" />
     <ClCompile Include="Source\WinMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

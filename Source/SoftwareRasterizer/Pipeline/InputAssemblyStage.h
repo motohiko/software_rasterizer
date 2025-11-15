@@ -25,10 +25,9 @@ namespace SoftwareRasterizer
         RenderingContext* _renderingContext;
         const InputAssemblyStageState* _inputAssemblyStageState;
 
-        PrimitiveType _primitiveType = PrimitiveType::kUndefined;
+        PrimitiveType _primitiveType = PrimitiveType::kNone;
         int _primitiveVertexNum = 0;
 
-        int _vertexAttributeNum = 0;
         int _readVertexCount = 0;
 
     public:
@@ -41,7 +40,7 @@ namespace SoftwareRasterizer
         bool readPrimitive(Primitive* primitive);
 
         void prepareReadVertex();
-        void readVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
+        void readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
 
     };
 }

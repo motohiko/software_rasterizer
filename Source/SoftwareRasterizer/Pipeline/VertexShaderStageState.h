@@ -13,7 +13,7 @@ namespace SoftwareRasterizer
 
     struct VertexShaderOutput
     {
-        Vector4 position;// gl_Position, clip space coordinates
+        Vector4 position;// gl_Position
         Vector4* varyings;
         int varyingNum;
     };
