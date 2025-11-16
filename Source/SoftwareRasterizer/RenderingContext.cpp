@@ -12,12 +12,7 @@
 
 namespace SoftwareRasterizer
 {
-    RenderingContext::RenderingContext() :
-        _inputAssemblyStage(this),
-        _vertexShaderStage(this),
-        _rasterizeStage(this),
-        _fragmentShaderStage(this),
-        _outputMergerStage(this)
+    RenderingContext::RenderingContext()
     {
     }
 
@@ -58,7 +53,7 @@ namespace SoftwareRasterizer
     void RenderingContext::setClearColor(float r, float g, float b, float a)
     {
         // Non pipeline operation
-        _clearColor = (Lib::DenormalizeByte(a) << 24) | (Lib::DenormalizeByte(r) << 16) | (Lib::DenormalizeByte(g) << 8) | Lib::DenormalizeByte(b);
+        _clearColor = Vector4(r, g, b, a);
     }
 
     void RenderingContext::setClearDepth(float depth)
@@ -176,17 +171,33 @@ namespace SoftwareRasterizer
 
     void RenderingContext::drawIndexed(PrimitiveTopologyType primitiveTopologyType)
     {
-        // RS
-        _rasterizeStage.setWindowSize(_windowWidth, _windowHeight);// TODO: color buffer size
+        // IA I/O
+        _inputAssemblyStage.input(&_inputLayout);
+        _inputAssemblyStage.input(&_vertexBuffers);
+        _inputAssemblyStage.input(&_indexBuffer);
+        _inputAssemblyStage.input(primitiveTopologyType);
 
-        InputAssemblyStage::validateState(&_inputLayout);
-        VertexShaderStage::validateState(&_vertexShaderProgram);
-        RasterizeStage::validateState(&_viewport);
-        FragmentShaderStage::validateState(&_fragmentShaderProgram);
+        // VS I/O
+        _vertexShaderStage.input(&_constantBuffer);
+        _vertexShaderStage.input(&_vertexShaderProgram);
 
-        _inputAssemblyStage.prepareReadPrimitive(primitiveTopologyType);
-        _inputAssemblyStage.prepareReadVertex();
+        // RS I/O
+        _rasterizeStage.setWindowSize(_windowWidth, _windowHeight);
+        _rasterizeStage.input(&_rasterizerState);
+        _rasterizeStage.input(&_viewport);
+        _rasterizeStage.ouput(this);
 
+        // PS I/O
+        _fragmentShaderStage.input(&_constantBuffer);
+        _fragmentShaderStage.input(&_fragmentShaderProgram);
+
+        // OM I/O
+        _outputMergerStage.input(&_renderTarget);
+        _outputMergerStage.input(&_depthState);
+        _outputMergerStage.ouput(this);
+
+
+        _inputAssemblyStage.prepareReadPrimitive();
         _rasterizeStage.prepareRasterize();
 
         InputAssemblyStage::Primitive primitive;
@@ -210,31 +221,61 @@ namespace SoftwareRasterizer
 
     void RenderingContext::clearRenderTargetColorBuffer()
     {
+        assert(nullptr != _renderTarget.colorBuffer.addr);
         assert(0 <= _renderTarget.colorBuffer.width);
         assert(0 <= _renderTarget.colorBuffer.height);
-        assert(nullptr != _renderTarget.colorBuffer.addr);
         assert(_renderTarget.colorBuffer.width <= _renderTarget.colorBuffer.widthBytes);
 
-        uint32_t* firstColor = (uint32_t*)_renderTarget.colorBuffer.addr;
-        uint32_t* lastColor = ((uint32_t*)_renderTarget.colorBuffer.addr) + (_renderTarget.colorBuffer.height * _renderTarget.colorBuffer.width);
-        std::fill(firstColor, lastColor, _clearColor);
+        float r = _clearColor.x;
+        float g = _clearColor.y;
+        float b = _clearColor.z;
+        float a = _clearColor.w;
+        uint32_t color = (Lib::DenormalizeByte(a) << 24) | (Lib::DenormalizeByte(r) << 16) | (Lib::DenormalizeByte(g) << 8) | Lib::DenormalizeByte(b);
+
+        // 
+        uint32_t* first = (uint32_t*)_renderTarget.colorBuffer.addr;
+        uint32_t* last = ((uint32_t*)_renderTarget.colorBuffer.addr) + _renderTarget.colorBuffer.width;
+        std::fill(first, last, color);
+
+        // 
+        uintptr_t addr = (uintptr_t)(_renderTarget.colorBuffer.addr);
+        size_t height = _renderTarget.colorBuffer.height;
+        size_t widthBytes = _renderTarget.colorBuffer.widthBytes;
+        for (int y = 1; y < height; y++)
+        {
+            uintptr_t src = addr;
+            uintptr_t dst = addr + (widthBytes * y);
+            std::memcpy((void*)dst, (const void*)src, widthBytes);
+        }
     }
 
     void RenderingContext::clearRenderTargetDepthBuffer()
     {
+        assert(nullptr != _renderTarget.depthBuffer.addr);
         assert(0 <= _renderTarget.depthBuffer.width);
         assert(0 <= _renderTarget.depthBuffer.height);
-        assert(nullptr != _renderTarget.depthBuffer.addr);
         assert(_renderTarget.depthBuffer.width <= _renderTarget.depthBuffer.widthBytes);
 
-        float* firstDepth = (float*)_renderTarget.depthBuffer.addr;
-        float* lastDepth = ((float*)_renderTarget.depthBuffer.addr) + (_renderTarget.depthBuffer.height * _renderTarget.depthBuffer.width);
-        std::fill(firstDepth, lastDepth, _clearDepth);
+        // 
+        float* first = (float*)_renderTarget.depthBuffer.addr;
+        float* last = ((float*)_renderTarget.depthBuffer.addr) + (_renderTarget.depthBuffer.width);
+        std::fill(first, last, _clearDepth);
+
+        // 
+        uintptr_t addr = (uintptr_t)(_renderTarget.depthBuffer.addr);
+        size_t height = _renderTarget.depthBuffer.height;
+        size_t widthBytes = _renderTarget.depthBuffer.widthBytes;
+        for (int y = 1; y < height; y++)
+        {
+            uintptr_t src = addr;
+            uintptr_t dst = addr + (widthBytes * y);
+            std::memcpy((void*)dst, (const void*)src, widthBytes);
+        }
     }
 
     void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum)
     {
-        // ƒvƒŠƒ~ƒeƒBƒu‚ðƒNƒŠƒbƒv
+        // ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–ã‚’ã‚¯ãƒªãƒƒãƒ—
         ShadedVertex clippedVertices[kClippingPointMaxNum];
         int clippedVertiexNum = 0;
         {
@@ -243,7 +284,7 @@ namespace SoftwareRasterizer
             clipStage.clipPrimitive(vertices, vertexNum, clippedVertices, &clippedVertiexNum);
         }
 
-        // ƒNƒŠƒbƒvŒ‹‰Ê‚ðƒvƒŠƒ~ƒeƒBƒu‚É•ªŠ„
+        // ã‚¯ãƒªãƒƒãƒ—çµæžœã‚’ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–ã«åˆ†å‰²
         PrimitiveAssembly primitiveAssembly;
         primitiveAssembly.setPrimitiveType(primitiveType);
         primitiveAssembly.setClipedVertices(clippedVertices, clippedVertiexNum);
@@ -251,7 +292,7 @@ namespace SoftwareRasterizer
         AssembledPrimitive dividedPrimitive;
         while (primitiveAssembly.readPrimitive(&dividedPrimitive))
         {
-            // i•ªŠ„‚³‚ê‚½jŠeƒvƒŠƒ~ƒeƒBƒu‚ðƒ‰ƒXƒ^ƒ‰ƒCƒY
+            // ï¼ˆåˆ†å‰²ã•ã‚ŒãŸï¼‰å„ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–ã‚’ãƒ©ã‚¹ã‚¿ãƒ©ã‚¤ã‚º
 
             RasterPrimitive rasterPrimitive;
             rasterPrimitive.primitiveType = dividedPrimitive.primitiveType;

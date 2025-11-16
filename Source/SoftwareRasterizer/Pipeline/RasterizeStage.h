@@ -7,8 +7,6 @@
 
 namespace SoftwareRasterizer
 {
-    class RenderingContext;
-
     struct RasterPrimitive
     {
         PrimitiveType primitiveType;
@@ -21,12 +19,13 @@ namespace SoftwareRasterizer
 
     private:
 
-        RenderingContext* _renderingContext;
-        const RasterizerState* _rasterizerState;
-        const Viewport* _viewport;
+        const RasterizerState* _rasterizerState = nullptr;
+        const Viewport* _viewport = nullptr;
 
-        int _frameWidth = 0;
-        int _frameHeight = 0;
+        class RenderingContext* _renderingContext = nullptr;
+
+        int _windowWidth = 0;
+        int _windowHeight = 0;
 
         int _clipRectMinX = 0;
         int _clipRectMinY = 0;
@@ -39,9 +38,14 @@ namespace SoftwareRasterizer
 
         static void validateState(const Viewport* state);
 
-        RasterizeStage(RenderingContext* renderingContext);
+        RasterizeStage();
 
         void setWindowSize(int width, int height);
+
+        void input(const RasterizerState* rasterizerState) { _rasterizerState = rasterizerState; }
+        void input(const Viewport* viewport) { _viewport = viewport; }
+
+        void ouput(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
 
         void prepareRasterize();
 

@@ -1,5 +1,4 @@
 #include "FragmentShaderStage.h"
-#include "..\RenderingContext.h"
 #include <cassert>
 
 namespace SoftwareRasterizer
@@ -9,23 +8,20 @@ namespace SoftwareRasterizer
         assert(state->fragmentShaderMain);
     }
 
-    FragmentShaderStage::FragmentShaderStage(RenderingContext* renderingContext) :
-        _renderingContext(renderingContext),
-        _fragmentShaderProgram(&(renderingContext->_fragmentShaderProgram)),
-        _constantBuffer(&(renderingContext->_constantBuffer))
+    FragmentShaderStage::FragmentShaderStage()
     {
     }
 
     void FragmentShaderStage::executeShader(const Fragment* inputFragment, Vector4* outputColor) const
     {
-        FragmentShaderInput input;
-        input.uniformBlock = _constantBuffer->uniformBlock;
-        input.fragCoord = Vector4(inputFragment->wndPosition, inputFragment->depth, inputFragment->invW);
-        input.varyings = inputFragment->varyings;
+        FragmentShaderInput fragmentShaderInput;
+        fragmentShaderInput.uniformBlock = _constantBuffer->uniformBlock;
+        fragmentShaderInput.fragCoord = Vector4(inputFragment->wndPosition, inputFragment->depth, inputFragment->invW);
+        fragmentShaderInput.varyings = inputFragment->varyings;
 
-        FragmentShaderOutput output;
-        _fragmentShaderProgram->fragmentShaderMain(&input, &output);
+        FragmentShaderOutput fragmentShaderOutput;
+        _fragmentShaderProgram->fragmentShaderMain(&fragmentShaderInput, &fragmentShaderOutput);
 
-        *outputColor = output.fragColor;
+        *outputColor = fragmentShaderOutput.fragColor;
     }
 }

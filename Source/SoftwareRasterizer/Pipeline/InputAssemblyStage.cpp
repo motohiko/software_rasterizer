@@ -1,5 +1,4 @@
 #include "InputAssemblyStage.h"
-#include "..\RenderingContext.h"
 #include "..\..\Lib\Algorithm.h"
 #include "..\..\Lib\Vector.h"
 
@@ -9,19 +8,13 @@ namespace SoftwareRasterizer
     {
     }
 
-    InputAssemblyStage::InputAssemblyStage(RenderingContext* renderingContext) :
-        _renderingContext(renderingContext),
-        _inputLayout(&(renderingContext->_inputLayout)),
-        _vertexBuffers(&(renderingContext->_vertexBuffers)),
-        _indexBuffer(&(renderingContext->_indexBuffer))
+    InputAssemblyStage::InputAssemblyStage()
     {
     }
 
-    void InputAssemblyStage::prepareReadPrimitive(PrimitiveTopologyType primitiveTopologyType)
+    void InputAssemblyStage::prepareReadPrimitive()
     {
-        _primitiveTopologyType = primitiveTopologyType;
-
-        switch (primitiveTopologyType)
+        switch (_primitiveTopologyType)
         {
         case PrimitiveTopologyType::kLineList:
             _primitiveType = PrimitiveType::kLine;
@@ -64,10 +57,6 @@ namespace SoftwareRasterizer
         return true;
     }
 
-    void InputAssemblyStage::prepareReadVertex()
-    {
-    }
-
     void InputAssemblyStage::readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const
     {
         for (int i = 0; i < kMaxVertexAttributes; i++)
@@ -88,7 +77,7 @@ namespace SoftwareRasterizer
                     break;
                 }
 
-                // 指定個数のコンポーネントを読み取る
+                // 謖�螳壼区焚縺ｮ繧ｳ繝ｳ繝昴�ｼ繝阪Φ繝医ｒ隱ｭ縺ｿ蜿悶ｋ
                 uintptr_t ptr = ((uintptr_t)vertexBuffer->addr) + (inputElement->stride * vertexIndex);
                 switch (inputElement->type)
                 {

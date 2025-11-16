@@ -22,10 +22,10 @@ namespace SoftwareRasterizer
         { 2,  1.0f } // far
     };
 
-    // ƒNƒŠƒbƒv‹«ŠEÀ•WŒn‚Ö•ÏŠ·
+    // ã‚¯ãƒªãƒƒãƒ—å¢ƒç•Œåº§æ¨™ç³»ã¸å¤‰æ›
     // ret : outside <= 0 < indide
     //
-    // Blinn & Newelli1978jClipping Using Homogeneous Coordinates - section 2. CLIPPING
+    // Blinn & Newellï¼ˆ1978ï¼‰Clipping Using Homogeneous Coordinates - section 2. CLIPPING
     // SIGGRAPH '78: Proceedings of the 5th annual conference on Computer graphics and interactive techniques Pages 245 - 251
     //
     static float transformClippingBoundaryCoordinate(const Vector4& clipSpaceVertex, const ClippingPlaneParameter* clippingPlaneParameter)
@@ -33,7 +33,7 @@ namespace SoftwareRasterizer
 #if 0// TODO
         float clippingPoint = clipSpaceVertex.w * clippingPlaneParameter->sign;
         float offsetFromClippingPoint = clipSpaceVertex.getComponent(clippingPlaneParameter->vectorComponentIndex) - clippingPoint;
-        // sign = 1.0f ‚È‚ç•„†‚ğ”½“]
+        // sign = 1.0f ãªã‚‰ç¬¦å·ã‚’åè»¢
         return (clippingPlaneParameter->sign * -1.0f) * offsetFromClippingPoint;
 #else
         return clipSpaceVertex.w - (clippingPlaneParameter->sign * clipSpaceVertex.getComponent(clippingPlaneParameter->vectorComponentIndex));
@@ -42,7 +42,7 @@ namespace SoftwareRasterizer
 
     static void lerpVertex(ShadedVertex* dst, const ShadedVertex& a, const ShadedVertex& b, float t)
     {
-        // ¦ w ‚àŠÜ‚ßüŒ`•âŠÔ
+        // â€» w ã‚‚å«ã‚ç·šå½¢è£œé–“
 
         int varyingNum = a.varyingNum;
 
@@ -92,7 +92,7 @@ namespace SoftwareRasterizer
 
         for (int i = 0; i < kClippingPlaneNum; i++)
         {
-            // ‹«ŠEÀ•WŒn‚É•ÏŠ·
+            // å¢ƒç•Œåº§æ¨™ç³»ã«å¤‰æ›
             float d0 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[0].clipPosition, &kClipPlaneParameters[i]);
             float d1 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[1].clipPosition, &kClipPlaneParameters[i]);
             if (0.0f < d0)
@@ -144,7 +144,7 @@ namespace SoftwareRasterizer
         // Sutherland-Hodgman algorithm
         // Ivan Sutherland, Gary W. Hodgman: Reentrant Polygon Clipping. Communications of the ACM, vol. 17, pp. 32-42, 1974
         //
-        // Ql https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+        // å‚è€ƒ https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
         //
         // Pseudocode
         // 
@@ -212,12 +212,12 @@ namespace SoftwareRasterizer
                 // Point current_point = inputList[i];
                 // Point prev_point = inputList[(i - 1) % inputList.count];
                 ShadedVertex& currentPoint = inputList[j];
-                ShadedVertex& prevPoint = inputList[((j - 1) + inputListCount) % inputListCount];// (0 - 1) % n = -1 ‚É‚È‚é‚Ì‚ÅA n ‚ğ‘«‚µ‚Ä‚©‚ç—]è‚ğ‹‚ß‚é
+                ShadedVertex& prevPoint = inputList[((j - 1) + inputListCount) % inputListCount];// (0 - 1) % n = -1 ã«ãªã‚‹ã®ã§ã€ n ã‚’è¶³ã—ã¦ã‹ã‚‰ä½™å‰°ã‚’æ±‚ã‚ã‚‹
 
                 ShadedVertex& p0 = prevPoint;
                 ShadedVertex& p1 = currentPoint;
 
-                // ‹«ŠEÀ•WŒn‚É•ÏŠ·i0 <= d ‚Ì‚Æ‚« indidej
+                // å¢ƒç•Œåº§æ¨™ç³»ã«å¤‰æ›ï¼ˆ0 <= d ã®ã¨ã indideï¼‰
                 float d0 = transformClippingBoundaryCoordinate(p0.clipPosition, &kClipPlaneParameters[i]);
                 float d1 = transformClippingBoundaryCoordinate(p1.clipPosition, &kClipPlaneParameters[i]);
 

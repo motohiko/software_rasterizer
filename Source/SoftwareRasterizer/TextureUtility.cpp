@@ -16,7 +16,7 @@ namespace SoftwareRasterizer
 
     Vector4 TextureUtility::texture2D(const Sampler2D* sampler, const Vector2& uv)
     {
-        int tx = (int)std::floor((uv.x * sampler->texture->width) + 0.5f);// �؂�̂�
+        int tx = (int)std::floor((uv.x * sampler->texture->width) + 0.5f);// 切り捨て
         int ty = (int)std::floor((uv.y * sampler->texture->height) + 0.5f);
         tx = std::clamp(tx, 0, sampler->texture->width - 1);
         ty = std::clamp(ty, 0, sampler->texture->height - 1);

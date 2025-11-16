@@ -92,7 +92,7 @@ namespace SoftwareRasterizer
         const bool referenceImplementation = false;
         if (referenceImplementation)
         {
-            // Ql https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
+            // å‚è€ƒ https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml
 
             Vector3 F = center - eye;
 
@@ -120,7 +120,7 @@ namespace SoftwareRasterizer
         }
         else
         {
-            // ƒJƒƒ‰s—ñ
+            // ã‚«ãƒ¡ãƒ©è¡Œåˆ—
             // 
             //           + center
             //     +y   / 
@@ -134,11 +134,11 @@ namespace SoftwareRasterizer
 
             // note.
             // 
-            // ŠOÏ‚Æ’¼ŒğŠî’ê‚ÌŠÖŒW
+            // å¤–ç©ã¨ç›´äº¤åŸºåº•ã®é–¢ä¿‚
             // 
-            //   y ~ z = x   
-            //   z ~ x = y   
-            //   x ~ y = z   
+            //   y Ã— z = x   
+            //   z Ã— x = y   
+            //   x Ã— y = z   
             // 
             //   (0, 1, 0) x (0, 0, 1) = (1, 0, 0)
             //   (0, 0, 1) x (1, 0, 0) = (0, 1, 0)
@@ -158,35 +158,35 @@ namespace SoftwareRasterizer
     {
         // note.
         // 
-        // Ÿ‚ğ–‚½‚·•ÏŠ·s—ñ m ‚ğ•Ô‚·
+        // æ¬¡ã‚’æº€ãŸã™å¤‰æ›è¡Œåˆ— m ã‚’è¿”ã™
         //
         // mv = v'
         //
         // v.x = [ left,     right ]
         // v.y = [ bottom,   top   ]
-        // v.z = [-nearVal, -farVal]  ¦ƒJƒƒ‰‹óŠÔÀ•WŒn‚Í‰EèŒni‰œ‚ª -zj 
+        // v.z = [-nearVal, -farVal]  â€»ã‚«ãƒ¡ãƒ©ç©ºé–“åº§æ¨™ç³»ã¯å³æ‰‹ç³»ï¼ˆå¥¥ãŒ -zï¼‰ 
         // v.w = 1
         //
-        // ‚Ì‚Æ‚«
+        // ã®ã¨ã
         //
         // v'.x = [-nearVal, nearVal]
         // v'.y = [-nearVal, nearVal]
-        // v'.z = [-nearVal, farVal ]  ¦ƒNƒŠƒbƒv‹óŠÔÀ•WŒn‚Í¶èèŒni‰œ‚ª +zj 
+        // v'.z = [-nearVal, farVal ]  â€»ã‚¯ãƒªãƒƒãƒ—ç©ºé–“åº§æ¨™ç³»ã¯å·¦æ‰‹æ‰‹ç³»ï¼ˆå¥¥ãŒ +zï¼‰ 
         // v'.w = -v.z
         // 
-        // ‚Ü‚½
+        // ã¾ãŸ
         // 
         // v.xyz = (0, 0, 0)
         //
-        // ‚Ì‚Æ‚«
+        // ã®ã¨ã
         //
-        // v'.xyz = (0, 0, 0)@¦‹“_(Œ´“_)‚ÍŒÅ’è
+        // v'.xyz = (0, 0, 0)ã€€â€»è¦–ç‚¹(åŸç‚¹)ã¯å›ºå®š
         //
 
         const bool referenceImplementation = false;
         if (referenceImplementation)
         {
-            // Ql https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
+            // å‚è€ƒ https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glFrustum.xml
 
             float A = (right + left) / (right - left);
             float B = (top + bottom) / (top - bottom);
@@ -202,27 +202,27 @@ namespace SoftwareRasterizer
         }
         else
         {
-            // ƒjƒAƒNƒŠƒbƒv–Ê‚ª¶‰E”ñ‘ÎÌ‚È‚çA‹“_iŒ´“_j‚ÍŒÅ’è‚µ‚ÄƒjƒAƒNƒŠƒbƒv–Ê‚ğ’†‰›‚ÉˆÚ“®
+            // ãƒ‹ã‚¢ã‚¯ãƒªãƒƒãƒ—é¢ãŒå·¦å³éå¯¾ç§°ãªã‚‰ã€è¦–ç‚¹ï¼ˆåŸç‚¹ï¼‰ã¯å›ºå®šã—ã¦ãƒ‹ã‚¢ã‚¯ãƒªãƒƒãƒ—é¢ã‚’ä¸­å¤®ã«ç§»å‹•
             float m02 = (right + left) / (right - left);
             float m12 = (top + bottom) / (top - bottom);
             Matrix4x4 shearXY = MatrixUtility::CreateShear(0.0f, 0.0f, 0.0f, 0.0f, m02, m12);
 
-            // ƒjƒAƒNƒŠƒbƒv–Ê‚Ìã‰º¶‰E‚Ì”ÍˆÍ‚ğ [-1, 1] ‚©‚ç [-near, near] ‚Éƒ}ƒbƒv
+            // ãƒ‹ã‚¢ã‚¯ãƒªãƒƒãƒ—é¢ã®ä¸Šä¸‹å·¦å³ã®ç¯„å›²ã‚’ [-1, 1] ã‹ã‚‰ [-near, near] ã«ãƒãƒƒãƒ—
             float m00 = (2.0f / (right - left)) * nearVal;
             float m11 = (2.0f / (top - bottom)) * nearVal;
             Matrix4x4 scaleXY = MatrixUtility::CreateScale(m00, m11, 1.0f);
 
-            // ‹‘ÌÏ‚Ì‰œs”ÍˆÍ‚ğ [-nearVal, -farVal] ‚©‚ç [-nearVal, farVal] ‚Éƒ}ƒbƒv
+            // è¦–ä½“ç©ã®å¥¥è¡Œç¯„å›²ã‚’ [-nearVal, -farVal] ã‹ã‚‰ [-nearVal, farVal] ã«ãƒãƒƒãƒ—
             // z' = m22 * z + m23
             float m22 = -(farVal + nearVal) / (farVal - nearVal);
             float m23 = -(2.0f * farVal * nearVal) / (farVal - nearVal);
 
-            // •ÏŠ·Œã‚ÌƒxƒNƒgƒ‹‚Ì w' ‚É•ÏŠ·‘O‚ÌƒxƒNƒgƒ‹‚Ì -z ‚ğ“ü‚ê‚é 
+            // å¤‰æ›å¾Œã®ãƒ™ã‚¯ãƒˆãƒ«ã® w' ã«å¤‰æ›å‰ã®ãƒ™ã‚¯ãƒˆãƒ«ã® -z ã‚’å…¥ã‚Œã‚‹ 
             // w' = m32 * z + m33
             float m32 = -1.0f;
             float m33 = 0.0f;
 
-            // w' ‚Ì®‚É z (z'‚Å‚Í‚È‚¢)‚ªŠÜ‚Ü‚ê‚Ä‚¢‚é‚Ì‚ÅAzw•ÏŠ·‚Í‚Ps—ñ‚É’¼‘‚«
+            // w' ã®å¼ã« z (z'ã§ã¯ãªã„)ãŒå«ã¾ã‚Œã¦ã„ã‚‹ã®ã§ã€zwå¤‰æ›ã¯ï¼‘è¡Œåˆ—ã«ç›´æ›¸ã
             Matrix4x4 frustumZW(
                 1.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 1.0f, 0.0f, 0.0f,
@@ -239,7 +239,7 @@ namespace SoftwareRasterizer
         const bool referenceImplementation = false;
         if (referenceImplementation)
         {
-            // Ql https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
+            // å‚è€ƒ https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
 
             float f = 1.0f / std::tan(fovy / 2.0f);
 

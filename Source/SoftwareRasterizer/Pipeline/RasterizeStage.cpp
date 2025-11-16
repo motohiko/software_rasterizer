@@ -11,23 +11,20 @@ namespace SoftwareRasterizer
     {
     }
 
-    RasterizeStage::RasterizeStage(RenderingContext* renderingContext) :
-        _renderingContext(renderingContext),
-        _rasterizerState(&(renderingContext->_rasterizerState)),
-        _viewport(&(renderingContext->_viewport))
+    RasterizeStage::RasterizeStage()
     {
     }
 
     void RasterizeStage::setWindowSize(int width, int height)
     {
-        _frameWidth = width;
-        _frameHeight = height;
+        _windowWidth = width;
+        _windowHeight = height;
     }
 
     void RasterizeStage::prepareRasterize()
     {
-        int windowMaxX = _frameWidth - 1;
-        int windowMaxY = _frameHeight - 1;
+        int windowMaxX = _windowWidth - 1;
+        int windowMaxY = _windowHeight - 1;
         int viewportMaxX = _viewport->x + _viewport->width - 1;
         int viewportMaxY = _viewport->y + _viewport->height - 1;
 
@@ -50,13 +47,13 @@ namespace SoftwareRasterizer
         }
 #endif
 
-        // ³‹K‰»ƒfƒoƒCƒXÀ•W‚©‚çƒEƒBƒ“ƒhƒEÀ•W‚Ö•ÏŠ·iƒrƒ…[ƒ|[ƒg•ÏŠ·j
+        // æ­£è¦åŒ–ãƒ‡ãƒã‚¤ã‚¹åº§æ¨™ã‹ã‚‰ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™ã¸å¤‰æ›ï¼ˆãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆå¤‰æ›ï¼‰
 
         // note.
         // 
-        // Ql https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
+        // å‚è€ƒ https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
         // 
-        // ƒEƒBƒ“ƒhƒEÀ•WŒn(xy)
+        // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™ç³»(xy)
         // 
         //     +y
         //       |
@@ -64,7 +61,7 @@ namespace SoftwareRasterizer
         //       +--- +x
         //  (0,0)
         // 
-        // ƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³
+        // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®å¤§ãã•
         // 
         //                   (ViewportWidth, ViewportHeight)
         //       +----------+
@@ -79,16 +76,16 @@ namespace SoftwareRasterizer
         rasterizationPoint->wndPosition.x = ((ndcVertex->ndcPosition.x + 1.0f) * halfWidth) + (float)_viewport->x;
         rasterizationPoint->wndPosition.y = ((ndcVertex->ndcPosition.y + 1.0f) * halfHeight) + (float)_viewport->y;
 
-        // ³‹K‰»ƒfƒoƒCƒXÀ•W‚Ì z ‚ğ[“x”ÍˆÍ‚Éƒ}ƒbƒv
+        // æ­£è¦åŒ–ãƒ‡ãƒã‚¤ã‚¹åº§æ¨™ã® z ã‚’æ·±åº¦ç¯„å›²ã«ãƒãƒƒãƒ—
         float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
         rasterizationPoint->depth = std::lerp(_rasterizerState->depthRangeNearVal, _rasterizerState->depthRangeFarVal, t);
 
-        // ƒp[ƒXƒyƒNƒeƒBƒuƒRƒŒƒNƒg—p‚É 1/W ‚ğ•Û‘¶
+        // ãƒ‘ãƒ¼ã‚¹ãƒšã‚¯ãƒ†ã‚£ãƒ–ã‚³ãƒ¬ã‚¯ãƒˆç”¨ã« 1/W ã‚’ä¿å­˜
         float w = clippedPrimitiveVertex->clipPosition.w;
         assert(w != 0.0f);
         rasterizationPoint->invW = 1.0f / w;
   
-        //  ƒp[ƒXƒyƒNƒeƒBƒuƒRƒŒƒNƒg—p‚É•âŠÔ•Ï”‚ğ W ‚ÅœZ
+        //  ãƒ‘ãƒ¼ã‚¹ãƒšã‚¯ãƒ†ã‚£ãƒ–ã‚³ãƒ¬ã‚¯ãƒˆç”¨ã«è£œé–“å¤‰æ•°ã‚’ W ã§é™¤ç®—
         for (int i = 0; i < clippedPrimitiveVertex->varyingNum; i++)
         {
             rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
@@ -98,14 +95,14 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::rasterizePrimitive(RasterPrimitive& rasterPrimitive)
     {
-        // Še’¸“_‚ğ³‹K‰»ƒfƒoƒCƒXÀ•W‚Ö•ÏŠ·iWœZj
+        // å„é ‚ç‚¹ã‚’æ­£è¦åŒ–ãƒ‡ãƒã‚¤ã‚¹åº§æ¨™ã¸å¤‰æ›ï¼ˆWé™¤ç®—ï¼‰
         NdcVertex ndcVertices[3];
         for (int i = 0; i < rasterPrimitive.vertexNum; i++)
         {
             RasterizeStage::transformToNdcVertex(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]));
         }
 
-        // ƒtƒFƒCƒXƒJƒŠƒ“ƒO
+        // ãƒ•ã‚§ã‚¤ã‚¹ã‚«ãƒªãƒ³ã‚°
         if (PrimitiveType::kTriangle == rasterPrimitive.primitiveType)
         {
             Vector2 p0 = ndcVertices[0].ndcPosition.getXY();
@@ -150,7 +147,7 @@ namespace SoftwareRasterizer
             }
         }
 
-        // ƒrƒ…[ƒ|[ƒg•ÏŠ·‚ÆƒfƒvƒX’l‚Ö‚Ìƒ}ƒbƒsƒ“ƒO
+        // ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆå¤‰æ›ã¨ãƒ‡ãƒ—ã‚¹å€¤ã¸ã®ãƒãƒƒãƒ”ãƒ³ã‚°
         RasterVertex rasterVertices[3];
         int rasterVertexNum = rasterPrimitive.vertexNum;
         for (int i = 0; i < rasterVertexNum; i++)
@@ -158,7 +155,7 @@ namespace SoftwareRasterizer
             transformRasterVertex(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]), &rasterVertices[i]);
         }
 
-        // Œ`ó‚²‚Æ‚Ìˆ—
+        // å½¢çŠ¶ã”ã¨ã®å‡¦ç†
         switch (rasterVertexNum)
         {
         case 2:
@@ -182,7 +179,7 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::rasterizeLine(const RasterVertex* p0, const RasterVertex* p1)
     {
-        int x0 = (int)std::floor(p0->wndPosition.x);// ¬”“_ˆÈ‰ºØ‚èÌ‚Ä
+        int x0 = (int)std::floor(p0->wndPosition.x);// å°æ•°ç‚¹ä»¥ä¸‹åˆ‡ã‚Šæ¨ã¦
         int y0 = (int)std::floor(p0->wndPosition.y);
         int x1 = (int)std::floor(p1->wndPosition.x);
         int y1 = (int)std::floor(p1->wndPosition.y);
@@ -210,15 +207,12 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::rasterizeTriangle(const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2)
     {
-        // TODOFŠ®‘S‚ÈƒGƒbƒWŠÖ”
-        // Ql Juan Pineda 1988 A Parallel Algorithm for Polygon Rasterization. 
-
-        int width = _frameWidth;
-        int height = _frameHeight;
+        // TODOï¼šå®Œå…¨ãªã‚¨ãƒƒã‚¸é–¢æ•°
+        // å‚è€ƒ Juan Pineda 1988 A Parallel Algorithm for Polygon Rasterization. 
 
         _sarea2 = edgeFunction(p0->wndPosition, p1->wndPosition, p2->wndPosition);
 
-        // ˆ—‚ªd‚·‚¬‚é‚Ì‚Åƒ‰ƒXƒ^ƒ‰ƒCƒY‚Ì”ÍˆÍ‚ği‚è‚Ş
+        // å‡¦ç†ãŒé‡ã™ãã‚‹ã®ã§ãƒ©ã‚¹ã‚¿ãƒ©ã‚¤ã‚ºã®ç¯„å›²ã‚’çµã‚Šè¾¼ã‚€
         struct BoundingBox2d
         {
             float minX;
@@ -246,9 +240,9 @@ namespace SoftwareRasterizer
         boundingBox.addPoint(p1->wndPosition);
         boundingBox.addPoint(p2->wndPosition);
 
-        int minX = (int)std::floor(boundingBox.minX);// Ø‚èÌ‚Ä
+        int minX = (int)std::floor(boundingBox.minX);// åˆ‡ã‚Šæ¨ã¦
         int minY = (int)std::floor(boundingBox.minY);
-        int maxX = (int)std::ceil(boundingBox.maxX);// Ø‚èã‚°
+        int maxX = (int)std::ceil(boundingBox.maxX);// åˆ‡ã‚Šä¸Šã’
         int maxY = (int)std::ceil(boundingBox.maxY);
 
         minX = std::max(minX, _clipRectMinX);
@@ -274,7 +268,7 @@ namespace SoftwareRasterizer
     {
         Vector2 a(p0->wndPosition.x, p0->wndPosition.y);
         Vector2 b(p1->wndPosition.x, p1->wndPosition.y);
-        Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ƒsƒNƒZƒ‹‚Ì’†S
+        Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ãƒ”ã‚¯ã‚»ãƒ«ã®ä¸­å¿ƒ
         Vector2 ab(b - a);
         Vector2 ac(c - a);
         float acLengthClosest = Vector2::Normalize(ab).dot(ac);
@@ -282,7 +276,7 @@ namespace SoftwareRasterizer
         float t = acLengthClosest / ab.getNorm();
         t = std::clamp(t, 0.0f, 1.0f);
 
-        // ‚Q“_ŠÔ‚ğ•âŠÔ
+        // ï¼’ç‚¹é–“ã‚’è£œé–“
         Vector2 wndPosition = Vector2::Lerp(p0->wndPosition, p1->wndPosition, t);
         float depth = std::lerp(p0->depth, p1->depth, t);
         float invW = std::lerp(p0->invW, p1->invW, t);
@@ -319,15 +313,15 @@ namespace SoftwareRasterizer
 
     bool RasterizeStage::getTriangleFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2, Fragment* fragment)
     {
-        Vector2 p(x + 0.5f, y + 0.5f);// ƒsƒNƒZƒ‹‚Ì’†S
+        Vector2 p(x + 0.5f, y + 0.5f);// ãƒ”ã‚¯ã‚»ãƒ«ã®ä¸­å¿ƒ
 
-        // dSÀ•W‚Ìd‚İ‚ğ‹‚ß‚éiŠOÏ‚ÍOŠpŒ`‚Ì–ÊÏ‚Ì‚Q”{j
+        // é‡å¿ƒåº§æ¨™ã®é‡ã¿ã‚’æ±‚ã‚ã‚‹ï¼ˆå¤–ç©ã¯ä¸‰è§’å½¢ã®é¢ç©ã®ï¼’å€ï¼‰
         assert(0.0f != _sarea2);
         float b0 = edgeFunction(p1->wndPosition, p2->wndPosition, p) / _sarea2;
         float b1 = edgeFunction(p2->wndPosition, p0->wndPosition, p) / _sarea2;
         float b2 = edgeFunction(p0->wndPosition, p1->wndPosition, p) / _sarea2;
 
-        // ƒsƒNƒZƒ‹‚Ì’†S‚ğ“àŠO”»’è
+        // ãƒ”ã‚¯ã‚»ãƒ«ã®ä¸­å¿ƒã‚’å†…å¤–åˆ¤å®š
         if (b0 < 0.0f)
         {
             return false;
@@ -341,7 +335,7 @@ namespace SoftwareRasterizer
             return false;
         }
 
-        // •âŠÔ
+        // è£œé–“
         Vector2 wndPosition = (p0->wndPosition * b0) + (p1->wndPosition * b1) + (p2->wndPosition * b2);
         float depth = (b0 * p0->depth) + (b1 * p1->depth) + (b2 * p2->depth);
         float invW = (b0 * p0->invW) + (b1 * p1->invW) + (b2 * p2->invW);

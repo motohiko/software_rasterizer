@@ -1,5 +1,5 @@
 
-// ƒEƒBƒ“ƒhƒEÀ•Wiƒrƒ…[ƒ|[ƒg•ÏŠ·Œãj
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™ï¼ˆãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆå¤‰æ›å¾Œï¼‰
 //
 //       +y                
 //         |
@@ -8,7 +8,7 @@
 //   (0, 0)
 //
 //
-// Windows GUI ‚ÌÀ•WŒn
+// Windows GUI ã®åº§æ¨™ç³»
 //
 //   (0, 0)
 //         +---- +x
@@ -17,7 +17,7 @@
 //       +y                
 //
 //
-// DIB‚Ìƒƒ‚ƒŠ‚ğ’¼ÚQÆ‚µ‚½‚Æ‚«À•WŒn
+// DIBã®ãƒ¡ãƒ¢ãƒªã‚’ç›´æ¥å‚ç…§ã—ãŸã¨ãåº§æ¨™ç³»
 //
 //       +y                
 //         |
@@ -32,10 +32,7 @@
 
 namespace SoftwareRasterizer
 {
-    OutputMergerStage::OutputMergerStage(RenderingContext* renderingContext) :
-        _renderingContext(renderingContext),
-        _renderTarget(&(renderingContext->_renderTarget)),
-        _depthState(&(renderingContext->_depthState))
+    OutputMergerStage::OutputMergerStage()
     {
     }
 
@@ -93,7 +90,7 @@ namespace SoftwareRasterizer
 
     float OutputMergerStage::readDepth(int x, int y) const
     {
-        // x, y ‚ÍƒEƒBƒ“ƒhƒE‘Š‘ÎÀ•W
+        // x, y ã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ç›¸å¯¾åº§æ¨™
 
         if (0 <= x && x < _renderTarget->depthBuffer.width || 0 <= y || y < _renderTarget->depthBuffer.height)
         {
@@ -109,11 +106,11 @@ namespace SoftwareRasterizer
 
     void OutputMergerStage::writePixel(int x, int y, const Vector4& color, float depth)
     {
-        // x, y ‚ÍƒEƒBƒ“ƒhƒEÀ•W
+        // x, y ã¯ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™
 
         if (0 <= x && x < _renderTarget->colorBuffer.width || 0 <= y || y < _renderTarget->colorBuffer.height)
         {
-            // DIB‚à¶‰º‚ª(0,0)‚È‚Ì‚Åã‰º”½“]‚Í•s—v
+            // DIBã‚‚å·¦ä¸‹ãŒ(0,0)ãªã®ã§ä¸Šä¸‹åè»¢ã¯ä¸è¦
             size_t colorOffset = (_renderTarget->colorBuffer.widthBytes * y) + (sizeof(uint32_t) * x);
             uint32_t* colorDst = (uint32_t*)(((uintptr_t)_renderTarget->colorBuffer.addr) + colorOffset);
             uint32_t r = Lib::DenormalizeByte(color.x);

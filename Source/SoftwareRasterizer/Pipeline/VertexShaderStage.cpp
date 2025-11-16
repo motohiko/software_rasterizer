@@ -1,5 +1,4 @@
 #include "VertexShaderStage.h"
-#include "..\RenderingContext.h"
 #include <cassert>
 
 namespace SoftwareRasterizer
@@ -10,16 +9,13 @@ namespace SoftwareRasterizer
         assert(state->vertexShaderMain);
     }
 
-    VertexShaderStage::VertexShaderStage(RenderingContext* renderingContext) :
-        _renderingContext(renderingContext),
-        _vertexShaderProgram(&(renderingContext->_vertexShaderProgram)),
-        _constantBuffer(&(renderingContext->_constantBuffer))
+    VertexShaderStage::VertexShaderStage()
     {
     }
 
     void VertexShaderStage::executeShader(const AttributeVertex* inputVertex, ShadedVertex* outputVertex) const
 	{
-        // ’¸“_À•W‚ðƒNƒŠƒbƒsƒ“ƒO‹óŠÔÀ•W‚É•ÏŠ·‚µ‚ÄA•K—v‚È‚çƒ‰ƒCƒeƒBƒ“ƒO—p‚Ìî•ñ‚ðÝ’è‚·‚é
+        // é ‚ç‚¹åº§æ¨™ã‚’ã‚¯ãƒªãƒƒãƒ”ãƒ³ã‚°ç©ºé–“åº§æ¨™ã«å¤‰æ›ã—ã¦ã€å¿…è¦ãªã‚‰ãƒ©ã‚¤ãƒ†ã‚£ãƒ³ã‚°ç”¨ã®æƒ…å ±ã‚’è¨­å®šã™ã‚‹
 
         VertexShaderInput vertexShaderInput;
         vertexShaderInput.uniformBlock = _constantBuffer->uniformBlock;

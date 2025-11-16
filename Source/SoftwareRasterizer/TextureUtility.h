@@ -8,14 +8,12 @@ namespace SoftwareRasterizer
     struct Texture2D
     {
         const void* addr;
-
-        //internalformat = 4
-
         int width;
         int height;
+        int widthBytes;
 
+        //internalformat = 4
         //format = GL_RGBA
-
     };
 
     struct Sampler2D

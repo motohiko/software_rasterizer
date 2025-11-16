@@ -77,7 +77,7 @@ namespace SoftwareRasterizer
         int _windowWidth = 0;
         int _windowHeight = 0;
 
-        uint32_t _clearColor = 0;
+        Vector4 _clearColor = Vector4::kZero;
         float _clearDepth = 1.0f;
 
         // VS / PS

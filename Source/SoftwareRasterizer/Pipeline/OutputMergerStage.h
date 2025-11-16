@@ -6,20 +6,24 @@
 
 namespace SoftwareRasterizer
 {
-    class RenderingContext;
-
     class OutputMergerStage
     {
 
     private:
 
-        RenderingContext* _renderingContext;
-        const RenderTarget* _renderTarget;
-        const DepthState* _depthState;
+        const RenderTarget* _renderTarget = nullptr;
+        const DepthState* _depthState = nullptr;
+
+        class RenderingContext* _renderingContext = nullptr;
 
     public:
 
-        OutputMergerStage(RenderingContext* renderingContext);
+        OutputMergerStage();
+
+        void input(const RenderTarget* renderTarget) { _renderTarget = renderTarget; }
+        void input(const DepthState* depthState) { _depthState = depthState; }
+
+        void ouput(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
 
         void execute(int x, int y, const Vector4& color, float depth);
 

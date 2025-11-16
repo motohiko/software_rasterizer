@@ -36,20 +36,20 @@ namespace SoftwareRasterizer
 
     struct ShadedVertex
     {
-        Vector4 clipPosition;// ’¸“_À•WiƒNƒŠƒbƒv‹óŠÔÀ•WŒnj
+        Vector4 clipPosition;// é ‚ç‚¹åº§æ¨™ï¼ˆã‚¯ãƒªãƒƒãƒ—ç©ºé–“åº§æ¨™ç³»ï¼‰
         Vector4 varyings[kMaxVaryings];
         int varyingNum;
     };
 
     struct NdcVertex
     {
-        Vector3 ndcPosition;// ’¸“_À•Wi³‹K‰»ƒfƒoƒCƒXÀ•WŒnj
+        Vector3 ndcPosition;// é ‚ç‚¹åº§æ¨™ï¼ˆæ­£è¦åŒ–ãƒ‡ãƒã‚¤ã‚¹åº§æ¨™ç³»ï¼‰
     };
 
     struct RasterVertex
     {
-        Vector2 wndPosition;// ’¸“_À•WiƒEƒBƒ“ƒhƒEÀ•WŒnj
-        float depth;// [“x
+        Vector2 wndPosition;// é ‚ç‚¹åº§æ¨™ï¼ˆã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™ç³»ï¼‰
+        float depth;// æ·±åº¦
         float invW;// = 1 / clipPosition.w
 
         Vector4 varyingsDividedByW[kMaxVaryings];
@@ -58,10 +58,10 @@ namespace SoftwareRasterizer
 
     struct Fragment
     {
-        int x, y;// ƒtƒ‰ƒOƒƒ“ƒg‚ÌÀ•WiƒEƒBƒ“ƒhƒEÀ•WŒnj
+        int x, y;// ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã®åº§æ¨™ï¼ˆã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™ç³»ï¼‰
 
-        Vector2 wndPosition;// ƒtƒ‰ƒOƒƒ“ƒg‚Ì’†SÀ•WiƒEƒBƒ“ƒhƒEÀ•WŒnj
-        float depth;// [“x
+        Vector2 wndPosition;// ãƒ•ãƒ©ã‚°ãƒ¡ãƒ³ãƒˆã®ä¸­å¿ƒåº§æ¨™ï¼ˆã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åº§æ¨™ç³»ï¼‰
+        float depth;// æ·±åº¦
         float invW;// = 1 / clipPosition.w
 
         Vector4 varyings[kMaxVaryings];

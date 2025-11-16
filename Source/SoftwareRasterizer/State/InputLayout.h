@@ -23,11 +23,11 @@ namespace SoftwareRasterizer
 
     struct InputElement
     {
-        SemanticsType semantics = SemanticsType::kNone; // ƒZƒ}ƒ“ƒeƒBƒNƒX
-        int size = 0;                                   // ’¸“_‘®«‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì”
-        ComponentType type = ComponentType::kNone;      // ’¸“_‘®«‚ÌŠeƒRƒ“ƒ|[ƒlƒ“ƒg‚Ìƒf[ƒ^Œ^
-        bool normalized = false;                        // ®”’l‚ğ[0,1]‚É³‹K‰»‚·‚é‚©
-        size_t stride = 0;                              // ’¸“_‘®«ŠÔ‚ÌƒoƒCƒgƒIƒtƒZƒbƒg
+        SemanticsType semantics = SemanticsType::kNone; // ã‚»ãƒãƒ³ãƒ†ã‚£ã‚¯ã‚¹
+        int size = 0;                                   // é ‚ç‚¹å±æ€§ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®æ•°
+        ComponentType type = ComponentType::kNone;      // é ‚ç‚¹å±æ€§ã®å„ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®ãƒ‡ãƒ¼ã‚¿å‹
+        bool normalized = false;                        // æ•´æ•°å€¤ã‚’[0,1]ã«æ­£è¦åŒ–ã™ã‚‹ã‹
+        size_t stride = 0;                              // é ‚ç‚¹å±æ€§é–“ã®ãƒã‚¤ãƒˆã‚ªãƒ•ã‚»ãƒƒãƒˆ
     };
 
     struct InputLayout
