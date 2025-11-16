@@ -1,5 +1,4 @@
 #include "ClipStage.h"
-#include "..\..\Lib\Algorithm.h"
 #include <cassert>
 #include <cmath>
 

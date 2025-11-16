@@ -7,17 +7,18 @@
 
 namespace SoftwareRasterizer
 {
-    void RasterizeStage::validateState(const RasterizeStageState* state)
+    void RasterizeStage::validateState(const Viewport* state)
     {
     }
 
     RasterizeStage::RasterizeStage(RenderingContext* renderingContext) :
         _renderingContext(renderingContext),
-        _rasterizeStageState(&(renderingContext->_rasterizeStageState))
+        _rasterizerState(&(renderingContext->_rasterizerState)),
+        _viewport(&(renderingContext->_viewport))
     {
     }
 
-    void RasterizeStage::setFrameSize(int width, int height)
+    void RasterizeStage::setWindowSize(int width, int height)
     {
         _frameWidth = width;
         _frameHeight = height;
@@ -27,11 +28,11 @@ namespace SoftwareRasterizer
     {
         int windowMaxX = _frameWidth - 1;
         int windowMaxY = _frameHeight - 1;
-        int viewportMaxX = _rasterizeStageState->viewportX + _rasterizeStageState->viewportWidth - 1;
-        int viewportMaxY = _rasterizeStageState->viewportY + _rasterizeStageState->viewportHeight - 1;
+        int viewportMaxX = _viewport->x + _viewport->width - 1;
+        int viewportMaxY = _viewport->y + _viewport->height - 1;
 
-        _clipRectMinX = std::max(0, _rasterizeStageState->viewportX);
-        _clipRectMinY = std::max(0, _rasterizeStageState->viewportY);
+        _clipRectMinX = std::max(0, _viewport->x);
+        _clipRectMinY = std::max(0, _viewport->y);
         _clipRectMaxX = std::min(windowMaxX, viewportMaxX);
         _clipRectMaxY = std::min(windowMaxY, viewportMaxY);
     }
@@ -73,14 +74,14 @@ namespace SoftwareRasterizer
         //       +----------+  
         //  (0,0)
         // 
-        float halfWidth = (float)_rasterizeStageState->viewportWidth / 2.0f;
-        float halfHeight = (float)_rasterizeStageState->viewportHeight / 2.0f;
-        rasterizationPoint->wndPosition.x = ((ndcVertex->ndcPosition.x + 1.0f) * halfWidth) + (float)_rasterizeStageState->viewportX;
-        rasterizationPoint->wndPosition.y = ((ndcVertex->ndcPosition.y + 1.0f) * halfHeight) + (float)_rasterizeStageState->viewportY;
+        float halfWidth = (float)_viewport->width / 2.0f;
+        float halfHeight = (float)_viewport->height / 2.0f;
+        rasterizationPoint->wndPosition.x = ((ndcVertex->ndcPosition.x + 1.0f) * halfWidth) + (float)_viewport->x;
+        rasterizationPoint->wndPosition.y = ((ndcVertex->ndcPosition.y + 1.0f) * halfHeight) + (float)_viewport->y;
 
         // 正規化デバイス座標の z を深度範囲にマップ
         float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
-        rasterizationPoint->depth = std::lerp(_rasterizeStageState->depthRangeNearVal, _rasterizeStageState->depthRangeFarVal, t);
+        rasterizationPoint->depth = std::lerp(_rasterizerState->depthRangeNearVal, _rasterizerState->depthRangeFarVal, t);
 
         // パースペクティブコレクト用に 1/W を保存
         float w = clippedPrimitiveVertex->clipPosition.w;
@@ -112,7 +113,7 @@ namespace SoftwareRasterizer
             Vector2 p2 = ndcVertices[2].ndcPosition.getXY();
 
             float n;
-            switch (_rasterizeStageState->frontFacetype)
+            switch (_rasterizerState->frontFacetype)
             {
             case FrontFaceType::kCounterClockwise:
                 n = (p1 - p0).cross(p2 - p0);
@@ -126,7 +127,7 @@ namespace SoftwareRasterizer
             }
 
             bool passed;
-            switch (_rasterizeStageState->cullFaceType)
+            switch (_rasterizerState->cullFaceType)
             {
             case CullFaceType::kNone:
                 passed = true;

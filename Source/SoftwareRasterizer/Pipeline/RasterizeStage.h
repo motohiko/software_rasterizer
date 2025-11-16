@@ -1,6 +1,7 @@
 #pragma once
 
-#include "RasterizeStageState.h"
+#include "..\State\RasterizerState.h"
+#include "..\State\Viewport.h"
 #include "..\Types.h"
 #include "..\..\Lib\\Vector.h"
 
@@ -21,7 +22,8 @@ namespace SoftwareRasterizer
     private:
 
         RenderingContext* _renderingContext;
-        const RasterizeStageState* _rasterizeStageState;
+        const RasterizerState* _rasterizerState;
+        const Viewport* _viewport;
 
         int _frameWidth = 0;
         int _frameHeight = 0;
@@ -35,11 +37,11 @@ namespace SoftwareRasterizer
 
     public:
 
-        static void validateState(const RasterizeStageState* state);
+        static void validateState(const Viewport* state);
 
         RasterizeStage(RenderingContext* renderingContext);
 
-        void setFrameSize(int width, int height);
+        void setWindowSize(int width, int height);
 
         void prepareRasterize();
 

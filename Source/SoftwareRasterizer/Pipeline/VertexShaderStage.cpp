@@ -4,15 +4,16 @@
 
 namespace SoftwareRasterizer
 {
-    void VertexShaderStage::validateState(const VertexShaderStageState* state)
+    void VertexShaderStage::validateState(const VertexShaderProgram* state)
     {
-        assert(state->uniformBlock);
+        //assert(state->uniformBlock);
         assert(state->vertexShaderMain);
     }
 
     VertexShaderStage::VertexShaderStage(RenderingContext* renderingContext) :
         _renderingContext(renderingContext),
-        _vertexShaderStageState(&(renderingContext->_vertexShaderStageState))
+        _vertexShaderProgram(&(renderingContext->_vertexShaderProgram)),
+        _constantBuffer(&(renderingContext->_constantBuffer))
     {
     }
 
@@ -21,13 +22,13 @@ namespace SoftwareRasterizer
         // 頂点座標をクリッピング空間座標に変換して、必要ならライティング用の情報を設定する
 
         VertexShaderInput vertexShaderInput;
-        vertexShaderInput.uniformBlock = _vertexShaderStageState->uniformBlock;
+        vertexShaderInput.uniformBlock = _constantBuffer->uniformBlock;
         vertexShaderInput.attributes = inputVertex->attributes;
 
         VertexShaderOutput vertexShaderOutput;
         vertexShaderOutput.varyings = outputVertex->varyings;
 
-        _vertexShaderStageState->vertexShaderMain(&vertexShaderInput, &vertexShaderOutput);
+        _vertexShaderProgram->vertexShaderMain(&vertexShaderInput, &vertexShaderOutput);
         assert(vertexShaderOutput.varyingNum < kMaxVaryings);
 
         outputVertex->clipPosition = vertexShaderOutput.position;

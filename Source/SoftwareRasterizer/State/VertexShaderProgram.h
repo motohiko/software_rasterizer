@@ -1,7 +1,6 @@
 #pragma once
 
 #include "..\Types.h"
-#include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {
@@ -14,15 +13,14 @@ namespace SoftwareRasterizer
     struct VertexShaderOutput
     {
         Vector4 position;// gl_Position
-        Vector4* varyings;
+        Vector4* varyings;// varying
         int varyingNum;
     };
 
     typedef void (*VertexShaderFuncPtr)(const VertexShaderInput* input, VertexShaderOutput* output);
 
-    struct VertexShaderStageState
+    struct VertexShaderProgram
     {
-        const void* uniformBlock = nullptr;
         VertexShaderFuncPtr vertexShaderMain = nullptr;
     };
 }

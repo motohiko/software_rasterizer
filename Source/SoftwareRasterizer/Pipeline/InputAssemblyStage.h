@@ -1,6 +1,8 @@
 #pragma once
 
-#include "InputAssemblyStageState.h"
+#include "..\State\InputLayout.h"
+#include "..\State\VertexBuffers.h"
+#include "..\State\IndexBuffer.h"
 #include "..\Types.h"
 #include <cstdint>
 
@@ -23,7 +25,11 @@ namespace SoftwareRasterizer
     private:
 
         RenderingContext* _renderingContext;
-        const InputAssemblyStageState* _inputAssemblyStageState;
+        const InputLayout* _inputLayout;
+        const VertexBuffers* _vertexBuffers;
+        const IndexBuffer* _indexBuffer;
+
+        PrimitiveTopologyType _primitiveTopologyType = PrimitiveTopologyType::kNone;
 
         PrimitiveType _primitiveType = PrimitiveType::kNone;
         int _primitiveVertexNum = 0;
@@ -32,11 +38,11 @@ namespace SoftwareRasterizer
 
     public:
 
-        static void validateState(const InputAssemblyStageState* state);
+        static void validateState(const InputLayout* state);
 
         InputAssemblyStage(RenderingContext* renderingContext);
 
-        void prepareReadPrimitive();
+        void prepareReadPrimitive(PrimitiveTopologyType primitiveTopologyType);
         bool readPrimitive(Primitive* primitive);
 
         void prepareReadVertex();

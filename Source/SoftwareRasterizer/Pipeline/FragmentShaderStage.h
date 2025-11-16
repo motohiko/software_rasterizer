@@ -1,6 +1,7 @@
 #pragma once
 
-#include "FragmentShaderStageState.h"
+#include "..\State\FragmentShaderProgram.h"
+#include "..\State\ConstantBuffer.h"
 #include "..\Types.h"
 #include "..\..\Lib\Vector.h"
 
@@ -14,11 +15,12 @@ namespace SoftwareRasterizer
     private:
 
         RenderingContext* _renderingContext;
-        const FragmentShaderStageState* _fragmentShaderStageState;
+        const FragmentShaderProgram* _fragmentShaderProgram;
+        const ConstantBuffer* _constantBuffer;
 
     public:
 
-        static void validateState(const FragmentShaderStageState* state);
+        static void validateState(const FragmentShaderProgram* state);
 
         FragmentShaderStage(RenderingContext* renderingContext);
 

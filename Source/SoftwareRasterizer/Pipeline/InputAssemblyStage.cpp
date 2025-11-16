@@ -2,23 +2,26 @@
 #include "..\RenderingContext.h"
 #include "..\..\Lib\Algorithm.h"
 #include "..\..\Lib\Vector.h"
-#include <cassert>
 
 namespace SoftwareRasterizer
 {
-    void InputAssemblyStage::validateState(const InputAssemblyStageState* state)
+    void InputAssemblyStage::validateState(const InputLayout* state)
     {
     }
 
     InputAssemblyStage::InputAssemblyStage(RenderingContext* renderingContext) :
         _renderingContext(renderingContext),
-        _inputAssemblyStageState(&(renderingContext->_inputAssemblyStageState))
+        _inputLayout(&(renderingContext->_inputLayout)),
+        _vertexBuffers(&(renderingContext->_vertexBuffers)),
+        _indexBuffer(&(renderingContext->_indexBuffer))
     {
     }
 
-    void InputAssemblyStage::prepareReadPrimitive()
+    void InputAssemblyStage::prepareReadPrimitive(PrimitiveTopologyType primitiveTopologyType)
     {
-        switch (_inputAssemblyStageState->primitiveTopologyType)
+        _primitiveTopologyType = primitiveTopologyType;
+
+        switch (primitiveTopologyType)
         {
         case PrimitiveTopologyType::kLineList:
             _primitiveType = PrimitiveType::kLine;
@@ -39,7 +42,7 @@ namespace SoftwareRasterizer
 
     bool InputAssemblyStage::readPrimitive(InputAssemblyStage::Primitive* primitive)
     {
-        int remainingVertexCount = _inputAssemblyStageState->indexBuffer.indexNum - _readVertexCount;
+        int remainingVertexCount = _indexBuffer->indexNum - _readVertexCount;
         if (remainingVertexCount < _primitiveVertexNum)
         {
             primitive->primitiveType = PrimitiveType::kNone;
@@ -49,7 +52,7 @@ namespace SoftwareRasterizer
 
         for (int i = 0; i < _primitiveVertexNum; i++)
         {
-            uint16_t vertexIndex = _inputAssemblyStageState->indexBuffer.indices[_readVertexCount];
+            uint16_t vertexIndex = _indexBuffer->indices[_readVertexCount];
             _readVertexCount++;
 
             primitive->vertexIndices[i] = vertexIndex;
@@ -69,12 +72,13 @@ namespace SoftwareRasterizer
     {
         for (int i = 0; i < kMaxVertexAttributes; i++)
         {
-            if (_inputAssemblyStageState->vertexAttributeEnableBits & (1u << i))
+            if (_inputLayout->vertexAttributeEnableBits & (1u << i))
             {
-                const VertexAttributeLayout* vertexAttributeLayout = &(_inputAssemblyStageState->vertexAttributeLayouts[i]);
+                const InputElement* inputElement = &(_inputLayout->elements[i]);
+                const VertexBuffer* vertexBuffer = &(_vertexBuffers->vertexBuffers[i]);
 
                 Vector4 attribute;
-                switch (vertexAttributeLayout->semantics)
+                switch (inputElement->semantics)
                 {
                 case SemanticsType::kPosition:
                     attribute = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -85,11 +89,11 @@ namespace SoftwareRasterizer
                 }
 
                 // 指定個数のコンポーネントを読み取る
-                uintptr_t ptr = ((uintptr_t)vertexAttributeLayout->buffer) + (vertexAttributeLayout->stride * vertexIndex);
-                switch (vertexAttributeLayout->type)
+                uintptr_t ptr = ((uintptr_t)vertexBuffer->addr) + (inputElement->stride * vertexIndex);
+                switch (inputElement->type)
                 {
                 case ComponentType::kFloat:
-                    switch (vertexAttributeLayout->size)
+                    switch (inputElement->size)
                     {
                     case 4:
                         attribute.w = ((const float*)ptr)[3];
@@ -108,9 +112,9 @@ namespace SoftwareRasterizer
                     }
                     break;
                 case ComponentType::kUnsignedByte:
-                    if (vertexAttributeLayout->normalized)
+                    if (inputElement->normalized)
                     {
-                        switch (vertexAttributeLayout->size)
+                        switch (inputElement->size)
                         {
                         case 4:
                             attribute.w = Lib::NormalizeByte(((const uint8_t*)ptr)[3]);
@@ -130,7 +134,7 @@ namespace SoftwareRasterizer
                     }
                     else
                     {
-                        switch (vertexAttributeLayout->size)
+                        switch (inputElement->size)
                         {
                         case 4:
                             attribute.w = ((const uint8_t*)ptr)[3];
@@ -157,6 +161,6 @@ namespace SoftwareRasterizer
             }
         }
 
-        vertex->attributeEnableBits = _inputAssemblyStageState->vertexAttributeEnableBits;
+        vertex->attributeEnableBits = _inputLayout->vertexAttributeEnableBits;
     }
 }

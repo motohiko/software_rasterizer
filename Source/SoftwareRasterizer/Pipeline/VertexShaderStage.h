@@ -1,6 +1,7 @@
 #pragma once
 
-#include "VertexShaderStageState.h"
+#include "..\State\VertexShaderProgram.h"
+#include "..\State\ConstantBuffer.h"
 #include "..\Types.h"
 
 namespace SoftwareRasterizer
@@ -13,11 +14,12 @@ namespace SoftwareRasterizer
     private:
 
         RenderingContext* _renderingContext;
-        const VertexShaderStageState* _vertexShaderStageState;
+        const VertexShaderProgram* _vertexShaderProgram;
+        const ConstantBuffer* _constantBuffer;
 
     public:
 
-        static void validateState(const VertexShaderStageState* state);
+        static void validateState(const VertexShaderProgram* state);
 
         VertexShaderStage(RenderingContext* renderingContext);
 

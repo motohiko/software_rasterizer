@@ -4,27 +4,28 @@
 
 namespace SoftwareRasterizer
 {
-    void FragmentShaderStage::validateState(const FragmentShaderStageState* state)
+    void FragmentShaderStage::validateState(const FragmentShaderProgram* state)
     {
         assert(state->fragmentShaderMain);
     }
 
     FragmentShaderStage::FragmentShaderStage(RenderingContext* renderingContext) :
         _renderingContext(renderingContext),
-        _fragmentShaderStageState(&(renderingContext->_fragmentShaderStageState))
+        _fragmentShaderProgram(&(renderingContext->_fragmentShaderProgram)),
+        _constantBuffer(&(renderingContext->_constantBuffer))
     {
     }
 
     void FragmentShaderStage::executeShader(const Fragment* inputFragment, Vector4* outputColor) const
     {
-        FragmentShaderInput fragmentShaderInput;
-        fragmentShaderInput.uniformBlock = _fragmentShaderStageState->uniformBlock;
-        fragmentShaderInput.fragCoord = Vector4(inputFragment->wndPosition, inputFragment->depth, inputFragment->invW);
-        fragmentShaderInput.varyings = inputFragment->varyings;
+        FragmentShaderInput input;
+        input.uniformBlock = _constantBuffer->uniformBlock;
+        input.fragCoord = Vector4(inputFragment->wndPosition, inputFragment->depth, inputFragment->invW);
+        input.varyings = inputFragment->varyings;
 
-        FragmentShaderOutput fragmentShaderOutput;
-        _fragmentShaderStageState->fragmentShaderMain(&fragmentShaderInput, &fragmentShaderOutput);
+        FragmentShaderOutput output;
+        _fragmentShaderProgram->fragmentShaderMain(&input, &output);
 
-        *outputColor = fragmentShaderOutput.fragColor;
+        *outputColor = output.fragColor;
     }
 }

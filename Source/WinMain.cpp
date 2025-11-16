@@ -5,11 +5,8 @@
 #include <tchar.h>
 
 #include "SoftwareRasterizer\RenderingContext.h"
-#include "SoftwareRasterizer\FrameBuffer.h"
-#include "SoftwareRasterizer\TextureUtility.h"
-#include "SoftwareRasterizer\MatrixUtility.h"
-#include "Lib\Matrix.h"
-#include "Lib\Vector.h"
+#include "SoftwareRasterizer\Utility.h"
+
 #include "MeshData.h"
 
 #include <cstdint>
@@ -116,7 +113,7 @@ namespace Test
         uniformBlock.modelMatrix = Matrix4x4::kIdentity;
         g_renderingContext->setUniformBlock(&uniformBlock);
 
-        g_renderingContext->clearFrameBuffer();
+        g_renderingContext->clearRenderTarget();
 
         // 射影行列とビュー行列とを作成
         {
@@ -154,18 +151,15 @@ namespace Test
                 gridColors[i] = Vector4(0.5f, 0.5f, 0.5f, 1.0f);
             }
 
-            g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::kLineList);
             g_renderingContext->enableVertexAttribute(0);
-            g_renderingContext->setVertexBuffer(0, gridPositions);
-            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3));
+            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), gridPositions);
             g_renderingContext->enableVertexAttribute(1);
-            g_renderingContext->setVertexBuffer(1, gridColors);
-            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4));
+            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), gridColors);
             g_renderingContext->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
             g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
 
-            g_renderingContext->drawIndexed();
+            g_renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
@@ -180,29 +174,24 @@ namespace Test
             const Vector3 zAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  0.0f,  1.0f } };
             const Vector4 zAxisColors[2] = { { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
-            g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::kLineList);
             g_renderingContext->enableVertexAttribute(0);
-            g_renderingContext->setVertexBuffer(0, xAxisPositions);
-            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3));
+            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), xAxisPositions);
             g_renderingContext->enableVertexAttribute(1);
-            g_renderingContext->setVertexBuffer(1, xAxisColors);
-            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4));
+            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), xAxisColors);
             g_renderingContext->setIndexBuffer(kDefaultIndices, 2);
             g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
 
-            g_renderingContext->drawIndexed();
-
-            g_renderingContext->setVertexBuffer(0, yAxisPositions);
-            g_renderingContext->setVertexBuffer(1, yAxisColors);
-            g_renderingContext->drawIndexed();
-
-            g_renderingContext->setVertexBuffer(0, zAxisPositions);
-            g_renderingContext->setVertexBuffer(1, zAxisColors);
-
             g_renderingContext->setDepthFunc(ComparisonType::kLessEqual);
+            g_renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
-            g_renderingContext->drawIndexed();
+            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), yAxisPositions);
+            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), yAxisColors);
+            g_renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
+
+            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), zAxisPositions);
+            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), zAxisColors);
+            g_renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
@@ -215,21 +204,18 @@ namespace Test
             const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
             const Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
-            g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::kTriangleList);
             g_renderingContext->setIndexBuffer(kDefaultIndices, 3);
             g_renderingContext->enableVertexAttribute(0);
-            g_renderingContext->setVertexBuffer(0, polygonPositions);
-            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3));
+            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), polygonPositions);
             g_renderingContext->enableVertexAttribute(1);
-            g_renderingContext->setVertexBuffer(1, polygonColors);
-            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4));
+            g_renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), polygonColors);
             g_renderingContext->setVertexShaderProgram(LineVertexShaderMain);// 流用
             g_renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// 流用
 
             g_renderingContext->setFrontFaceType(FrontFaceType::kCounterClockwise);
             g_renderingContext->setCullFaceType(CullFaceType::kBack);
 
-            g_renderingContext->drawIndexed();
+            g_renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
@@ -248,24 +234,20 @@ namespace Test
             texture.height = 256;
             uniformBlock.meshTexture = &sampler2D;
 
-            g_renderingContext->setPrimitiveTopologyType(PrimitiveTopologyType::kTriangleList);
             g_renderingContext->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
             g_renderingContext->enableVertexAttribute(0);
-            g_renderingContext->setVertexBuffer(0, kMeshVertices);
-            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(float) * 3);
+            g_renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(float) * 3, kMeshVertices);
             g_renderingContext->enableVertexAttribute(1);
-            g_renderingContext->setVertexBuffer(1, kMeshUvs);
-            g_renderingContext->setVertexAttribute(1, SemanticsType::kTexCoord, 2, ComponentType::kFloat, sizeof(float) * 2);
+            g_renderingContext->setVertexAttribute(1, SemanticsType::kTexCoord, 2, ComponentType::kFloat, sizeof(float) * 2, kMeshUvs);
             g_renderingContext->enableVertexAttribute(2);
-            g_renderingContext->setVertexBuffer(2, kMeshNormals);
-            g_renderingContext->setVertexAttribute(2, SemanticsType::kNormal, 3, ComponentType::kFloat, sizeof(float) * 3);
+            g_renderingContext->setVertexAttribute(2, SemanticsType::kNormal, 3, ComponentType::kFloat, sizeof(float) * 3, kMeshNormals);
             g_renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
             g_renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
 
             g_renderingContext->setFrontFaceType(FrontFaceType::kCounterClockwise);
             g_renderingContext->setCullFaceType(CullFaceType::kBack);
 
-            g_renderingContext->drawIndexed();
+            g_renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
             g_renderingContext->disableVertexAttribute(0);
             g_renderingContext->disableVertexAttribute(1);
@@ -357,9 +339,9 @@ namespace Test
 
         case WM_SIZE:
         {
-            g_renderingContext.setFrameSize(0, 0);
-            g_renderingContext.setFrameColorBuffer(nullptr, 0);
-            g_renderingContext.setFrameDepthBuffer(nullptr, 0);
+            g_renderingContext.setWindowSize(0, 0);
+            g_renderingContext.setRenderTargetColorBuffer(nullptr, 0, 0, 0);
+            g_renderingContext.setRenderTargetDepthBuffer(nullptr, 0, 0, 0);
             g_renderingContext.setViewport(0, 0, 0, 0);
 
             if (NULL != g_hDibBm)
@@ -377,13 +359,16 @@ namespace Test
             RECT clientRect = {};
             GetClientRect(hwnd, &clientRect);// left と top は常に 0
 
+            int frameWidth = clientRect.right;
+            int frameHeight = clientRect.bottom;
+            //frameWidth = clientRect.right / 2;
+            //frameHeight = clientRect.bottom / 2;
+
             HDC hWndDC = GetDC(hwnd);
             BITMAPINFOHEADER bih = {};
             bih.biSize = sizeof(BITMAPINFOHEADER);
-            bih.biWidth = clientRect.right;
-            bih.biHeight = clientRect.bottom;
-            //bih.biWidth = clientRect.right / 2;
-            //bih.biHeight = clientRect.bottom / 2;
+            bih.biWidth = frameWidth;
+            bih.biHeight = frameHeight;
             bih.biPlanes = 1;
             bih.biBitCount = 32;
             bih.biCompression = BI_RGB;
@@ -399,14 +384,11 @@ namespace Test
 
             g_depthBuffer = (float*)malloc(sizeof(float) * dibSection.dsBm.bmWidth * dibSection.dsBm.bmHeight);
 
-            int frameWidth = dibSection.dsBm.bmWidth;
-            int frameHeight = dibSection.dsBm.bmHeight;
-            g_renderingContext.setFrameSize(frameWidth, frameHeight);
-            g_renderingContext.setFrameColorBuffer(dibSection.dsBm.bmBits, dibSection.dsBm.bmWidthBytes);
-            g_renderingContext.setFrameDepthBuffer(g_depthBuffer, sizeof(float) * dibSection.dsBm.bmWidth);
-
+            g_renderingContext.setWindowSize(frameWidth, frameHeight);
+            g_renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, frameWidth, frameHeight, dibSection.dsBm.bmWidthBytes);
+            g_renderingContext.setRenderTargetDepthBuffer(g_depthBuffer, frameWidth, frameHeight, sizeof(float) * dibSection.dsBm.bmWidth);
             g_renderingContext.setViewport(0, 0, frameWidth, frameHeight);
- 
+
             // 再描画を要求
             InvalidateRect(hwnd, NULL, TRUE);
             return 0;
@@ -423,7 +405,7 @@ namespace Test
             // レンダリング結果をウィンドウへ転送
             HDC hdcSrc = CreateCompatibleDC(ps.hdc);
             HGDIOBJ hBmPrev = SelectObject(hdcSrc, g_hDibBm);
-            BitBlt(ps.hdc, 0, 0, g_renderingContext.getFrameWidth(), g_renderingContext.getFrameHeight(), hdcSrc, 0, 0, SRCCOPY);
+            BitBlt(ps.hdc, 0, 0, g_renderingContext.getWindowWidth(), g_renderingContext.getWindowHeight(), hdcSrc, 0, 0, SRCCOPY);
             //StretchBlt(ps.hdc, 0, 0, g_renderingContext.getFrameWidth() * 2, g_renderingContext.getFrameHeight() * 2, hdcSrc, 0, 0, g_renderingContext.getFrameWidth(), g_renderingContext.getFrameHeight(), SRCCOPY);
             SelectObject(hdcSrc, hBmPrev);
             DeleteDC(hdcSrc);

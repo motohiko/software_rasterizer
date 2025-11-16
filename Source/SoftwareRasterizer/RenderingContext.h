@@ -4,11 +4,17 @@
 #include "Pipeline\VertexShaderStage.h"
 #include "Pipeline\RasterizeStage.h"
 #include "Pipeline\FragmentShaderStage.h"
-#include "Pipeline\InputAssemblyStageState.h"
-#include "Pipeline\VertexShaderStageState.h"
-#include "Pipeline\RasterizeStageState.h"
-#include "Pipeline\FragmentShaderStageState.h"
-#include "FrameBuffer.h"
+#include "Pipeline\OutputMergerStage.h"
+#include "State\RenderTarget.h"
+#include "State\InputLayout.h"
+#include "State\VertexBuffers.h"
+#include "State\IndexBuffer.h"
+#include "State\ConstantBuffer.h"
+#include "State\VertexShaderProgram.h"
+#include "State\RasterizerState.h"
+#include "State\Viewport.h"
+#include "State\FragmentShaderProgram.h"
+#include "State\DepthState.h"
 #include "Types.h"
 #include <cstdint>
 #include <memory>
@@ -22,29 +28,26 @@ namespace SoftwareRasterizer
 
         RenderingContext();
 
-        void setFrameSize(int width, int height);
-        int getFrameWidth() const;
-        int getFrameHeight() const;
+        void setWindowSize(int width, int height);
+        int getWindowWidth() const;
+        int getWindowHeight() const;
 
-        void setFrameColorBuffer(void* addr, size_t widthBytes);
-        void setFrameDepthBuffer(void* addr, size_t widthBytes);
+        void setRenderTargetColorBuffer(void* addr, int width, int height, size_t widthBytes);
+        void setRenderTargetDepthBuffer(void* addr, int width, int height, size_t widthBytes);
 
         void setClearColor(float r, float g, float b, float a);// glClearColor
         void setClearDepth(float depth);// glClearDepth
-        void clearFrameBuffer();// glClear
+        void clearRenderTarget();// glClear
 
-        void enableVertexAttribute(int index);
-        void disableVertexAttribute(int index);
-        void setVertexBuffer(int index, const void* buffer);
-        void setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride);
+        void enableVertexAttribute(int index);// glEnableVertexAttribArray
+        void disableVertexAttribute(int index);// glDisableVertexAttribArray
+        void setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride, const void* buffer);// glVertexAttribPointer
 
-        void setIndexBuffer(const uint16_t* indices, int indexNum);
-
-        void setPrimitiveTopologyType(PrimitiveTopologyType primitiveTopologyType);
+        void setIndexBuffer(const uint16_t* indices, int indexNum);// glBufferData
 
         void setUniformBlock(const void* uniformBlock);
 
-        void setVertexShaderProgram(VertexShaderFuncPtr vertexShaderMain);
+        void setVertexShaderProgram(VertexShaderFuncPtr vertexShaderMain);// glUseProgram
 
         void setViewport(int x, int y, int width, int height);// glViewport
         int getViewportWidth() const;
@@ -55,37 +58,63 @@ namespace SoftwareRasterizer
         void setFrontFaceType(FrontFaceType frontFacetype);// glFrontFace
         void setCullFaceType(CullFaceType cullFaceType);// glCullFace
 
-        void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);
+        void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);// glUseProgram
 
         void setDepthFunc(ComparisonType depthFunc);// glDepthFunc
 
-        void drawIndexed();
+        void drawIndexed(PrimitiveTopologyType primitiveTopologyType);
 
     private:
+
+        void clearRenderTargetColorBuffer();
+        void clearRenderTargetDepthBuffer();
 
         void outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum);
         void outputFragment(const Fragment* fragment);
 
-        bool depthTest(int x, int y, float depth);
+    private:
+
+        int _windowWidth = 0;
+        int _windowHeight = 0;
+
+        uint32_t _clearColor = 0;
+        float _clearDepth = 1.0f;
+
+        // VS / PS
+        ConstantBuffer _constantBuffer;
+
+        // IA
+        InputLayout _inputLayout;
+        VertexBuffers _vertexBuffers;
+        IndexBuffer _indexBuffer;
+
+        // VS
+        VertexShaderProgram _vertexShaderProgram;
+
+        // RS
+        RasterizerState _rasterizerState;
+        Viewport _viewport;
+
+        // PS
+        FragmentShaderProgram _fragmentShaderProgram;
+
+        // OM
+        RenderTarget _renderTarget;
+        DepthState _depthState;
 
     private:
 
-        FrameBuffer _frameBuffer;
-
-        InputAssemblyStageState _inputAssemblyStageState;
-        VertexShaderStageState _vertexShaderStageState;
-        RasterizeStageState _rasterizeStageState;
-        FragmentShaderStageState _fragmentShaderStageState;
-        ComparisonType _depthFunc = ComparisonType::kDefault;
-
-        InputAssemblyStage _inputAssemblyStage;
-        VertexShaderStage _vertexShaderStage;
-        RasterizeStage _rasterizeStage;
-        FragmentShaderStage _fragmentShaderStage;
+        InputAssemblyStage _inputAssemblyStage;     // IA
+        VertexShaderStage _vertexShaderStage;       // VS
+        RasterizeStage _rasterizeStage;             // RS
+        FragmentShaderStage _fragmentShaderStage;   // PS
+        OutputMergerStage _outputMergerStage;       // OM
 
         friend class InputAssemblyStage;
         friend class VertexShaderStage;
         friend class RasterizeStage;
         friend class FragmentShaderStage;
+        friend class OutputMergerStage;
+
     };
 }

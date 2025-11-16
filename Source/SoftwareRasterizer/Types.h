@@ -18,53 +18,6 @@ namespace SoftwareRasterizer
         kTriangleList,  // GL_TRIANGLES
     };
 
-    enum class SemanticsType
-    {
-        kNone,
-        kPosition,
-        kNormal,
-        kTexCoord,
-        kColor,
-    };
-
-    enum class ComponentType
-    {
-        kNone,
-        kFloat,         // GL_FLOAT
-        kUnsignedByte,  // GL_UNSIGNED_BYTE
-    };
-
-    enum class FrontFaceType
-    {
-        kNone,
-        kClockwise,         //GL_CW
-        kCounterClockwise,  // GL_CCW
-        kDefault = kCounterClockwise,
-    };
-
-    enum class CullFaceType
-    {
-        kNone,
-        kFront,         // GL_FRONT
-        kBack,          // GL_BACK
-        kFrontAndBack,  // GL_FRONT_AND_BACK
-        kDefault = kBack,
-    };
-
-    enum class ComparisonType
-    {
-        kNone,
-        kNever,         // GL_NEVER
-        kLess,          // GL_LESS
-        kEqual,         // GL_EQUAL
-        kLessEqual,     // GL_LEQUAL
-        kGreater,       // GL_GREATER
-        kNotEqual,      // GL_NOTEQUAL
-        kGreaterEqual,  // GL_GEQUAL
-        kAlways,        // GL_ALWAYS
-        kDefault = kLess,
-    };
-
     enum class PrimitiveType
     {
         kNone,
@@ -114,4 +67,5 @@ namespace SoftwareRasterizer
         Vector4 varyings[kMaxVaryings];
         int varyingNum;
     };
+
 }
