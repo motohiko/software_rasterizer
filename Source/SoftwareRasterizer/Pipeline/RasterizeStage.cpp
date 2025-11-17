@@ -34,6 +34,57 @@ namespace SoftwareRasterizer
         _clipRectMaxY = std::min(windowMaxY, viewportMaxY);
     }
 
+    // 正規化デバイス座標からウィンドウ座標へ変換
+    Vector2 RasterizeStage::transformWindow(const NdcVertex* ndcVertex) const
+    {
+        // 
+        // 参考 https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
+        // 
+
+        // note.
+        // 
+        // ウィンドウ座標系(xy)
+        // 
+        //     +y
+        //       |
+        //       |
+        //       +--- +x
+        //  (0,0)
+
+
+        //                   (x+width, y+height)
+        //       +----------+
+        //       |          |
+        //       |          |
+        //       |          |
+        //       +----------+  
+        //  (x,y)
+        float x = (float)_viewport->x;
+        float y = (float)_viewport->y;
+        float width = (float)_viewport->width;
+        float height = (float)_viewport->height;
+
+        return Vector2(
+            ((ndcVertex->ndcPosition.x + 1.0f) * (width / 2.0f)) + x,
+            ((ndcVertex->ndcPosition.y + 1.0f) * (height / 2.0f)) + y
+        );
+    }
+
+    // 正規化デバイス座標の z を深度範囲にマップ
+    float RasterizeStage::mapDepthRange(const NdcVertex* ndcVertex) const
+    {
+        //
+        // 参考 https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDepthRange.xhtml
+        //
+
+        // note.
+        // 
+        // 正規化座標は左手系（奥に+Z）
+        // 
+
+        float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
+        return std::lerp(_viewport->depthRangeNearVal, _viewport->depthRangeFarVal, t);
+    }
 
     void RasterizeStage::transformRasterVertex(const ShadedVertex* clippedPrimitiveVertex, const NdcVertex* ndcVertex, RasterVertex* rasterizationPoint) const
     {
@@ -47,49 +98,28 @@ namespace SoftwareRasterizer
         }
 #endif
 
-        // 正規化デバイス座標からウィンドウ座標へ変換（ビューポート変換）
+        //
+        // ビューポート変換
+        //
 
-        // note.
-        // 
-        // 参考 https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
-        // 
-        // ウィンドウ座標系(xy)
-        // 
-        //     +y
-        //       |
-        //       |
-        //       +--- +x
-        //  (0,0)
-        // 
-        // ウィンドウの大きさ
-        // 
-        //                   (ViewportWidth, ViewportHeight)
-        //       +----------+
-        //       |          |
-        //       |          |
-        //       |          |
-        //       +----------+  
-        //  (0,0)
-        // 
-        float halfWidth = (float)_viewport->width / 2.0f;
-        float halfHeight = (float)_viewport->height / 2.0f;
-        rasterizationPoint->wndPosition.x = ((ndcVertex->ndcPosition.x + 1.0f) * halfWidth) + (float)_viewport->x;
-        rasterizationPoint->wndPosition.y = ((ndcVertex->ndcPosition.y + 1.0f) * halfHeight) + (float)_viewport->y;
+        // 正規化デバイス座標からウィンドウ座標へ変換
+        rasterizationPoint->wndPosition = transformWindow(ndcVertex);
 
         // 正規化デバイス座標の z を深度範囲にマップ
-        float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
-        rasterizationPoint->depth = std::lerp(_rasterizerState->depthRangeNearVal, _rasterizerState->depthRangeFarVal, t);
+        rasterizationPoint->depth = mapDepthRange(ndcVertex);
 
-        // パースペクティブコレクト用に 1/W を保存
+        //  1/W を保存（パースペクティブコレクト）
         float w = clippedPrimitiveVertex->clipPosition.w;
         assert(w != 0.0f);
         rasterizationPoint->invW = 1.0f / w;
-  
-        //  パースペクティブコレクト用に補間変数を W で除算
+
+        //  補間変数も W で除算（パースペクティブコレクト）
         for (int i = 0; i < clippedPrimitiveVertex->varyingNum; i++)
         {
             rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
         }
+
+        // TODO:
         rasterizationPoint->varyingNum = clippedPrimitiveVertex->varyingNum;
     }
 

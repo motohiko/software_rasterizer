@@ -130,6 +130,7 @@
     <ClInclude Include="Source\Lib\Algorithm.h" />
     <ClInclude Include="Source\Lib\Matrix.h" />
     <ClInclude Include="Source\Lib\Vector.h" />
+    <ClInclude Include="Source\MainWindow.h" />
     <ClInclude Include="Source\MeshData.h" />
     <ClInclude Include="Source\PostIncludeWindows.h" />
     <ClInclude Include="Source\PreIncludeWindows.h" />

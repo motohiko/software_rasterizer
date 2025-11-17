@@ -58,6 +58,9 @@ namespace SoftwareRasterizer
             ndcVertex->ndcPosition = vertex->clipPosition.getXYZ() / vertex->clipPosition.w;
         }
 
+        Vector2 transformWindow(const NdcVertex* ndcVertex) const;
+        float mapDepthRange(const NdcVertex* ndcVertex) const;
+
         void transformRasterVertex(const ShadedVertex* clippedPrimitiveVertices, const NdcVertex* ndcVertex, RasterVertex* rasterizationPoint) const;
 
         static float edgeFunction(const Vector2& a, const Vector2& b, const Vector2& c)

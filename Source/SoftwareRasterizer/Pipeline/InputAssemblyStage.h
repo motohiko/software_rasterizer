@@ -5,6 +5,7 @@
 #include "..\State\IndexBuffer.h"
 #include "..\Types.h"
 #include <cstdint>
+#include <vector>
 
 namespace SoftwareRasterizer
 {
@@ -19,18 +20,6 @@ namespace SoftwareRasterizer
             uint16_t vertexIndices[3];
             int vertexNum;
         };
-
-    private:
-
-        const InputLayout* _inputLayout = nullptr;
-        const VertexBuffers* _vertexBuffers = nullptr;
-        const IndexBuffer* _indexBuffer = nullptr;
-        PrimitiveTopologyType _primitiveTopologyType = PrimitiveTopologyType::kNone;
-
-        PrimitiveType _primitiveType = PrimitiveType::kNone;
-        int _primitiveVertexNum = 0;
-
-        int _readVertexCount = 0;
 
     public:
 
@@ -47,6 +36,20 @@ namespace SoftwareRasterizer
         bool readPrimitive(Primitive* primitive);
 
         void readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
+
+    private:
+
+        const InputLayout* _inputLayout = nullptr;
+        const VertexBuffers* _vertexBuffers = nullptr;
+        const IndexBuffer* _indexBuffer = nullptr;
+        PrimitiveTopologyType _primitiveTopologyType = PrimitiveTopologyType::kNone;
+
+        PrimitiveType _primitiveType = PrimitiveType::kNone;
+        int _primitiveVertexNum = 0;
+
+        int _readVertexCount = 0;
+
+        std::vector<AttributeVertex> _cache;
 
     };
 }

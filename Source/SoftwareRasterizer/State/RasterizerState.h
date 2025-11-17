@@ -23,12 +23,10 @@ namespace SoftwareRasterizer
 
     struct RasterizerState
     {
-        //TODO: FillMode
-
         FrontFaceType frontFacetype = FrontFaceType::kDefault;
         CullFaceType cullFaceType = CullFaceType::kDefault;
 
-        float depthRangeNearVal = 0.0;
-        float depthRangeFarVal = 1.0f;
+        //TODO: FillMode
+
     };
 }

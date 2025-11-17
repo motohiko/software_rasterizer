@@ -10,6 +10,7 @@ namespace SoftwareRasterizer
 
     InputAssemblyStage::InputAssemblyStage()
     {
+        _cache.reserve(0xffff);
     }
 
     void InputAssemblyStage::prepareReadPrimitive()

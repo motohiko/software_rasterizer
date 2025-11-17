@@ -141,8 +141,8 @@ namespace SoftwareRasterizer
     void RenderingContext::setDepthRange(float nearVal, float farVal)
     {
         // RS
-        _rasterizerState.depthRangeNearVal = nearVal;
-        _rasterizerState.depthRangeFarVal = farVal;
+        _viewport.depthRangeNearVal = nearVal;
+        _viewport.depthRangeFarVal = farVal;
     }
 
     void RenderingContext::setFrontFaceType(FrontFaceType frontFacetype)
