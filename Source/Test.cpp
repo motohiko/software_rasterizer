@@ -80,7 +80,7 @@ namespace Test
 
         _renderingContext->clearRenderTarget();
 
-        // Ë‰es—ñ‚Æƒrƒ…[s—ñ‚Æ‚ğì¬
+        // å°„å½±è¡Œåˆ—ã¨ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ã¨ã‚’ä½œæˆ
         {
             int screenWidth = _renderingContext->getViewportWidth();
             int screenHeight = _renderingContext->getViewportHeight();
@@ -97,7 +97,7 @@ namespace Test
             uniformBlock.viewMatrix = MatrixUtility::CreateLookAt(eye, center, up);
         }
 
-        // ƒOƒŠƒbƒh‚ğ•`‰æ
+        // ã‚°ãƒªãƒƒãƒ‰ã‚’æç”»
         {
             const int gridSize = 9;
             float harfGridSize = gridSize / 2.0f;
@@ -130,7 +130,7 @@ namespace Test
             _renderingContext->disableVertexAttribute(1);
         }
 
-        // À•W²‚ğ•`‰æ
+        // åº§æ¨™è»¸ã‚’æç”»
         {
             const Vector3 xAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 1.0f,  0.0f,  0.0f } };
             const Vector4 xAxisColors[2] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } };
@@ -164,7 +164,7 @@ namespace Test
 
         }
 
-        // F•t‚«OŠpŒ`‚ğ•`‰æi’¸“_F‚ÍÔ—ÎÂ‚Ì‡A”½Œvü‚èj
+        // è‰²ä»˜ãä¸‰è§’å½¢ã‚’æç”»ï¼ˆé ‚ç‚¹è‰²ã¯èµ¤ç·‘é’ã®é †ã€åæ™‚è¨ˆå‘¨ã‚Šï¼‰
         {
             const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
             const Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
@@ -174,8 +174,8 @@ namespace Test
             _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), polygonPositions);
             _renderingContext->enableVertexAttribute(1);
             _renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), polygonColors);
-            _renderingContext->setVertexShaderProgram(LineVertexShaderMain);// —¬—p
-            _renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// —¬—p
+            _renderingContext->setVertexShaderProgram(LineVertexShaderMain);// æµç”¨
+            _renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// æµç”¨
 
             _renderingContext->setFrontFaceType(FrontFaceType::kCounterClockwise);
             _renderingContext->setCullFaceType(CullFaceType::kBack);
@@ -188,7 +188,7 @@ namespace Test
             _renderingContext->setCullFaceType(CullFaceType::kDefault);
         }
 
-        // ƒ‚ƒfƒ‹i‚PƒƒbƒVƒ…j‚ğ•`‰æ
+        // ãƒ¢ãƒ‡ãƒ«ï¼ˆï¼‘ãƒ¡ãƒƒã‚·ãƒ¥ï¼‰ã‚’æç”»
         {
             uniformBlock.modelMatrix = MatrixUtility::CreateRotationX(90.0f * 3.14f / 180.0f);
 

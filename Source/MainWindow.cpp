@@ -119,9 +119,9 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             _lastMousePosX = currentMousePos.x;
             _lastMousePosY = currentMousePos.y;
 
-            _camera.angleX += dy * 0.01f; // Y²‰ñ“]
-            _camera.angleY += dx * 0.01f; // X²‰ñ“]
-            InvalidateRect(_hwnd, NULL, TRUE); // Ä•`‰æ‚ğ—v‹
+            _camera.angleX += dy * 0.01f; // Yè»¸å›è»¢
+            _camera.angleY += dx * 0.01f; // Xè»¸å›è»¢
+            InvalidateRect(_hwnd, NULL, TRUE); // å†æç”»ã‚’è¦æ±‚
         }
         return 0;
 
@@ -163,7 +163,7 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
         RECT clientRect = {};
-        GetClientRect(_hwnd, &clientRect);// left ‚Æ top ‚Íí‚É 0
+        GetClientRect(_hwnd, &clientRect);// left ã¨ top ã¯å¸¸ã« 0
 
         int frameWidth = clientRect.right;
         int frameHeight = clientRect.bottom;
@@ -195,7 +195,7 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, frameWidth, frameHeight, sizeof(float) * dibSection.dsBm.bmWidth);
         _renderingContext.setViewport(0, 0, frameWidth, frameHeight);
 
-        // Ä•`‰æ‚ğ—v‹
+        // å†æç”»ã‚’è¦æ±‚
         InvalidateRect(_hwnd, NULL, TRUE);
         return 0;
     }
@@ -212,7 +212,7 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
         _camera.zoom += zDelta * -0.001f;
         _camera.zoom = std::clamp(_camera.zoom, 0.001f, FLT_MAX);
-        InvalidateRect(_hwnd, NULL, TRUE); // Ä•`‰æ‚ğ—v‹
+        InvalidateRect(_hwnd, NULL, TRUE); // å†æç”»ã‚’è¦æ±‚
         return 0;
     }
 
@@ -238,7 +238,7 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             _camera.focusPositionY -= 0.1f;
             break;
         }
-        // Ä•`‰æ‚ğ—v‹
+        // å†æç”»ã‚’è¦æ±‚
         InvalidateRect(_hwnd, NULL, TRUE);
         return 0;
 
@@ -247,10 +247,10 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps = {};
         BeginPaint(_hwnd, &ps);
 
-        // DIB‚ÉƒV[ƒ“‚ğƒŒƒ“ƒ_ƒŠƒ“ƒO
+        // DIBã«ã‚·ãƒ¼ãƒ³ã‚’ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°
         _scene.RenderScene(&_renderingContext, &_camera);
 
-        // ƒŒƒ“ƒ_ƒŠƒ“ƒOŒ‹‰Ê‚ğƒEƒBƒ“ƒhƒE‚Ö“]‘—
+        // ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°çµæœã‚’ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¸è»¢é€
         HDC hdcSrc = CreateCompatibleDC(ps.hdc);
         HGDIOBJ hBmPrev = SelectObject(hdcSrc, _hDibBm);
         BitBlt(ps.hdc, 0, 0, _renderingContext.getWindowWidth(), _renderingContext.getWindowHeight(), hdcSrc, 0, 0, SRCCOPY);

@@ -8,17 +8,17 @@ namespace Test
 
     struct TestCamera
     {
-        float fovY = 60.0f * (3.14159265359f / 180.0f); // ã‰º‚Ì‹–ìŠp
+        float fovY = 60.0f * (3.14159265359f / 180.0f); // ä¸Šä¸‹ã®è¦–é‡è§’
 
-        float nearZ = 0.3f; // ƒjƒAƒNƒŠƒbƒv–Ê‚Ü‚Å‚Ì‹——£
-        float farZ = 1000.0f; // ƒtƒ@[ƒNƒŠƒbƒv–Ê‚Ü‚Å‚Ì‹——£
+        float nearZ = 0.3f; // ãƒ‹ã‚¢ã‚¯ãƒªãƒƒãƒ—é¢ã¾ã§ã®è·é›¢
+        float farZ = 1000.0f; // ãƒ•ã‚¡ãƒ¼ã‚¯ãƒªãƒƒãƒ—é¢ã¾ã§ã®è·é›¢
 
-        float focusPositionX = 0.0f;// ’‹“_
+        float focusPositionX = 0.0f;// æ³¨è¦–ç‚¹
         float focusPositionY = 0.5f;
         float focusPositionZ = 0.0f;
 
-        float angleX = 0.0f; // X²‰ñ“]Šp“x
-        float angleY = 0.0f; // Y²‰ñ“]Šp“x
+        float angleX = 0.0f; // Xè»¸å›è»¢è§’åº¦
+        float angleY = 0.0f; // Yè»¸å›è»¢è§’åº¦
 
         float zoom = 3.0f;
     };

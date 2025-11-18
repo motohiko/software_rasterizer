@@ -32,7 +32,7 @@ private:
 
     HWND _hwnd = NULL;
 
-    HBITMAP _hDibBm = NULL;         // カラーバッファ
+    HBITMAP _hDibBm = NULL;         // 繧ｫ繝ｩ繝ｼ繝舌ャ繝輔ぃ
     float* _depthBuffer = nullptr;  // 
 
     RenderingContext _renderingContext;
