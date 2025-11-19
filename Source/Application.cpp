@@ -2,25 +2,27 @@
 
 Application* application;
 
-Application::Application()
+Application::Application() :
+    _hInstance(NULL),
+    _mainWindow(nullptr)
 {
     application = this;
 }
 
 Application::~Application()
 {
+    delete _mainWindow;
     application = nullptr;
 }
 
-void Application::initialize(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+void Application::initialize(HINSTANCE hInstance)
 {
     _hInstance = hInstance;
-    _nShowCmd = nShowCmd;
 }
 
-bool Application::createMainWindows()
+bool Application::createMainWindows(int nShowCmd)
 {
-    _mainWindow = std::make_unique<MainWindow>();
+    _mainWindow = new MainWindow();
 
     bool created = _mainWindow->create(_hInstance);
     if (!created)
@@ -28,7 +30,7 @@ bool Application::createMainWindows()
         return false;
     }
 
-    _mainWindow->show(_nShowCmd);
+    _mainWindow->show(nShowCmd);
 
     return true;
 }

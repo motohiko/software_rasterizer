@@ -5,6 +5,7 @@
 
 #include "PreIncludeWindows.h"
 #include <Windows.h>
+#include <Windowsx.h>
 #include "PostIncludeWindows.h"
 
 using namespace Test;
@@ -24,7 +25,7 @@ public:
 
 private:
 
-    static LRESULT CALLBACK RedirectWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     LRESULT handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 

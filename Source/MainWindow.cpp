@@ -34,7 +34,7 @@ bool MainWindow::create(HINSTANCE hInstance)
     WNDCLASSEX wcex = {};
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = (WNDPROC)RedirectWindowProc;
+    wcex.lpfnWndProc = (WNDPROC)WindowProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
@@ -67,30 +67,43 @@ void MainWindow::show(int nShowCmd)
     ShowWindow(_hwnd, nShowCmd);
 }
 
-LRESULT CALLBACK MainWindow::RedirectWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK MainWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    MainWindow* self;
+    MainWindow* self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    if (self == nullptr)
+    {
+        if (uMsg == WM_NCCREATE)
+        {
+            LPCREATESTRUCT cs = (LPCREATESTRUCT)lParam;
+            self = (MainWindow*)(cs->lpCreateParams);
+            self->_hwnd = hwnd;
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)self);
+        }
+        else
+        {   
+            // 想定外のメッセージ
+            if (uMsg == WM_GETMINMAXINFO)
+            {
+                // WM_NCCREATE 前の WM_GETMINMAXINFO
+                OutputDebugString(TEXT("unexpected message. (WM_GETMINMAXINFO)\n"));
+            }
+            else
+            {
+                OutputDebugString(TEXT("unexpected message.\n"));
+            }
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        }
+    }
 
-    if (uMsg == WM_NCCREATE)
+    LRESULT result = self->handleMessage(uMsg, wParam, lParam);
+
+    if (uMsg == WM_NCDESTROY)
     {
-        LPCREATESTRUCT cs = (LPCREATESTRUCT)lParam;
-        self = (MainWindow*)(cs->lpCreateParams);
-        self->_hwnd = hwnd;
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)self);
-    }
-    else
-    {
-        self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+        self->_hwnd = NULL;
     }
 
-    if (self != nullptr)
-    {
-        return self->handleMessage(uMsg, wParam, lParam);
-    }
-    else
-    {
-        return DefWindowProc(hwnd, uMsg, wParam, lParam);
-    }
+    return result;
 }
 
 LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -119,9 +132,11 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             _lastMousePosX = currentMousePos.x;
             _lastMousePosY = currentMousePos.y;
 
-            _camera.angleX += dy * 0.01f; // Y軸回転
-            _camera.angleY += dx * 0.01f; // X軸回転
-            InvalidateRect(_hwnd, NULL, TRUE); // 再描画を要求
+            _camera.angleX += dy * 0.01f;
+            _camera.angleY += dx * 0.01f;
+
+            // 再描画を要求
+            InvalidateRect(_hwnd, NULL, TRUE);
         }
         return 0;
 
@@ -212,7 +227,8 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
         _camera.zoom += zDelta * -0.001f;
         _camera.zoom = std::clamp(_camera.zoom, 0.001f, FLT_MAX);
-        InvalidateRect(_hwnd, NULL, TRUE); // 再描画を要求
+        // 再描画を要求
+        InvalidateRect(_hwnd, NULL, TRUE);
         return 0;
     }
 
@@ -247,7 +263,7 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps = {};
         BeginPaint(_hwnd, &ps);
 
-        // DIBにシーンをレンダリング
+        // DIBにレンダリング
         _scene.RenderScene(&_renderingContext, &_camera);
 
         // レンダリング結果をウィンドウへ転送
