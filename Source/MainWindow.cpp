@@ -69,41 +69,50 @@ void MainWindow::show(int nShowCmd)
 
 LRESULT CALLBACK MainWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    MainWindow* self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    if (self == nullptr)
+    MainWindow* self;
+
+    switch (uMsg)
     {
-        if (uMsg == WM_NCCREATE)
-        {
-            LPCREATESTRUCT cs = (LPCREATESTRUCT)lParam;
-            self = (MainWindow*)(cs->lpCreateParams);
-            self->_hwnd = hwnd;
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)self);
-        }
-        else
-        {   
-            // 想定外のメッセージ
-            if (uMsg == WM_GETMINMAXINFO)
-            {
-                // WM_NCCREATE 前の WM_GETMINMAXINFO
-                OutputDebugString(TEXT("unexpected message. (WM_GETMINMAXINFO)\n"));
-            }
-            else
-            {
-                OutputDebugString(TEXT("unexpected message.\n"));
-            }
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
-        }
+
+    case WM_NCCREATE:
+
+    {
+        LPCREATESTRUCT cs = (LPCREATESTRUCT)lParam;
+        self = (MainWindow*)(cs->lpCreateParams);
+        self->_hwnd = hwnd;
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)self);
+    
+        return self->handleMessage(uMsg, wParam, lParam);
     }
 
-    LRESULT result = self->handleMessage(uMsg, wParam, lParam);
+    case WM_NCDESTROY:
 
-    if (uMsg == WM_NCDESTROY)
     {
+        self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+        LRESULT result = self->handleMessage(uMsg, wParam, lParam);
+
         SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
         self->_hwnd = NULL;
+
+        return result;
     }
 
-    return result;
+    default:
+
+        self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        if (self != nullptr)
+        {
+            return self->handleMessage(uMsg, wParam, lParam);
+        }
+        else
+        {
+            // WM_NCCREATE 前の WM_GETMINMAXINFO など
+            OutputDebugString(TEXT("GWLP_USERDATA is null.\n"));
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        }
+
+    }
 }
 
 LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)

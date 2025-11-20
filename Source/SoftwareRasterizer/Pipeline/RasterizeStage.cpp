@@ -15,21 +15,15 @@ namespace SoftwareRasterizer
     {
     }
 
-    void RasterizeStage::setWindowSize(int width, int height)
-    {
-        _windowWidth = width;
-        _windowHeight = height;
-    }
-
     void RasterizeStage::prepareRasterize()
     {
-        int windowMaxX = _windowWidth - 1;
-        int windowMaxY = _windowHeight - 1;
-        int viewportMaxX = _viewport->x + _viewport->width - 1;
-        int viewportMaxY = _viewport->y + _viewport->height - 1;
+        int windowMaxX = _windowSize->windowWidth - 1;
+        int windowMaxY = _windowSize->windowHeight - 1;
+        int viewportMaxX = _viewport->viewportX + _viewport->viewportWidth - 1;
+        int viewportMaxY = _viewport->viewportY + _viewport->viewportHeight - 1;
 
-        _clipRectMinX = std::max(0, _viewport->x);
-        _clipRectMinY = std::max(0, _viewport->y);
+        _clipRectMinX = std::max(0, _viewport->viewportX);
+        _clipRectMinY = std::max(0, _viewport->viewportY);
         _clipRectMaxX = std::min(windowMaxX, viewportMaxX);
         _clipRectMaxY = std::min(windowMaxY, viewportMaxY);
     }
@@ -59,10 +53,10 @@ namespace SoftwareRasterizer
         //       |          |
         //       +----------+  
         //  (x,y)
-        float x = (float)_viewport->x;
-        float y = (float)_viewport->y;
-        float width = (float)_viewport->width;
-        float height = (float)_viewport->height;
+        float x = (float)_viewport->viewportX;
+        float y = (float)_viewport->viewportY;
+        float width = (float)_viewport->viewportWidth;
+        float height = (float)_viewport->viewportHeight;
 
         return Vector2(
             ((ndcVertex->ndcPosition.x + 1.0f) * (width / 2.0f)) + x,
@@ -83,7 +77,7 @@ namespace SoftwareRasterizer
         // 
 
         float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
-        return std::lerp(_viewport->depthRangeNearVal, _viewport->depthRangeFarVal, t);
+        return std::lerp(_depthRange->depthRangeNearVal, _depthRange->depthRangeFarVal, t);
     }
 
     void RasterizeStage::transformRasterVertex(const ShadedVertex* clippedPrimitiveVertex, const NdcVertex* ndcVertex, RasterVertex* rasterizationPoint) const

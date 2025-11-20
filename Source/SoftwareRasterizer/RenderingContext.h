@@ -5,6 +5,7 @@
 #include "Pipeline\RasterizeStage.h"
 #include "Pipeline\FragmentShaderStage.h"
 #include "Pipeline\OutputMergerStage.h"
+#include "State\WindowSize.h"
 #include "State\RenderTarget.h"
 #include "State\InputLayout.h"
 #include "State\VertexBuffers.h"
@@ -13,6 +14,7 @@
 #include "State\VertexShaderProgram.h"
 #include "State\RasterizerState.h"
 #include "State\Viewport.h"
+#include "State\DepthRange.h"
 #include "State\FragmentShaderProgram.h"
 #include "State\DepthState.h"
 #include "Types.h"
@@ -74,8 +76,7 @@ namespace SoftwareRasterizer
 
     private:
 
-        int _windowWidth = 0;
-        int _windowHeight = 0;
+        WindowSize _windowSize;
 
         Vector4 _clearColor = Vector4::kZero;
         float _clearDepth = 1.0f;
@@ -94,6 +95,7 @@ namespace SoftwareRasterizer
         // RS
         RasterizerState _rasterizerState;
         Viewport _viewport;
+        DepthRange _depthRange;
 
         // PS
         FragmentShaderProgram _fragmentShaderProgram;

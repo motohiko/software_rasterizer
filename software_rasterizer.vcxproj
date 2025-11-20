@@ -145,6 +145,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\ConstantBuffer.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\State\DepthRange.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\DepthState.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\FragmentShaderProgram.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\IndexBuffer.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\RenderTarget.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\Viewport.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\VertexShaderProgram.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\State\WindowSize.h" />
     <ClInclude Include="Source\SoftwareRasterizer\TextureUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Types.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Utility.h" />

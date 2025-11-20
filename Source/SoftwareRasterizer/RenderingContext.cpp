@@ -18,18 +18,18 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setWindowSize(int width, int height)
     {
-        _windowWidth = width;
-        _windowHeight = height;
+        _windowSize.windowWidth = width;
+        _windowSize.windowHeight = height;
     }
 
     int RenderingContext::getWindowWidth() const
     {
-        return _windowWidth;
+        return _windowSize.windowWidth;
     };
 
     int RenderingContext::getWindowHeight() const
     {
-        return _windowHeight;
+        return _windowSize.windowHeight;
     };
 
     void RenderingContext::setRenderTargetColorBuffer(void* addr, int width, int height, size_t widthBytes)
@@ -122,27 +122,27 @@ namespace SoftwareRasterizer
     void RenderingContext::setViewport(int x, int y, int width, int height)
     {
         // RS
-        _viewport.x = x;
-        _viewport.y = y;
-        _viewport.width = width;
-        _viewport.height = height;
+        _viewport.viewportX = x;
+        _viewport.viewportY = y;
+        _viewport.viewportWidth = width;
+        _viewport.viewportHeight = height;
     }
 
     int RenderingContext::getViewportWidth() const
     {
-        return _viewport.width;
+        return _viewport.viewportWidth;
     }
 
     int RenderingContext::getViewportHeight() const
     {
-        return _viewport.height;
+        return _viewport.viewportHeight;
     }
 
     void RenderingContext::setDepthRange(float nearVal, float farVal)
     {
         // RS
-        _viewport.depthRangeNearVal = nearVal;
-        _viewport.depthRangeFarVal = farVal;
+        _depthRange.depthRangeNearVal = nearVal;
+        _depthRange.depthRangeFarVal = farVal;
     }
 
     void RenderingContext::setFrontFaceType(FrontFaceType frontFacetype)
@@ -182,9 +182,10 @@ namespace SoftwareRasterizer
         _vertexShaderStage.input(&_vertexShaderProgram);
 
         // RS I/O
-        _rasterizeStage.setWindowSize(_windowWidth, _windowHeight);
+        _rasterizeStage.input(&_windowSize);
         _rasterizeStage.input(&_rasterizerState);
         _rasterizeStage.input(&_viewport);
+        _rasterizeStage.input(&_depthRange);
         _rasterizeStage.ouput(this);
 
         // PS I/O

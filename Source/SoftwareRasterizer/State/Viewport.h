@@ -6,12 +6,9 @@ namespace SoftwareRasterizer
 {
     struct Viewport
     {
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
-
-        float depthRangeNearVal = 0.0f;
-        float depthRangeFarVal = 1.0f;
+        int viewportX = 0;
+        int viewportY = 0;
+        int viewportWidth = 0;
+        int viewportHeight = 0;
     };
 }

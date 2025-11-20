@@ -129,6 +129,12 @@
     <ClInclude Include="Source\Test.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\State\DepthRange.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\State\WindowSize.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MeshData.cpp">

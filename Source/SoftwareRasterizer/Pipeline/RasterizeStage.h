@@ -1,7 +1,9 @@
 #pragma once
 
+#include "..\State\WindowSize.h"
 #include "..\State\RasterizerState.h"
 #include "..\State\Viewport.h"
+#include "..\State\DepthRange.h"
 #include "..\Types.h"
 #include "..\..\Lib\\Vector.h"
 
@@ -19,8 +21,10 @@ namespace SoftwareRasterizer
 
     private:
 
+        const WindowSize* _windowSize = nullptr;
         const RasterizerState* _rasterizerState = nullptr;
         const Viewport* _viewport = nullptr;
+        const DepthRange* _depthRange = nullptr;
 
         class RenderingContext* _renderingContext = nullptr;
 
@@ -40,11 +44,11 @@ namespace SoftwareRasterizer
 
         RasterizeStage();
 
-        void setWindowSize(int width, int height);
-
+        void input(const WindowSize* windowSize) { _windowSize = windowSize; }
         void input(const RasterizerState* rasterizerState) { _rasterizerState = rasterizerState; }
         void input(const Viewport* viewport) { _viewport = viewport; }
-
+        void input(const DepthRange* depthRange) { _depthRange = depthRange; }
+    
         void ouput(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
 
         void prepareRasterize();
