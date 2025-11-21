@@ -1,20 +1,10 @@
 ﻿#pragma once
 
+#include "State\Texture2D.h"
 #include "Types.h"
-#include "..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {
-    struct Texture2D
-    {
-        const void* addr;
-        int width;
-        int height;
-        int widthBytes;
-
-        //internalformat = 4
-        //format = GL_RGBA
-    };
 
     struct Sampler2D
     {
@@ -26,7 +16,8 @@ namespace SoftwareRasterizer
 
     public:
 
-        static Vector4 texture2D(const Sampler2D* sampler, const Vector2& uv);// texture2D
+        static Vector4 texture2d(const Sampler2D* sampler, const Vector2& uv);// texture2D
+
     };
 
 }

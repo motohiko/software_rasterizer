@@ -5,9 +5,8 @@
 #include "Pipeline\PrimitiveAssembly.h"
 #include "Pipeline\RasterizeStage.h"
 #include "Pipeline\FragmentShaderStage.h"
-#include "..\Lib\Algorithm.h"
+#include "Pipeline\TextureOperations.h" 
 #include <iterator>// std::size
-#include <algorithm>// fill
 #include <cassert>
 
 namespace SoftwareRasterizer
@@ -35,6 +34,10 @@ namespace SoftwareRasterizer
     void RenderingContext::setRenderTargetColorBuffer(void* addr, int width, int height, size_t widthBytes)
     {
         // OM
+        //assert(nullptr != addr);
+        //assert(0 <= width);
+        //assert(0 <= height);
+        //assert(width <= widthBytes);
         _renderTarget.colorBuffer.addr = addr;
         _renderTarget.colorBuffer.width = width;
         _renderTarget.colorBuffer.height = height;
@@ -44,6 +47,10 @@ namespace SoftwareRasterizer
     void RenderingContext::setRenderTargetDepthBuffer(void* addr, int width, int height, size_t widthBytes)
     {
         // OM
+        //assert(nullptr != addr);
+        //assert(0 <= width);
+        //assert(0 <= height);
+        //assert(width <= widthBytes);
         _renderTarget.depthBuffer.addr = addr;
         _renderTarget.depthBuffer.width = width;
         _renderTarget.depthBuffer.height = height;
@@ -193,9 +200,9 @@ namespace SoftwareRasterizer
         _fragmentShaderStage.input(&_fragmentShaderProgram);
 
         // OM I/O
-        _outputMergerStage.input(&_renderTarget);
         _outputMergerStage.input(&_depthState);
-        _outputMergerStage.ouput(this);
+        _outputMergerStage.input(&_depthRange);
+        _outputMergerStage.ouput(&_renderTarget);
 
 
         _inputAssemblyStage.prepareReadPrimitive();
@@ -222,56 +229,12 @@ namespace SoftwareRasterizer
 
     void RenderingContext::clearRenderTargetColorBuffer()
     {
-        assert(nullptr != _renderTarget.colorBuffer.addr);
-        assert(0 <= _renderTarget.colorBuffer.width);
-        assert(0 <= _renderTarget.colorBuffer.height);
-        assert(_renderTarget.colorBuffer.width <= _renderTarget.colorBuffer.widthBytes);
-
-        float r = _clearColor.x;
-        float g = _clearColor.y;
-        float b = _clearColor.z;
-        float a = _clearColor.w;
-        uint32_t color = (Lib::DenormalizeByte(a) << 24) | (Lib::DenormalizeByte(r) << 16) | (Lib::DenormalizeByte(g) << 8) | Lib::DenormalizeByte(b);
-
-        // 
-        uint32_t* first = (uint32_t*)_renderTarget.colorBuffer.addr;
-        uint32_t* last = ((uint32_t*)_renderTarget.colorBuffer.addr) + _renderTarget.colorBuffer.width;
-        std::fill(first, last, color);
-
-        // 
-        uintptr_t addr = (uintptr_t)(_renderTarget.colorBuffer.addr);
-        size_t height = _renderTarget.colorBuffer.height;
-        size_t widthBytes = _renderTarget.colorBuffer.widthBytes;
-        for (int y = 1; y < height; y++)
-        {
-            uintptr_t src = addr;
-            uintptr_t dst = addr + (widthBytes * y);
-            std::memcpy((void*)dst, (const void*)src, widthBytes);
-        }
+        TextureOperations::fillColor(&(_renderTarget.colorBuffer), _clearColor);
     }
 
     void RenderingContext::clearRenderTargetDepthBuffer()
     {
-        assert(nullptr != _renderTarget.depthBuffer.addr);
-        assert(0 <= _renderTarget.depthBuffer.width);
-        assert(0 <= _renderTarget.depthBuffer.height);
-        assert(_renderTarget.depthBuffer.width <= _renderTarget.depthBuffer.widthBytes);
-
-        // 
-        float* first = (float*)_renderTarget.depthBuffer.addr;
-        float* last = ((float*)_renderTarget.depthBuffer.addr) + (_renderTarget.depthBuffer.width);
-        std::fill(first, last, _clearDepth);
-
-        // 
-        uintptr_t addr = (uintptr_t)(_renderTarget.depthBuffer.addr);
-        size_t height = _renderTarget.depthBuffer.height;
-        size_t widthBytes = _renderTarget.depthBuffer.widthBytes;
-        for (int y = 1; y < height; y++)
-        {
-            uintptr_t src = addr;
-            uintptr_t dst = addr + (widthBytes * y);
-            std::memcpy((void*)dst, (const void*)src, widthBytes);
-        }
+        TextureOperations::fillDepth(&(_renderTarget.depthBuffer), _clearDepth);
     }
 
     void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum)

@@ -12,4 +12,5 @@ namespace Lib
     {
         return (uint8_t)(255.0f * std::clamp(val, 0.0f, 1.0f));
     }
+
 }

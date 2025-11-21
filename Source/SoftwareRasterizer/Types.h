@@ -68,4 +68,30 @@ namespace SoftwareRasterizer
         int varyingNum;
     };
 
+
+    union Depth24Stencil8
+    {
+        uint32_t value;
+
+        uint32_t getDepth() const
+        {
+            return value & 0x00FFFFFF;
+        }
+
+        void setDepth(uint32_t depth)
+        {
+            value = (value & 0xFF000000) | (depth & 0x00FFFFFF);
+        }
+
+        uint8_t getStencil() const
+        {
+            return (uint8_t)((value >> 24) & 0xFF);
+        }
+
+        void setStencil(uint8_t stencil) 
+        {
+            value = (value & 0x00FFFFFF) | ((uint32_t)(stencil) << 24);
+        }
+    };
+
 }

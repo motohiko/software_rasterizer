@@ -135,6 +135,12 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\WindowSize.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\State\Texture2D.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MeshData.cpp">
@@ -190,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="Source\MainWindow.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -27,8 +27,9 @@
 //
 
 #include "OutputMergerStage.h"
-#include "..\RenderingContext.h"
-#include "..\..\Lib\Algorithm.h"
+#include "TextureOperations.h" 
+#include <algorithm>// clamp
+#include <cmath>// lerp
 
 namespace SoftwareRasterizer
 {
@@ -38,9 +39,11 @@ namespace SoftwareRasterizer
 
     void OutputMergerStage::execute(int x, int y, const Vector4& color, float depth)
     {
+        // x, y はウィンドウ座標
+
         if (_depthState->depthEnable)
         {
-            float storedDepth = readDepth(x, y);
+            float storedDepth = fetchTexelDepth(x, y);
             bool passed = depthTest(storedDepth, depth);
             if (!passed)
             {
@@ -48,7 +51,27 @@ namespace SoftwareRasterizer
             }
         }
 
-        writePixel(x, y, color, depth);
+
+        // color blend - add
+        //r += (*dst >> 16) & 0xff;
+        //g += (*dst >> 8) & 0xff;
+        //b += (*dst >> 0) & 0xff;
+        //r = std::min(r, 0xffu);
+        //g = std::min(g, 0xffu);
+        //b = std::min(b, 0xffu);
+
+        storeTexelColor(x, y, color);
+        storeTexelDepth(x, y, depth);
+    }
+
+    float OutputMergerStage::fetchTexelDepth(int x, int y) const
+    {
+        // DepthRange の範囲にマップ
+        float a = _depthRange->depthRangeNearVal;
+        float b = _depthRange->depthRangeFarVal;
+        float t = TextureOperations::fetchTexelDepth(&(_renderTarget->depthBuffer), x, y);
+        t = std::clamp(t, 0.0f, 1.0f);
+        return std::lerp(a, b, t);
     }
 
     bool OutputMergerStage::depthTest(float storedDepth, float depth)
@@ -88,51 +111,19 @@ namespace SoftwareRasterizer
         return passed;
     }
 
-    float OutputMergerStage::readDepth(int x, int y) const
+    void OutputMergerStage::storeTexelColor(int x, int y, const Vector4& color)
     {
-        // x, y はウィンドウ相対座標
-
-        if (0 <= x && x < _renderTarget->depthBuffer.width || 0 <= y || y < _renderTarget->depthBuffer.height)
-        {
-            size_t depthOffset = (_renderTarget->depthBuffer.widthBytes * y) + (sizeof(float) * x);
-            const float* depthSrc = (float*)(((uintptr_t)_renderTarget->depthBuffer.addr) + depthOffset);
-            return *depthSrc;
-        }
-        else
-        {
-            return 0.0f;
-        }
+        TextureOperations::storeTexelColor(&(_renderTarget->colorBuffer), x, y, color);
     }
 
-    void OutputMergerStage::writePixel(int x, int y, const Vector4& color, float depth)
+    void OutputMergerStage::storeTexelDepth(int x, int y, float depth)
     {
-        // x, y はウィンドウ座標
-
-        if (0 <= x && x < _renderTarget->colorBuffer.width || 0 <= y || y < _renderTarget->colorBuffer.height)
-        {
-            // DIBも左下が(0,0)なので上下反転は不要
-            size_t colorOffset = (_renderTarget->colorBuffer.widthBytes * y) + (sizeof(uint32_t) * x);
-            uint32_t* colorDst = (uint32_t*)(((uintptr_t)_renderTarget->colorBuffer.addr) + colorOffset);
-            uint32_t r = Lib::DenormalizeByte(color.x);
-            uint32_t g = Lib::DenormalizeByte(color.y);
-            uint32_t b = Lib::DenormalizeByte(color.z);
-
-            //r += (*colorDst >> 16) & 0xff;
-            //g += (*colorDst >> 8) & 0xff;
-            //b += (*colorDst >> 0) & 0xff;
-            //r = std::min(r, 0xffu);
-            //g = std::min(g, 0xffu);
-            //b = std::min(b, 0xffu);
-
-            *colorDst = (r << 16) | (g << 8) | (b);// BI_RGB
-        }
-
-        if (0 <= x && x < _renderTarget->depthBuffer.width || 0 <= y || y < _renderTarget->depthBuffer.height)
-        {
-            size_t depthOffset = (_renderTarget->depthBuffer.widthBytes * y) + (sizeof(float) * x);
-            float* depthDst = (float*)(((uintptr_t)_renderTarget->depthBuffer.addr) + (_renderTarget->depthBuffer.widthBytes * y) + (sizeof(float) * x));
-            *depthDst = depth;
-        }
+        // [0,1] の範囲にマップ
+        float a = _depthRange->depthRangeNearVal;
+        float b = _depthRange->depthRangeFarVal;
+        float t = (depth - a) / (b - a);// 逆lerp
+        t = std::clamp(t, 0.0f, 1.0f);
+        TextureOperations::storeTexelDepth(&(_renderTarget->depthBuffer), x,y, t);
     }
 
 }

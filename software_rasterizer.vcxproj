@@ -142,6 +142,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\OutputMergerStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\ConstantBuffer.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\DepthState.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\FragmentShaderProgram.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\IndexBuffer.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\State\Texture2D.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\VertexBuffers.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\InputLayout.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\RasterizerState.h" />
@@ -175,6 +177,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\OutputMergerStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\TextureUtility.cpp" />

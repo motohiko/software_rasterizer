@@ -34,7 +34,7 @@ private:
     HWND _hwnd = NULL;
 
     HBITMAP _hDibBm = NULL;         // カラーバッファ
-    float* _depthBuffer = nullptr;  // 
+    void* _depthBuffer = nullptr;  // 
 
     RenderingContext _renderingContext;
 

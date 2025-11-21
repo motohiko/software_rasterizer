@@ -212,11 +212,12 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             GetObject(_hDibBm, sizeof(DIBSECTION), &dibSection);
         }
 
-        _depthBuffer = (float*)malloc(sizeof(float) * dibSection.dsBm.bmWidth * dibSection.dsBm.bmHeight);
+        size_t depthByteCount = 4;// TODO: rename
+        _depthBuffer = malloc(depthByteCount * frameWidth * frameHeight);
 
         _renderingContext.setWindowSize(frameWidth, frameHeight);
         _renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, frameWidth, frameHeight, dibSection.dsBm.bmWidthBytes);
-        _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, frameWidth, frameHeight, sizeof(float) * dibSection.dsBm.bmWidth);
+        _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, frameWidth, frameHeight, depthByteCount * dibSection.dsBm.bmWidth);
         _renderingContext.setViewport(0, 0, frameWidth, frameHeight);
 
         // 再描画を要求

@@ -69,7 +69,7 @@ namespace Test
         const Vector2 uv = input->varyings[0].getXY();
         const Vector4& normal = input->varyings[1];
 
-        output->fragColor = TextureUtility::texture2D(uniformBlock->meshTexture, uv);
+        output->fragColor = TextureUtility::texture2d(uniformBlock->meshTexture, uv);
     }
 
     void ModelViewer::RenderScene(RenderingContext* _renderingContext, const TestCamera* camera)
