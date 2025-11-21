@@ -6,6 +6,28 @@
 
 namespace SoftwareRasterizer
 {
+    struct R8G8B8A8
+    {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+    };
+
+    struct B8G8R8A8// = DIB BI_RGB
+    {
+        uint8_t b;
+        uint8_t g;
+        uint8_t r;
+        uint8_t a;
+    };
+
+    struct D24S8
+    {
+        uint32_t depth : 24;
+        uint32_t stencil : 8;
+    };
+
     void TextureOperations::validate(const Texture2D* texture)
     {
         assert(nullptr != texture->addr);
@@ -14,72 +36,78 @@ namespace SoftwareRasterizer
         assert(texture->width <= texture->widthBytes);
     }
 
-    void TextureOperations::fillColor(Texture2D* texture, const Vector4& clearColor)
+    void TextureOperations::fillColor(Texture2D* texture, const Vector4& color)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
         size_t height = texture->height;
-        size_t widthBytes = texture->widthBytes;
+        size_t widthBytes = texture->widthBytes;// TODO: rename
         size_t byteCount = 4;// TODO: rename
 
-        float r = clearColor.x;
-        float g = clearColor.y;
-        float b = clearColor.z;
-        float a = clearColor.w;
+        B8G8R8A8 texel;
+        texel.b = Lib::DenormalizeByte(color.z);
+        texel.g = Lib::DenormalizeByte(color.y);
+        texel.r = Lib::DenormalizeByte(color.x);
+        texel.a = Lib::DenormalizeByte(color.w);
 
-        uint32_t color = (Lib::DenormalizeByte(a) << 24) | (Lib::DenormalizeByte(r) << 16) | (Lib::DenormalizeByte(g) << 8) | Lib::DenormalizeByte(b);// BI_RGB
+        // ÔºëË°åÁõÆ
+        {
+            uintptr_t src = (uintptr_t)&texel;
+            uintptr_t dst = addr;
+            for (int x = 0; x < width; x++)
+            {
+                std::memcpy((void*)dst, (const void*)src, byteCount);
+                dst += byteCount;
+            }
+        }
 
-        // ÇPçsñ⁄
-        uint32_t* first = (uint32_t*)texture->addr;
-        uint32_t* last = ((uint32_t*)texture->addr) + texture->width;
-        std::fill(first, last, color);
-
-        // écÇËÇÃçsÇÕÇPçsñ⁄ÇÉRÉsÅ[
-        for (int y = 1; y < height; y++)
+        // ÊÆã„Çä„ÅÆË°å„ÅØÔºëË°åÁõÆ„Çí„Ç≥„Éî„Éº
         {
             uintptr_t src = addr;
-            uintptr_t dst = addr + (widthBytes * y);
-            std::memcpy((void*)dst, (const void*)src, widthBytes);
+            uintptr_t dst = addr + widthBytes;
+            for (int y = 1; y < height; y++)
+            {
+                std::memcpy((void*)dst, (const void*)src, widthBytes);
+                dst += widthBytes;
+            }
         }
     }
     
-    void TextureOperations::fillDepth(Texture2D* texture, float clearDepth)
+    void TextureOperations::fillDepth(Texture2D* texture, float depth)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
         size_t height = texture->height;
-        size_t widthBytes = texture->widthBytes;
+        size_t widthBytes = texture->widthBytes;// TODO: rename
         size_t byteCount = 4;// TODO: rename
 
-        union {
-            struct
-            {
-                uint32_t depth : 24;
-                uint32_t stencil : 8;
-            };
-            uint32_t bytes;
-        } tmp;
+        float t = std::clamp(depth, 0.0f, 1.0f);
+        uint32_t d24 = (uint32_t)(0xffffff * t);
 
-        float t = std::clamp(clearDepth, 0.0f, 1.0f);
-        tmp.depth = (uint32_t)(0xffffff * t);
-        tmp.stencil = 0;
+        D24S8 texel;
+        texel.depth = d24;
+        texel.stencil = 0;
 
-        //tmp.depth = _clearDepth;
-
-        // ÇPçsñ⁄
-        for (int x = 0; x < width; x++)
+        // ÔºëË°åÁõÆ
         {
-            uintptr_t src = (uintptr_t)(&tmp.bytes);
-            uintptr_t dst = addr + (byteCount * x);
-            std::memcpy((void*)dst, (const void*)src, byteCount);
+            uintptr_t src = (uintptr_t)&texel;
+            uintptr_t dst = addr;
+            for (int x = 0; x < width; x++)
+            {
+                std::memcpy((void*)dst, (const void*)src, byteCount);
+                dst += byteCount;
+            }
         }
 
-        // écÇËÇÃçsÇÕÇPçsñ⁄ÇÉRÉsÅ[
-        for (int y = 1; y < height; y++)
+        // ÊÆã„Çä„ÅÆË°å„ÅØÔºëË°åÁõÆ„Çí„Ç≥„Éî„Éº
         {
             uintptr_t src = addr;
-            uintptr_t dst = addr + (widthBytes * y);
-            std::memcpy((void*)dst, (const void*)src, widthBytes);
+            uintptr_t dst = addr + widthBytes;
+            for (int y = 1; y < height; y++)
+            {
+                std::memcpy((void*)dst, (const void*)src, widthBytes);
+                dst += widthBytes;
+            }
         }
     }
 
@@ -89,28 +117,25 @@ namespace SoftwareRasterizer
         size_t width = texture->width;
         size_t height = texture->height;
         size_t widthBytes = texture->widthBytes;
-        size_t byteCount = sizeof(uint32_t);// TODO: rename
+        size_t byteCount = 4;// TODO: rename
 
         if (tx < 0 || width <= tx || ty < 0 || height <= ty)
         {
             return Vector4::kZero;// TODO: wrap mode
         }
 
-        struct RGBA
-        {
-            uint8_t r;
-            uint8_t g;
-            uint8_t b;
-            uint8_t a;
-        };
+        size_t offset = (widthBytes * ty) + (byteCount * tx);
+        uintptr_t src = addr + offset;
 
-        const RGBA* texel = ((const RGBA*)addr) + ty * width + tx;
+        R8G8B8A8 texel = *(const R8G8B8A8*)src;
+
         Vector4 color(
-            Lib::NormalizeByte(texel->r),
-            Lib::NormalizeByte(texel->g),
-            Lib::NormalizeByte(texel->b),
-            Lib::NormalizeByte(texel->a)
+            Lib::NormalizeByte(texel.r),
+            Lib::NormalizeByte(texel.g),
+            Lib::NormalizeByte(texel.b),
+            Lib::NormalizeByte(texel.a)
         );
+
         return color;
     }
 
@@ -120,7 +145,7 @@ namespace SoftwareRasterizer
         size_t width = texture->width;
         size_t height = texture->height;
         size_t widthBytes = texture->widthBytes;
-        size_t byteCount = sizeof(uint32_t);// TODO: rename
+        size_t byteCount = 4;// TODO: rename
 
         if (tx < 0 || width <= tx || ty < 0 || height <= ty)
         {
@@ -130,32 +155,22 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * ty) + (byteCount * tx);
         uintptr_t src = addr + offset;
 
-        union {
-            struct
-            {
-                uint32_t depth : 24;
-                uint32_t stencil : 8;
-            };
-            uint32_t uint32;
-        } tmp;
-
-        tmp.uint32 = *(uint32_t*)src;
-
-        return ((float)tmp.depth) / ((float)0xffffff);
+        D24S8 texel = *(const D24S8*)src;
+        float depth = ((float)texel.depth) / ((float)0xffffff);
+        return depth;
 
     }
 
     void TextureOperations::storeTexelColor(Texture2D* texture, int tx, int ty, const Vector4& color)
     {
-        // x, y ÇÕÉEÉBÉìÉhÉEç¿ïW
-
-        // DIBÇÕç∂â∫Ç™(0,0)Ç»ÇÃÇ≈è„â∫îΩì]ÇÕïsóv
+        // x, y „ÅØ„Ç¶„Ç£„É≥„Éâ„Ç¶Â∫ßÊ®ô
+        // DIB„ÅØÂ∑¶‰∏ã„Åå(0,0)„Å™„ÅÆ„Åß‰∏ä‰∏ãÂèçËª¢„ÅØ‰∏çË¶Å
 
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
         size_t height = texture->height;
         size_t widthBytes = texture->widthBytes;
-        size_t byteCount = sizeof(uint32_t);// TODO: rename
+        size_t byteCount = 4;// TODO: rename
 
         if (tx < 0 || width <= tx || ty < 0 || height <= ty)
         {
@@ -165,21 +180,13 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * ty) + (byteCount * tx);
         uintptr_t dst = addr + offset;
 
-        uint32_t r = Lib::DenormalizeByte(color.x);
-        uint32_t g = Lib::DenormalizeByte(color.y);
-        uint32_t b = Lib::DenormalizeByte(color.z);
+        B8G8R8A8 texel;
+        texel.b = Lib::DenormalizeByte(color.z);
+        texel.g = Lib::DenormalizeByte(color.y);
+        texel.r = Lib::DenormalizeByte(color.x);
+        texel.a = Lib::DenormalizeByte(color.w);
 
-        // color blend - add
-        //r += (*dst >> 16) & 0xff;
-        //g += (*dst >> 8) & 0xff;
-        //b += (*dst >> 0) & 0xff;
-        //r = std::min(r, 0xffu);
-        //g = std::min(g, 0xffu);
-        //b = std::min(b, 0xffu);
-
-        uint32_t bytes = (r << 16) | (g << 8) | (b);// BI_RGB
-
-        *(uint32_t*)dst = bytes;
+        *(B8G8R8A8*)dst = texel;
     }
 
     void TextureOperations::storeTexelDepth(Texture2D* texture, int tx, int ty, float depth)
@@ -198,20 +205,14 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * ty) + (sizeof(float) * tx);
         uintptr_t dst = addr + offset;
 
-        union {
-            struct
-            {
-                uint32_t depth : 24;
-                uint32_t stencil : 8;
-            };
-            uint32_t uint32;
-        } tmp;
+        float t = std::clamp(depth, 0.0f, 1.0f);
+        uint32_t d24 = (uint32_t)(0xffffff * t);
 
+        D24S8 texel;
+        texel.depth = d24;
+        texel.stencil = 0;
 
-        tmp.depth = 0xffffff * std::clamp(depth, 0.0f, 1.0f);
-        tmp.stencil = 0;
-
-        *(uint32_t*)dst = tmp.uint32;
+        *(D24S8*)dst = texel;
     }
 
 }

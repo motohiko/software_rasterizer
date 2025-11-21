@@ -197,7 +197,7 @@ namespace Test
             texture.addr = kTexture;
             texture.width = 256;
             texture.height = 256;
-            texture.widthBytes = 256;
+            texture.widthBytes = 4 * 256;
             uniformBlock.meshTexture = &sampler2D;
 
             _renderingContext->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
