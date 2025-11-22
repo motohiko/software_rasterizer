@@ -4,9 +4,6 @@
 
 namespace Lib
 {
-    float NormalizeByte(uint8_t val);
-    uint8_t DenormalizeByte(float val);
-
     // Bresenham's line algorithm
     class BresenhamLine
     {

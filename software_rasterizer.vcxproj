@@ -138,6 +138,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Core\Types.h" />
     <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureUnit.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="Source\MeshData.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\ClipStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureUnit.cpp" />

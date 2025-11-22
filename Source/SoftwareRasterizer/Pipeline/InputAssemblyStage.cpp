@@ -1,5 +1,5 @@
 ﻿#include "InputAssemblyStage.h"
-#include "..\..\Lib\Algorithm.h"
+#include "..\Modules\NormalizedConverter.h"
 #include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
@@ -107,16 +107,16 @@ namespace SoftwareRasterizer
                         switch (inputElement->size)
                         {
                         case 4:
-                            attribute.w = Lib::NormalizeByte(((const uint8_t*)ptr)[3]);
+                            attribute.w = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[3]);
                             [[fallthrough]];
                         case 3:
-                            attribute.z = Lib::NormalizeByte(((const uint8_t*)ptr)[2]);
+                            attribute.z = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[2]);
                             [[fallthrough]];
                         case 2:
-                            attribute.y = Lib::NormalizeByte(((const uint8_t*)ptr)[1]);
+                            attribute.y = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[1]);
                             [[fallthrough]];
                         case 1:
-                            attribute.x = Lib::NormalizeByte(((const uint8_t*)ptr)[0]);
+                            attribute.x = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[0]);
                             [[fallthrough]];
                         default:
                             break;
