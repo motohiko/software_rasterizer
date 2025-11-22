@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "..\Core\Types.h"
-#include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {

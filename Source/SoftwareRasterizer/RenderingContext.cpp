@@ -72,8 +72,8 @@ namespace SoftwareRasterizer
     void RenderingContext::clearRenderTarget()
     {
         // Non pipeline operation
-        clearRenderTargetColorBuffer();
-        clearRenderTargetDepthBuffer();
+        TextureOperations::FillTextureColor(&(_renderTarget.colorBuffer), _clearColor);
+        TextureOperations::FillTextureDepth(&(_renderTarget.depthBuffer), _clearDepth);
     }
 
     void RenderingContext::enableVertexAttribute(int index)
@@ -92,13 +92,12 @@ namespace SoftwareRasterizer
         _inputLayout.vertexAttributeEnableBits &= ~(1u << index);
     }
 
-    void RenderingContext::setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride, const void* buffer)
+    void RenderingContext::setVertexAttribute(int index, int size, ComponentType type, size_t stride, const void* buffer)
     {
         // IA
         assert(0 <= index && index < std::size(_inputLayout.elements));
         assert(0 <= index && index < std::size(_vertexBuffers.vertexBuffers));
         InputElement* element = &(_inputLayout.elements[index]);
-        element->semantics = semantics;
         element->size = size;
         element->type = type;
         element->normalized = false;
@@ -225,16 +224,6 @@ namespace SoftwareRasterizer
 
             outputPrimitive(primitive.primitiveType, shadedVertices, primitive.vertexNum);
         }
-    }
-
-    void RenderingContext::clearRenderTargetColorBuffer()
-    {
-        TextureOperations::fillColor(&(_renderTarget.colorBuffer), _clearColor);
-    }
-
-    void RenderingContext::clearRenderTargetDepthBuffer()
-    {
-        TextureOperations::fillDepth(&(_renderTarget.depthBuffer), _clearDepth);
     }
 
     void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum)

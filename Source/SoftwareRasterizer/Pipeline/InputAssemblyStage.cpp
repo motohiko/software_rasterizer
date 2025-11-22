@@ -1,6 +1,5 @@
 ﻿#include "InputAssemblyStage.h"
 #include "..\Modules\NormalizedConverter.h"
-#include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {
@@ -67,16 +66,7 @@ namespace SoftwareRasterizer
                 const InputElement* inputElement = &(_inputLayout->elements[i]);
                 const VertexBuffer* vertexBuffer = &(_vertexBuffers->vertexBuffers[i]);
 
-                Vector4 attribute;
-                switch (inputElement->semantics)
-                {
-                case SemanticsType::kPosition:
-                    attribute = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-                    break;
-                default:
-                    attribute = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-                    break;
-                }
+                Vector4 attribute = Vector4::kZero;
 
                 // 指定個数のコンポーネントを読み取る
                 uintptr_t ptr = ((uintptr_t)vertexBuffer->addr) + (inputElement->stride * vertexIndex);

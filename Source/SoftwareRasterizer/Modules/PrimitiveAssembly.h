@@ -15,19 +15,19 @@ namespace SoftwareRasterizer
 	class PrimitiveAssembly
 	{
 
-	private:
-
-		PrimitiveType _primitiveType;
-		//const ShadedVertex* _vertices;
-		int _vertiexNum;
-		int _readPrimitiveCount = 0;
-
 	public:
 
 		void setPrimitiveType(PrimitiveType primitiveType);
 		void setClipedVertices(const ShadedVertex* vertices, int vertiexNum);
 		void prepareDividPrimitive();
 		bool readPrimitive(AssembledPrimitive* assembledPrimitive);
+
+	private:
+
+		PrimitiveType _primitiveType;
+		//const ShadedVertex* _vertices;
+		int _vertiexNum;
+		int _readPrimitiveCount = 0;
 
 	};
 }

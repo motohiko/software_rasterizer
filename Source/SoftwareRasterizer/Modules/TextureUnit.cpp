@@ -15,7 +15,7 @@ namespace SoftwareRasterizer
         tx = std::clamp(tx, 0, width - 1);
         ty = std::clamp(ty, 0, height - 1);
 
-        return TextureOperations::fetchTexelColor(sampler->texture, tx, ty);
+        return TextureOperations::FetchTexelColor(sampler->texture, tx, ty);
     }
 
     Vector4 TextureUnit::SampleNearestPoint(const Sampler2D* sampler, const Vector2& texcoord)

@@ -1,9 +1,35 @@
 ﻿#pragma once
 
+#include "Vector.h"
 #include <cstdint>
+#include <algorithm>// min
+
 
 namespace Lib
 {
+
+    struct BoundingBox2d
+    {
+        float minX;
+        float minY;
+        float maxX;
+        float maxY;
+        void init()
+        {
+            minX = FLT_MAX;
+            minY = FLT_MAX;
+            maxX = -FLT_MAX;
+            maxY = -FLT_MAX;
+        }
+        void addPoint(const Vector2& p)
+        {
+            minX = std::min(minX, p.x);
+            minY = std::min(minY, p.y);
+            maxX = std::max(maxX, p.x);
+            maxY = std::max(maxY, p.y);
+        }
+    };
+
     // Bresenham's line algorithm
     class BresenhamLine
     {

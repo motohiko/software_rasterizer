@@ -1,6 +1,6 @@
 ﻿#include "ClipStage.h"
+#include <cmath>// abs
 #include <cassert>
-#include <cmath>
 
 namespace SoftwareRasterizer
 {

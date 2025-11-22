@@ -34,7 +34,7 @@ namespace Test
         const Vector4& position = input->attributes[0];
         const Vector4& color = input->attributes[1];
 
-        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * position);
+        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * Vector4(position.getXYZ(), 1.0f));
         output->varyings[0] = color;
         output->varyingNum = 1;
     }
@@ -57,7 +57,7 @@ namespace Test
         const Vector4& uv = input->attributes[1];
         const Vector4& normal = input->attributes[2];
 
-        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * position);
+        output->position = projectionMatrix * ((viewMatrix * modelMatrix) * Vector4(position.getXYZ(), 1.0f));
         output->varyings[0] = uv;
         output->varyings[1] = modelMatrix * normal;
         output->varyingNum = 2;
@@ -117,9 +117,9 @@ namespace Test
             }
 
             _renderingContext->enableVertexAttribute(0);
-            _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), gridPositions);
+            _renderingContext->setVertexAttribute(0, 3, ComponentType::kFloat, sizeof(Vector3), gridPositions);
             _renderingContext->enableVertexAttribute(1);
-            _renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), gridColors);
+            _renderingContext->setVertexAttribute(1, 4, ComponentType::kFloat, sizeof(Vector4), gridColors);
             _renderingContext->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
             _renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             _renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
@@ -140,9 +140,9 @@ namespace Test
             const Vector4 zAxisColors[2] = { { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
             _renderingContext->enableVertexAttribute(0);
-            _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), xAxisPositions);
+            _renderingContext->setVertexAttribute(0, 3, ComponentType::kFloat, sizeof(Vector3), xAxisPositions);
             _renderingContext->enableVertexAttribute(1);
-            _renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), xAxisColors);
+            _renderingContext->setVertexAttribute(1, 4, ComponentType::kFloat, sizeof(Vector4), xAxisColors);
             _renderingContext->setIndexBuffer(kDefaultIndices, 2);
             _renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             _renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
@@ -150,12 +150,12 @@ namespace Test
             _renderingContext->setDepthFunc(ComparisonType::kLessEqual);
             _renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
-            _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), yAxisPositions);
-            _renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), yAxisColors);
+            _renderingContext->setVertexAttribute(0, 3, ComponentType::kFloat, sizeof(Vector3), yAxisPositions);
+            _renderingContext->setVertexAttribute(1, 4, ComponentType::kFloat, sizeof(Vector4), yAxisColors);
             _renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
-            _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), zAxisPositions);
-            _renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), zAxisColors);
+            _renderingContext->setVertexAttribute(0, 3, ComponentType::kFloat, sizeof(Vector3), zAxisPositions);
+            _renderingContext->setVertexAttribute(1, 4, ComponentType::kFloat, sizeof(Vector4), zAxisColors);
             _renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
             _renderingContext->disableVertexAttribute(0);
@@ -171,9 +171,9 @@ namespace Test
 
             _renderingContext->setIndexBuffer(kDefaultIndices, 3);
             _renderingContext->enableVertexAttribute(0);
-            _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(Vector3), polygonPositions);
+            _renderingContext->setVertexAttribute(0, 3, ComponentType::kFloat, sizeof(Vector3), polygonPositions);
             _renderingContext->enableVertexAttribute(1);
-            _renderingContext->setVertexAttribute(1, SemanticsType::kColor, 4, ComponentType::kFloat, sizeof(Vector4), polygonColors);
+            _renderingContext->setVertexAttribute(1, 4, ComponentType::kFloat, sizeof(Vector4), polygonColors);
             _renderingContext->setVertexShaderProgram(LineVertexShaderMain);// 流用
             _renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// 流用
 
@@ -207,11 +207,11 @@ namespace Test
 
             _renderingContext->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
             _renderingContext->enableVertexAttribute(0);
-            _renderingContext->setVertexAttribute(0, SemanticsType::kPosition, 3, ComponentType::kFloat, sizeof(float) * 3, kMeshVertices);
+            _renderingContext->setVertexAttribute(0, 3, ComponentType::kFloat, sizeof(float) * 3, kMeshVertices);
             _renderingContext->enableVertexAttribute(1);
-            _renderingContext->setVertexAttribute(1, SemanticsType::kTexCoord, 2, ComponentType::kFloat, sizeof(float) * 2, kMeshUvs);
+            _renderingContext->setVertexAttribute(1, 2, ComponentType::kFloat, sizeof(float) * 2, kMeshUvs);
             _renderingContext->enableVertexAttribute(2);
-            _renderingContext->setVertexAttribute(2, SemanticsType::kNormal, 3, ComponentType::kFloat, sizeof(float) * 3, kMeshNormals);
+            _renderingContext->setVertexAttribute(2, 3, ComponentType::kFloat, sizeof(float) * 3, kMeshNormals);
             _renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
             _renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
 

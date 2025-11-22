@@ -10,13 +10,6 @@ namespace SoftwareRasterizer
     class OutputMergerStage
     {
 
-    private:
-
-        const DepthState* _depthState = nullptr;
-        const DepthRange* _depthRange = nullptr;
-
-        RenderTarget* _renderTarget = nullptr;
-
     public:
 
         OutputMergerStage();
@@ -36,6 +29,13 @@ namespace SoftwareRasterizer
 
         void storeTexelColor(int x, int y, const Vector4& color);
         void storeTexelDepth(int x, int y, float depth);
+
+    private:
+
+        const DepthState* _depthState = nullptr;
+        const DepthRange* _depthRange = nullptr;
+
+        RenderTarget* _renderTarget = nullptr;
         
     };
 }

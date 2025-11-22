@@ -10,10 +10,6 @@ namespace SoftwareRasterizer
 	class ClipStage
 	{
 
-	private:
-
-        PrimitiveType _primitiveType;
-
 	public:
 
         void setPrimitiveType(PrimitiveType primitiveType);
@@ -24,6 +20,10 @@ namespace SoftwareRasterizer
 
         void clipPrimitiveLine(const ShadedVertex* primitiveVertices, int primitiveVertexCount, ShadedVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
         void clipPrimitiveTriangle(const ShadedVertex* primitiveVertices, int primitiveVertexCount, ShadedVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
+
+	private:
+
+        PrimitiveType _primitiveType;
 
     };
 }

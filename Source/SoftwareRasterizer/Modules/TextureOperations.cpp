@@ -1,7 +1,7 @@
 ﻿#include "TextureOperations.h" 
 #include "NormalizedConverter.h"
 #include <cstdint>
-#include <cstring>//std::memcpy
+#include <cstring>//memcpy
 #include <cassert>//assert
 
 namespace SoftwareRasterizer
@@ -36,7 +36,7 @@ namespace SoftwareRasterizer
         assert(texture->width <= texture->widthBytes);
     }
 
-    void TextureOperations::fillColor(Texture2D* texture, const Vector4& color)
+    void TextureOperations::FillTextureColor(Texture2D* texture, const Vector4& color)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -73,7 +73,7 @@ namespace SoftwareRasterizer
         }
     }
     
-    void TextureOperations::fillDepth(Texture2D* texture, float depth)
+    void TextureOperations::FillTextureDepth(Texture2D* texture, float depth)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -110,7 +110,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    Vector4 TextureOperations::fetchTexelColor(const Texture2D* texture, int tx, int ty)
+    Vector4 TextureOperations::FetchTexelColor(const Texture2D* texture, int tx, int ty)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -138,7 +138,7 @@ namespace SoftwareRasterizer
         return color;
     }
 
-    float TextureOperations::fetchTexelDepth(const Texture2D* texture, int tx, int ty)
+    float TextureOperations::FetchTexelDepth(const Texture2D* texture, int tx, int ty)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -160,7 +160,7 @@ namespace SoftwareRasterizer
 
     }
 
-    void TextureOperations::storeTexelColor(Texture2D* texture, int tx, int ty, const Vector4& color)
+    void TextureOperations::StoreTexelColor(Texture2D* texture, int tx, int ty, const Vector4& color)
     {
         // x, y はウィンドウ座標
         // DIBは左下が(0,0)なので上下反転は不要
@@ -188,7 +188,7 @@ namespace SoftwareRasterizer
         *(ColorB8G8R8A8*)dst = texel;
     }
 
-    void TextureOperations::storeTexelDepth(Texture2D* texture, int tx, int ty, float depth)
+    void TextureOperations::StoreTexelDepth(Texture2D* texture, int tx, int ty, float depth)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;

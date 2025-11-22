@@ -5,7 +5,6 @@
 #include "..\State\Viewport.h"
 #include "..\State\DepthRange.h"
 #include "..\Core\Types.h"
-#include "..\..\Lib\\Vector.h"
 
 namespace SoftwareRasterizer
 {
@@ -18,25 +17,6 @@ namespace SoftwareRasterizer
 
     class RasterizeStage
 	{
-
-    private:
-
-        const WindowSize* _windowSize = nullptr;
-        const RasterizerState* _rasterizerState = nullptr;
-        const Viewport* _viewport = nullptr;
-        const DepthRange* _depthRange = nullptr;
-
-        class RenderingContext* _renderingContext = nullptr;
-
-        int _windowWidth = 0;
-        int _windowHeight = 0;
-
-        int _clipRectMinX = 0;
-        int _clipRectMinY = 0;
-        int _clipRectMaxX = 0;
-        int _clipRectMaxY = 0;
-
-        float _sarea2 = 0.0f;// singed area 2x
 
     public:
 
@@ -79,6 +59,25 @@ namespace SoftwareRasterizer
 
         void getLineFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, Fragment* fragment);
         bool getTriangleFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2, Fragment* fragment);
+
+    private:
+
+        const WindowSize* _windowSize = nullptr;
+        const RasterizerState* _rasterizerState = nullptr;
+        const Viewport* _viewport = nullptr;
+        const DepthRange* _depthRange = nullptr;
+
+        class RenderingContext* _renderingContext = nullptr;
+
+        int _windowWidth = 0;
+        int _windowHeight = 0;
+
+        int _clipRectMinX = 0;
+        int _clipRectMinY = 0;
+        int _clipRectMaxX = 0;
+        int _clipRectMaxY = 0;
+
+        float _sarea2 = 0.0f;// singed area 2x
 
     };
 }

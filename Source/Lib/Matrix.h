@@ -296,7 +296,7 @@ namespace Lib
 
     public:
 
-        // スカラー積
+        // スカラー倍
         Matrix4x4 operator*(float rhs) const { return ScaleByScalar(*this, rhs); }
         Matrix4x4 operator/(float rhs) const { return ScaleByScalar(*this, 1.0f / rhs); }
 

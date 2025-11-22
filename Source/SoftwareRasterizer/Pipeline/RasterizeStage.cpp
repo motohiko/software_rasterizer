@@ -2,8 +2,8 @@
 #include "..\RenderingContext.h"
 #include "..\..\Lib\Algorithm.h"
 #include <cassert>
-#include <cmath>
-#include <algorithm>
+#include <cmath>// lerp floor ceil abs 
+#include <algorithm>// min max
 
 namespace SoftwareRasterizer
 {
@@ -53,6 +53,7 @@ namespace SoftwareRasterizer
         //       |          |
         //       +----------+  
         //  (x,y)
+
         float x = (float)_viewport->viewportX;
         float y = (float)_viewport->viewportY;
         float width = (float)_viewport->viewportWidth;
@@ -237,28 +238,7 @@ namespace SoftwareRasterizer
         _sarea2 = edgeFunction(p0->wndPosition, p1->wndPosition, p2->wndPosition);
 
         // 処理が重すぎるのでラスタライズの範囲を絞り込む
-        struct BoundingBox2d
-        {
-            float minX;
-            float minY;
-            float maxX;
-            float maxY;
-            void init()
-            {
-                minX = FLT_MAX;
-                minY = FLT_MAX;
-                maxX = -FLT_MAX;
-                maxY = -FLT_MAX;
-            }
-            void addPoint(const Vector2& p)
-            {
-                minX = std::min(minX, p.x);
-                minY = std::min(minY, p.y);
-                maxX = std::max(maxX, p.x);
-                maxY = std::max(maxY, p.y);
-            }
-        };
-        BoundingBox2d boundingBox = {};
+        Lib::BoundingBox2d boundingBox = {};
         boundingBox.init();
         boundingBox.addPoint(p0->wndPosition);
         boundingBox.addPoint(p1->wndPosition);

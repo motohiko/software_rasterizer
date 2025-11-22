@@ -19,7 +19,6 @@
 #include "State\DepthState.h"
 #include "Core\Types.h"
 #include <cstdint>
-#include <memory>
 
 namespace SoftwareRasterizer
 {
@@ -43,7 +42,7 @@ namespace SoftwareRasterizer
 
         void enableVertexAttribute(int index);// glEnableVertexAttribArray
         void disableVertexAttribute(int index);// glDisableVertexAttribArray
-        void setVertexAttribute(int index, SemanticsType semantics, int size, ComponentType type, size_t stride, const void* buffer);// glVertexAttribPointer
+        void setVertexAttribute(int index, int size, ComponentType type, size_t stride, const void* buffer);// glVertexAttribPointer
 
         void setIndexBuffer(const uint16_t* indices, int indexNum);// glBufferData
 
@@ -67,9 +66,6 @@ namespace SoftwareRasterizer
         void drawIndexed(PrimitiveTopologyType primitiveTopologyType);
 
     private:
-
-        void clearRenderTargetColorBuffer();
-        void clearRenderTargetDepthBuffer();
 
         void outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum);
         void outputFragment(const Fragment* fragment);
