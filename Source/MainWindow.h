@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Test.h"
 #include "SoftwareRasterizer\RenderingContext.h"

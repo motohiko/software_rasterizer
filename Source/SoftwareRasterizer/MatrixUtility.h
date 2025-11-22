@@ -36,7 +36,7 @@
 // 座標軸は xyz = rgb で描画される
 // 
 
-#include "Types.h"
+#include "Core\Types.h"
 #include "..\Lib\Matrix.h"
 #include "..\Lib\Vector.h"
 

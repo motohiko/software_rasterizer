@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Pipeline\InputAssemblyStage.h"
 #include "Pipeline\VertexShaderStage.h"
@@ -17,7 +17,7 @@
 #include "State\DepthRange.h"
 #include "State\FragmentShaderProgram.h"
 #include "State\DepthState.h"
-#include "Types.h"
+#include "Core\Types.h"
 #include <cstdint>
 #include <memory>
 
@@ -34,8 +34,8 @@ namespace SoftwareRasterizer
         int getWindowWidth() const;
         int getWindowHeight() const;
 
-        void setRenderTargetColorBuffer(void* addr, int width, int height, size_t widthBytes);
-        void setRenderTargetDepthBuffer(void* addr, int width, int height, size_t widthBytes);
+        void setRenderTargetColorBuffer(void* addr, int width, int height, int widthBytes);
+        void setRenderTargetDepthBuffer(void* addr, int width, int height, int widthBytes);
 
         void setClearColor(float r, float g, float b, float a);// glClearColor
         void setClearDepth(float depth);// glClearDepth

@@ -1,4 +1,4 @@
-
+﻿
 #include "Test.h"
 #include "MeshData.h"
 #include "SoftwareRasterizer\Utility.h"

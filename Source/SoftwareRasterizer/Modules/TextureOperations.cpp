@@ -1,4 +1,4 @@
-#include "TextureOperations.h" 
+﻿#include "TextureOperations.h" 
 #include "..\..\Lib\Algorithm.h"
 #include <algorithm>// clamp, fill
 #include <cstdint>
@@ -6,7 +6,7 @@
 
 namespace SoftwareRasterizer
 {
-    struct R8G8B8A8
+    struct ColorR8G8B8A8
     {
         uint8_t r;
         uint8_t g;
@@ -14,7 +14,7 @@ namespace SoftwareRasterizer
         uint8_t a;
     };
 
-    struct B8G8R8A8// = DIB BI_RGB
+    struct ColorB8G8R8A8// = DIB BI_RGB
     {
         uint8_t b;
         uint8_t g;
@@ -22,7 +22,7 @@ namespace SoftwareRasterizer
         uint8_t a;
     };
 
-    struct D24S8
+    struct DepthStencilD24S8
     {
         uint32_t depth : 24;
         uint32_t stencil : 8;
@@ -44,7 +44,7 @@ namespace SoftwareRasterizer
         size_t widthBytes = texture->widthBytes;// TODO: rename
         size_t byteCount = 4;// TODO: rename
 
-        B8G8R8A8 texel;
+        ColorB8G8R8A8 texel;
         texel.b = Lib::DenormalizeByte(color.z);
         texel.g = Lib::DenormalizeByte(color.y);
         texel.r = Lib::DenormalizeByte(color.x);
@@ -84,7 +84,7 @@ namespace SoftwareRasterizer
         float t = std::clamp(depth, 0.0f, 1.0f);
         uint32_t d24 = (uint32_t)(0xffffff * t);
 
-        D24S8 texel;
+        DepthStencilD24S8 texel;
         texel.depth = d24;
         texel.stencil = 0;
 
@@ -127,7 +127,7 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * ty) + (byteCount * tx);
         uintptr_t src = addr + offset;
 
-        R8G8B8A8 texel = *(const R8G8B8A8*)src;
+        ColorR8G8B8A8 texel = *(const ColorR8G8B8A8*)src;
 
         Vector4 color(
             Lib::NormalizeByte(texel.r),
@@ -155,7 +155,7 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * ty) + (byteCount * tx);
         uintptr_t src = addr + offset;
 
-        D24S8 texel = *(const D24S8*)src;
+        DepthStencilD24S8 texel = *(const DepthStencilD24S8*)src;
         float depth = ((float)texel.depth) / ((float)0xffffff);
         return depth;
 
@@ -180,13 +180,13 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * ty) + (byteCount * tx);
         uintptr_t dst = addr + offset;
 
-        B8G8R8A8 texel;
+        ColorB8G8R8A8 texel;
         texel.b = Lib::DenormalizeByte(color.z);
         texel.g = Lib::DenormalizeByte(color.y);
         texel.r = Lib::DenormalizeByte(color.x);
         texel.a = Lib::DenormalizeByte(color.w);
 
-        *(B8G8R8A8*)dst = texel;
+        *(ColorB8G8R8A8*)dst = texel;
     }
 
     void TextureOperations::storeTexelDepth(Texture2D* texture, int tx, int ty, float depth)
@@ -208,11 +208,11 @@ namespace SoftwareRasterizer
         float t = std::clamp(depth, 0.0f, 1.0f);
         uint32_t d24 = (uint32_t)(0xffffff * t);
 
-        D24S8 texel;
+        DepthStencilD24S8 texel;
         texel.depth = d24;
         texel.stencil = 0;
 
-        *(D24S8*)dst = texel;
+        *(DepthStencilD24S8*)dst = texel;
     }
 
 }

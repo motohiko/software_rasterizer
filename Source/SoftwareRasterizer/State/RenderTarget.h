@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include "Texture2D.h"
-#include "..\Types.h"
+#include "..\Core\Types.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer

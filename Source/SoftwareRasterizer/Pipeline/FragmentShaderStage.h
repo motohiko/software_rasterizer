@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "..\State\FragmentShaderProgram.h"
 #include "..\State\ConstantBuffer.h"
-#include "..\Types.h"
+#include "..\Core\Types.h"
 #include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer

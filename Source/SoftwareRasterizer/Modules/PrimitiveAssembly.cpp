@@ -1,4 +1,4 @@
-#include "PrimitiveAssembly.h"
+﻿#include "PrimitiveAssembly.h"
 
 namespace SoftwareRasterizer
 {

@@ -1,4 +1,4 @@
-#include "MainWindow.h" 
+﻿#include "MainWindow.h" 
 
 #include <tchar.h>
 #include <algorithm>
@@ -212,11 +212,12 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             GetObject(_hDibBm, sizeof(DIBSECTION), &dibSection);
         }
 
-        size_t depthByteCount = 4;// TODO: rename
+        int depthByteCount = 4;// TODO: rename
+
         _depthBuffer = malloc(depthByteCount * frameWidth * frameHeight);
 
         _renderingContext.setWindowSize(frameWidth, frameHeight);
-        _renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, frameWidth, frameHeight, dibSection.dsBm.bmWidthBytes);
+        _renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, frameWidth, frameHeight, (int)dibSection.dsBm.bmWidthBytes);
         _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, frameWidth, frameHeight, depthByteCount * dibSection.dsBm.bmWidth);
         _renderingContext.setViewport(0, 0, frameWidth, frameHeight);
 

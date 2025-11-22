@@ -135,14 +135,16 @@
     <ClInclude Include="Source\MeshData.h" />
     <ClInclude Include="Source\PostIncludeWindows.h" />
     <ClInclude Include="Source\PreIncludeWindows.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Core\Types.h" />
     <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\ClipStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureUnit.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\OutputMergerStage.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\ConstantBuffer.h" />
@@ -159,7 +161,6 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\VertexShaderProgram.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\WindowSize.h" />
     <ClInclude Include="Source\SoftwareRasterizer\SamplerUtility.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Types.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Utility.h" />
     <ClInclude Include="Source\Test.h" />
   </ItemGroup>
@@ -171,13 +172,14 @@
     <ClCompile Include="Source\MainWindow.cpp" />
     <ClCompile Include="Source\MeshData.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\ClipStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\ClipStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureUnit.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\InputAssemblyStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\OutputMergerStage.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\SamplerUtility.cpp" />

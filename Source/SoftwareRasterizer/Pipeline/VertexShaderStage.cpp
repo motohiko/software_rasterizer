@@ -1,4 +1,4 @@
-#include "VertexShaderStage.h"
+﻿#include "VertexShaderStage.h"
 #include <cassert>
 
 namespace SoftwareRasterizer

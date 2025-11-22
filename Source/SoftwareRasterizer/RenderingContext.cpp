@@ -1,11 +1,11 @@
-#include "RenderingContext.h"
+﻿#include "RenderingContext.h"
 #include "Pipeline\InputAssemblyStage.h"
 #include "Pipeline\VertexShaderStage.h"
-#include "Pipeline\ClipStage.h"
-#include "Pipeline\PrimitiveAssembly.h"
 #include "Pipeline\RasterizeStage.h"
 #include "Pipeline\FragmentShaderStage.h"
-#include "Pipeline\TextureOperations.h" 
+#include "Modules\ClipStage.h"
+#include "Modules\PrimitiveAssembly.h"
+#include "Modules\TextureOperations.h" 
 #include <iterator>// std::size
 #include <cassert>
 
@@ -31,7 +31,7 @@ namespace SoftwareRasterizer
         return _windowSize.windowHeight;
     };
 
-    void RenderingContext::setRenderTargetColorBuffer(void* addr, int width, int height, size_t widthBytes)
+    void RenderingContext::setRenderTargetColorBuffer(void* addr, int width, int height, int widthBytes)
     {
         // OM
         //assert(nullptr != addr);
@@ -44,7 +44,7 @@ namespace SoftwareRasterizer
         _renderTarget.colorBuffer.widthBytes = widthBytes;
     }
 
-    void RenderingContext::setRenderTargetDepthBuffer(void* addr, int width, int height, size_t widthBytes)
+    void RenderingContext::setRenderTargetDepthBuffer(void* addr, int width, int height, int widthBytes)
     {
         // OM
         //assert(nullptr != addr);
@@ -277,6 +277,11 @@ namespace SoftwareRasterizer
         _fragmentShaderStage.executeShader(fragment, &color);
 
         _outputMergerStage.execute(fragment->x, fragment->y, color, fragment->depth);
+
+        // クアッド分出力されたらフラグメントシェーダーステージへ
+
+        // 導関数を使いMIN/MGA判定
+
     }
 
 }

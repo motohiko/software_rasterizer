@@ -1,4 +1,4 @@
-#include "MatrixUtility.h"
+﻿#include "MatrixUtility.h"
 #include <cmath>
 
 namespace SoftwareRasterizer

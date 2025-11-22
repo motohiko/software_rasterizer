@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "..\State\DepthState.h"
 #include "..\State\DepthRange.h"
 #include "..\State\RenderTarget.h"
-#include "..\Types.h"
+#include "..\Core\Types.h"
 
 namespace SoftwareRasterizer
 {

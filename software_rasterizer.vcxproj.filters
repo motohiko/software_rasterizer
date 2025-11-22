@@ -34,6 +34,15 @@
     <Filter Include="ヘッダー ファイル\SoftwareRasterizer\State">
       <UniqueIdentifier>{3119bbc8-c021-4286-8e8b-646513bb6664}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\SoftwareRasterizer\Modules">
+      <UniqueIdentifier>{654acee9-6213-4bab-a64b-249e0c1c3a37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\SoftwareRasterizer\Modules">
+      <UniqueIdentifier>{4d1f4714-efd5-4e35-8505-9f8f322e33da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\SoftwareRasterizer\Core">
+      <UniqueIdentifier>{b2cbc039-629a-410b-81cd-9d5af39d7d2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MeshData.h">
@@ -48,9 +57,6 @@
     <ClInclude Include="Source\Lib\Algorithm.h">
       <Filter>ヘッダー ファイル\Lib</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\ClipStage.h">
-      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
@@ -63,16 +69,10 @@
     <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.h">
-      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h">
-      <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Types.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Lib\Vector.h">
@@ -138,8 +138,20 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\Texture2D.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.h">
-      <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureUnit.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Core\Types.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -162,15 +174,6 @@
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp">
-      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\PrimitiveAssembly.cpp">
-      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp">
-      <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\ClipStage.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp">
@@ -197,7 +200,19 @@
     <ClCompile Include="Source\MainWindow.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureUnit.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\ClipStage.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
   </ItemGroup>

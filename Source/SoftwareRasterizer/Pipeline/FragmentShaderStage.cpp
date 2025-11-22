@@ -1,4 +1,4 @@
-#include "FragmentShaderStage.h"
+﻿#include "FragmentShaderStage.h"
 #include <cassert>
 
 namespace SoftwareRasterizer

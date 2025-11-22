@@ -1,4 +1,4 @@
-
+﻿
 // ウィンドウ座標（ビューポート変換後）
 //
 //       +y                
@@ -27,7 +27,7 @@
 //
 
 #include "OutputMergerStage.h"
-#include "TextureOperations.h" 
+#include "..\Modules\TextureOperations.h" 
 #include <algorithm>// clamp
 #include <cmath>// lerp
 

@@ -1,4 +1,4 @@
-#include "RasterizeStage.h"
+﻿#include "RasterizeStage.h"
 #include "..\RenderingContext.h"
 #include "..\..\Lib\Algorithm.h"
 #include <cassert>

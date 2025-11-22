@@ -1,4 +1,4 @@
-#include "Algorithm.h"
+﻿#include "Algorithm.h"
 #include <algorithm>
 
 namespace Lib

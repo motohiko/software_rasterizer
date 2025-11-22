@@ -1,4 +1,4 @@
-#include "ClipStage.h"
+﻿#include "ClipStage.h"
 #include <cassert>
 #include <cmath>
 

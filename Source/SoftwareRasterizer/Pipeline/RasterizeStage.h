@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include "..\State\WindowSize.h"
 #include "..\State\RasterizerState.h"
 #include "..\State\Viewport.h"
 #include "..\State\DepthRange.h"
-#include "..\Types.h"
+#include "..\Core\Types.h"
 #include "..\..\Lib\\Vector.h"
 
 namespace SoftwareRasterizer

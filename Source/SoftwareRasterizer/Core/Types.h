@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 
-#include "..\Lib\Vector.h"
-#include "..\Lib\Matrix.h"
+#include "..\..\Lib\Vector.h"
+#include "..\..\Lib\Matrix.h"
 #include <cstdint>
 
 namespace SoftwareRasterizer
@@ -68,6 +68,13 @@ namespace SoftwareRasterizer
         int varyingNum;
     };
 
+    struct QuadFragment
+    {
+        const Fragment* q00;
+        const Fragment* q01;
+        const Fragment* q10;
+        const Fragment* q11;
+    };
 
     union Depth24Stencil8
     {

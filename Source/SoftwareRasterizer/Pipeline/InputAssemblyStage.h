@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "..\State\InputLayout.h"
 #include "..\State\VertexBuffers.h"
 #include "..\State\IndexBuffer.h"
-#include "..\Types.h"
+#include "..\Core\Types.h"
 #include <cstdint>
 #include <vector>
 
