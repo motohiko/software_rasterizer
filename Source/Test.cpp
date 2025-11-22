@@ -69,7 +69,7 @@ namespace Test
         const Vector2 uv = input->varyings[0].getXY();
         const Vector4& normal = input->varyings[1];
 
-        output->fragColor = TextureUtility::texture2d(uniformBlock->meshTexture, uv);
+        output->fragColor = SamplerUtility::SampleTexture2d(uniformBlock->meshTexture, uv);
     }
 
     void ModelViewer::RenderScene(RenderingContext* _renderingContext, const TestCamera* camera)
@@ -193,12 +193,17 @@ namespace Test
             uniformBlock.modelMatrix = MatrixUtility::CreateRotationX(90.0f * 3.14f / 180.0f);
 
             Texture2D texture = {};
-            Sampler2D sampler2D = { &texture };
             texture.addr = kTexture;
             texture.width = 256;
             texture.height = 256;
             texture.widthBytes = 4 * 256;
-            uniformBlock.meshTexture = &sampler2D;
+
+            Sampler2D sampler = {};
+            sampler.texture = &texture;
+            sampler.minFilter = FilterType::kBilinear;
+            sampler.magFilter = FilterType::kBilinear;
+
+            uniformBlock.meshTexture = &sampler;
 
             _renderingContext->setIndexBuffer(kMeshTriangles, kMeshTrianglesLength);
             _renderingContext->enableVertexAttribute(0);

@@ -158,7 +158,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\Viewport.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\VertexShaderProgram.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\WindowSize.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\TextureUtility.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\SamplerUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Types.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Utility.h" />
     <ClInclude Include="Source\Test.h" />
@@ -180,7 +180,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\TextureOperations.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\TextureUtility.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\SamplerUtility.cpp" />
     <ClCompile Include="Source\Test.cpp" />
     <ClCompile Include="Source\WinMain.cpp" />
   </ItemGroup>

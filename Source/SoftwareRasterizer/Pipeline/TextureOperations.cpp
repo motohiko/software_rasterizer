@@ -121,7 +121,7 @@ namespace SoftwareRasterizer
 
         if (tx < 0 || width <= tx || ty < 0 || height <= ty)
         {
-            return Vector4::kZero;// TODO: wrap mode
+            return Vector4::kZero;
         }
 
         size_t offset = (widthBytes * ty) + (byteCount * tx);
@@ -149,7 +149,7 @@ namespace SoftwareRasterizer
 
         if (tx < 0 || width <= tx || ty < 0 || height <= ty)
         {
-            return 0.0f;// TODO: wrap mode
+            return 0.0f;
         }
 
         size_t offset = (widthBytes * ty) + (byteCount * tx);

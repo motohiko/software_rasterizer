@@ -81,7 +81,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\TextureUtility.h">
+    <ClInclude Include="Source\SoftwareRasterizer\SamplerUtility.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\OutputMergerStage.h">
@@ -182,7 +182,7 @@
     <ClCompile Include="Source\Lib\Algorithm.cpp">
       <Filter>ソース ファイル\Lib</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\TextureUtility.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\SamplerUtility.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\OutputMergerStage.cpp">
