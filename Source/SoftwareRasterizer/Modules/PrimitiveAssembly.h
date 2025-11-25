@@ -18,7 +18,7 @@ namespace SoftwareRasterizer
 	public:
 
 		void setPrimitiveType(PrimitiveType primitiveType);
-		void setClipedVertices(const ShadedVertex* vertices, int vertiexNum);
+		void setClipedVertices(const VertexDataB* vertices, int vertiexNum);
 		void prepareDividPrimitive();
 		bool readPrimitive(AssembledPrimitive* assembledPrimitive);
 

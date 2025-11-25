@@ -1,18 +1,16 @@
 ﻿#pragma once
 
-#include "..\Core\Types.h"
-
 namespace SoftwareRasterizer
 {
-    enum class FrontFaceType
+    enum class FrontFaceMode
     {
         kNone,
-        kClockwise,         //GL_CW
+        kClockwise,         // GL_CW
         kCounterClockwise,  // GL_CCW
         kDefault = kCounterClockwise,
     };
 
-    enum class CullFaceType
+    enum class CullFaceMode
     {
         kNone,
         kFront,         // GL_FRONT
@@ -23,10 +21,7 @@ namespace SoftwareRasterizer
 
     struct RasterizerState
     {
-        FrontFaceType frontFacetype = FrontFaceType::kDefault;
-        CullFaceType cullFaceType = CullFaceType::kDefault;
-
-        //TODO: FillMode
-
+        FrontFaceMode frontFaceMode = FrontFaceMode::kDefault;
+        CullFaceMode cullFaceMode = CullFaceMode::kDefault;
     };
 }

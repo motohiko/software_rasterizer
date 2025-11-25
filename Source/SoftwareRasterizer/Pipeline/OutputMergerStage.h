@@ -17,7 +17,7 @@ namespace SoftwareRasterizer
         void input(const DepthState* depthState) { _depthState = depthState; }
         void input(const DepthRange* depthRange) { _depthRange = depthRange; }
 
-        void ouput(RenderTarget* renderTarget) { _renderTarget = renderTarget; }
+        void output(RenderTarget* renderTarget) { _renderTarget = renderTarget; }
 
         void execute(int x, int y, const Vector4& color, float depth);
 
@@ -25,7 +25,7 @@ namespace SoftwareRasterizer
 
         float fetchTexelDepth(int x, int y) const;
 
-        bool depthTest(float storedDepth, float depth);
+        bool depthTest(float depth, float storedDepth);
 
         void storeTexelColor(int x, int y, const Vector4& color);
         void storeTexelDepth(int x, int y, float depth);

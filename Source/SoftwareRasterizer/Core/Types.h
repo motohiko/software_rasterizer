@@ -11,6 +11,20 @@ namespace SoftwareRasterizer
     using Lib::Vector4;
     using Lib::Matrix4x4;
 
+    enum class ComparisonFuncType// TODO: renmae
+    {
+        kNone,
+        kNever,         // GL_NEVER
+        kLess,          // GL_LESS
+        kEqual,         // GL_EQUAL
+        kLessEqual,     // GL_LEQUAL
+        kGreater,       // GL_GREATER
+        kNotEqual,      // GL_NOTEQUAL
+        kGreaterEqual,  // GL_GEQUAL
+        kAlways,        // GL_ALWAYS
+        kDefault = kLess,
+    };
+
     enum class PrimitiveTopologyType
     {
         kNone,
@@ -28,77 +42,90 @@ namespace SoftwareRasterizer
     const int kMaxVertexAttributes = 16;// GL_MAX_VERTEX_ATTRIBS
     const int kMaxVaryings = 15;        // GL_MAX_VARYING_VECTORS
 
-    struct AttributeVertex
+    struct VertexDataA// TODO: renmae
     {
         Vector4 attributes[kMaxVertexAttributes];
-        uint32_t attributeEnableBits;
+        uint32_t attributeEnableBits;// TODO: remove
     };
 
-    struct ShadedVertex
+    struct VertexDataB// TODO: renmae
     {
         Vector4 clipPosition;// 頂点座標（クリップ空間座標系）
         Vector4 varyings[kMaxVaryings];
-        int varyingNum;
+        int varyingNum;// TODO: remove
     };
 
-    struct NdcVertex
+    struct VertexDataC// TODO: renmae
     {
         Vector3 ndcPosition;// 頂点座標（正規化デバイス座標系）
     };
 
-    struct RasterVertex
+    struct VertexDataD// TODO: renmae
     {
         Vector2 wndPosition;// 頂点座標（ウィンドウ座標系）
         float depth;// 深度
         float invW;// = 1 / clipPosition.w
 
         Vector4 varyingsDividedByW[kMaxVaryings];
-        int varyingNum;
+        int varyingNum;// TODO: remove
     };
 
-    struct Fragment
+    struct FragmentDataA// TODO: renmae
     {
-        int x, y;// フラグメントの座標（ウィンドウ座標系）
+        int x;// フラグメントの座標（ウィンドウ座標系）
+        int y;
+
+        bool isOnPrimitive;
 
         Vector2 wndPosition;// フラグメントの中心座標（ウィンドウ座標系）
         float depth;// 深度
         float invW;// = 1 / clipPosition.w
 
         Vector4 varyings[kMaxVaryings];
-        int varyingNum;
+        int varyingNum;// TODO: remove
+
+        // フラグメントシェーダーからの出力
+        Vector4 color;// TODO: 別の構造体に分離
     };
 
-    struct QuadFragment
+    struct QuadFragmentDataA// TODO: renmae
     {
-        const Fragment* q00;
-        const Fragment* q01;
-        const Fragment* q10;
-        const Fragment* q11;
+
+    private:
+
+        // const はメンバのポインタ変数には伝播しない為、隠蔽しておく
+
+        FragmentDataA* _q00;
+        FragmentDataA* _q01;
+        FragmentDataA* _q10;
+        FragmentDataA* _q11;
+
+    public:
+
+        void setQ00(FragmentDataA* fragment) { _q00 = fragment; };
+        void setQ01(FragmentDataA* fragment) { _q01 = fragment; };
+        void setQ10(FragmentDataA* fragment) { _q10 = fragment; };
+        void setQ11(FragmentDataA* fragment) { _q11 = fragment; };
+
+        FragmentDataA* getQ00() { return _q00; };
+        FragmentDataA* getQ01() { return _q01; };
+        FragmentDataA* getQ10() { return _q10; };
+        FragmentDataA* getQ11() { return _q11; };
+
+        const FragmentDataA* getQ00() const { return _q00; };
+        const FragmentDataA* getQ01() const { return _q01; };
+        const FragmentDataA* getQ10() const { return _q10; };
+        const FragmentDataA* getQ11() const { return _q11; };
+
     };
 
-    union Depth24Stencil8
+    struct FragmentDataB// TODO: renmae
     {
-        uint32_t value;
+        int x;// フラグメントの座標（ウィンドウ座標系）
+        int y;
 
-        uint32_t getDepth() const
-        {
-            return value & 0x00FFFFFF;
-        }
-
-        void setDepth(uint32_t depth)
-        {
-            value = (value & 0xFF000000) | (depth & 0x00FFFFFF);
-        }
-
-        uint8_t getStencil() const
-        {
-            return (uint8_t)((value >> 24) & 0xFF);
-        }
-
-        void setStencil(uint8_t stencil) 
-        {
-            value = (value & 0x00FFFFFF) | ((uint32_t)(stencil) << 24);
-        }
+        Vector4 color;  // 色
+        float depth;    // 深度
     };
 
 }

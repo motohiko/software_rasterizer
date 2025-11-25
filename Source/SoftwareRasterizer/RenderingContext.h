@@ -7,6 +7,7 @@
 #include "Pipeline\OutputMergerStage.h"
 #include "State\WindowSize.h"
 #include "State\RenderTarget.h"
+#include "State\ClearParam.h"
 #include "State\InputLayout.h"
 #include "State\VertexBuffers.h"
 #include "State\IndexBuffer.h"
@@ -36,13 +37,13 @@ namespace SoftwareRasterizer
         void setRenderTargetColorBuffer(void* addr, int width, int height, int widthBytes);
         void setRenderTargetDepthBuffer(void* addr, int width, int height, int widthBytes);
 
-        void setClearColor(float r, float g, float b, float a);// glClearColor
+        void setClearColor(float red, float green, float blue, float alpha);// glClearColor
         void setClearDepth(float depth);// glClearDepth
         void clearRenderTarget();// glClear
 
         void enableVertexAttribute(int index);// glEnableVertexAttribArray
         void disableVertexAttribute(int index);// glDisableVertexAttribArray
-        void setVertexAttribute(int index, int size, ComponentType type, size_t stride, const void* buffer);// glVertexAttribPointer
+        void setVertexAttribute(int index, int size, ComponentDataType type, size_t stride, const void* buffer);// glVertexAttribPointer
 
         void setIndexBuffer(const uint16_t* indices, int indexNum);// glBufferData
 
@@ -56,52 +57,39 @@ namespace SoftwareRasterizer
 
         void setDepthRange(float nearVal, float farVal);// glDepthRange
 
-        void setFrontFaceType(FrontFaceType frontFacetype);// glFrontFace
-        void setCullFaceType(CullFaceType cullFaceType);// glCullFace
+        void setFrontFaceMode(FrontFaceMode frontFaceMode);// glFrontFace
+        void setCullFaceMode(CullFaceMode cullFaceMode);// glCullFace
 
         void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);// glUseProgram
 
-        void setDepthFunc(ComparisonType depthFunc);// glDepthFunc
+        void setDepthFunc(ComparisonFuncType depthFunc);// glDepthFunc
 
         void drawIndexed(PrimitiveTopologyType primitiveTopologyType);
 
     private:
 
-        void outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum);
-        void outputFragment(const Fragment* fragment);
+        void outputPrimitive(PrimitiveType primitiveType, const VertexDataB* vertices, int vertexNum);
+        void outputFragment();
 
     private:
 
         WindowSize _windowSize;
-
-        Vector4 _clearColor = Vector4::kZero;
-        float _clearDepth = 1.0f;
-
-        // VS / PS
-        ConstantBuffer _constantBuffer;
-
-        // IA
-        InputLayout _inputLayout;
-        VertexBuffers _vertexBuffers;
-        IndexBuffer _indexBuffer;
-
-        // VS
-        VertexShaderProgram _vertexShaderProgram;
-
-        // RS
-        RasterizerState _rasterizerState;
-        Viewport _viewport;
-        DepthRange _depthRange;
-
-        // PS
-        FragmentShaderProgram _fragmentShaderProgram;
-
-        // OM
-        RenderTarget _renderTarget;
-        DepthState _depthState;
+        ClearParam _clearParam;
+        ConstantBuffer _constantBuffer;                 // VS / PS
+        InputLayout _inputLayout;                       // IA
+        VertexBuffers _vertexBuffers;                   // IA
+        IndexBuffer _indexBuffer;                       // IA
+        VertexShaderProgram _vertexShaderProgram;       // VS
+        RasterizerState _rasterizerState;               // RS
+        Viewport _viewport;                             // RS
+        DepthRange _depthRange;                         // RS
+        FragmentShaderProgram _fragmentShaderProgram;   // PS
+        RenderTarget _renderTarget;                     // OM
+        DepthState _depthState;                         // OM
 
     private:
 
+        // Pipeline
         InputAssemblyStage _inputAssemblyStage;     // IA
         VertexShaderStage _vertexShaderStage;       // VS
         RasterizeStage _rasterizeStage;             // RS
@@ -113,6 +101,13 @@ namespace SoftwareRasterizer
         friend class RasterizeStage;
         friend class FragmentShaderStage;
         friend class OutputMergerStage;
+
+        // I/O data.
+        FragmentDataA _q00 = {};
+        FragmentDataA _q01 = {};
+        FragmentDataA _q10 = {};
+        FragmentDataA _q11 = {};
+        QuadFragmentDataA _quadFragment = {};
 
     };
 }

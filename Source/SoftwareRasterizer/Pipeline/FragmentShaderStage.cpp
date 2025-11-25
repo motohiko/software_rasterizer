@@ -12,7 +12,15 @@ namespace SoftwareRasterizer
     {
     }
 
-    void FragmentShaderStage::executeShader(const Fragment* inputFragment, Vector4* outputColor) const
+    void FragmentShaderStage::execute()
+    {
+        executeShader(_quadFragment->getQ00(), &(_outQuadFragment->getQ00()->color));
+        executeShader(_quadFragment->getQ01(), &(_outQuadFragment->getQ01()->color));
+        executeShader(_quadFragment->getQ10(), &(_outQuadFragment->getQ10()->color));
+        executeShader(_quadFragment->getQ11(), &(_outQuadFragment->getQ11()->color));
+    }
+
+    void FragmentShaderStage::executeShader(const FragmentDataA* inputFragment, Vector4* outputColor) const
     {
         FragmentShaderInput fragmentShaderInput;
         fragmentShaderInput.uniformBlock = _constantBuffer->uniformBlock;

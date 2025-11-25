@@ -1,8 +1,6 @@
 ﻿#pragma once
 
 #include "Texture2D.h"
-#include "..\Core\Types.h"
-#include <cstdint>
 
 namespace SoftwareRasterizer
 {

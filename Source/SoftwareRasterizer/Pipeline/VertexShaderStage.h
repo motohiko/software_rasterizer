@@ -18,7 +18,7 @@ namespace SoftwareRasterizer
         void input(const ConstantBuffer* constantBuffer) { _constantBuffer = constantBuffer; }
         void input(const VertexShaderProgram* vertexShaderProgram) { _vertexShaderProgram = vertexShaderProgram; }
 
-        void executeShader(const AttributeVertex* inputVertex, ShadedVertex* outputVertex) const;
+        void executeShader(const VertexDataA* inputVertex, VertexDataB* outputVertex) const;
 
     private:
 

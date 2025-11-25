@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "..\Core\Types.h"
-#include "..\..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {
@@ -14,12 +13,12 @@ namespace SoftwareRasterizer
 
         void setPrimitiveType(PrimitiveType primitiveType);
 
-        void clipPrimitive(const ShadedVertex* vertices, int vertexNum, ShadedVertex* clippedVertices, int* clippedVertiexNum) const;
+        void clipPrimitive(const VertexDataB* vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const;
 
 	private:
 
-        void clipPrimitiveLine(const ShadedVertex* primitiveVertices, int primitiveVertexCount, ShadedVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
-        void clipPrimitiveTriangle(const ShadedVertex* primitiveVertices, int primitiveVertexCount, ShadedVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
+        void clipPrimitiveLine(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
+        void clipPrimitiveTriangle(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
 
 	private:
 

@@ -8,7 +8,7 @@ namespace SoftwareRasterizer
     {
         const void* uniformBlock;
         Vector4 fragCoord;          // gl_FragCoord
-        const Vector4* varyings;    // varying
+        const Vector4* varyings;
     };
 
     struct FragmentShaderOutput

@@ -4,25 +4,11 @@
 
 namespace SoftwareRasterizer
 {
-    enum class ComparisonType
-    {
-        kNone,
-        kNever,         // GL_NEVER
-        kLess,          // GL_LESS
-        kEqual,         // GL_EQUAL
-        kLessEqual,     // GL_LEQUAL
-        kGreater,       // GL_GREATER
-        kNotEqual,      // GL_NOTEQUAL
-        kGreaterEqual,  // GL_GEQUAL
-        kAlways,        // GL_ALWAYS
-        kDefault = kLess,
-    };
-
 	struct DepthState
 	{
-		bool depthEnable = true;
+		bool depthTestEnabled = true;   // GL_DEPTH_TEST
 
-		ComparisonType depthFunc = ComparisonType::kDefault;
+		ComparisonFuncType depthFunc = ComparisonFuncType::kDefault;
 
 		//TODO: DepthWriteMask 
 	};

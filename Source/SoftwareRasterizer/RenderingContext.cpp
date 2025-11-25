@@ -7,6 +7,7 @@
 #include "Modules\PrimitiveAssembly.h"
 #include "Modules\TextureOperations.h" 
 #include <iterator>// std::size
+#include <algorithm>// clamp
 #include <cassert>
 
 namespace SoftwareRasterizer
@@ -33,7 +34,6 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setRenderTargetColorBuffer(void* addr, int width, int height, int widthBytes)
     {
-        // OM
         //assert(nullptr != addr);
         //assert(0 <= width);
         //assert(0 <= height);
@@ -46,7 +46,6 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setRenderTargetDepthBuffer(void* addr, int width, int height, int widthBytes)
     {
-        // OM
         //assert(nullptr != addr);
         //assert(0 <= width);
         //assert(0 <= height);
@@ -57,28 +56,34 @@ namespace SoftwareRasterizer
         _renderTarget.depthBuffer.widthBytes = widthBytes;
     }
 
-    void RenderingContext::setClearColor(float r, float g, float b, float a)
+    void RenderingContext::setClearColor(float red, float green, float blue, float alpha)
     {
-        // Non pipeline operation
-        _clearColor = Vector4(r, g, b, a);
+        _clearParam.clearColorR = std::clamp(red, 0.0f, 1.0f);
+        _clearParam.clearColorG = std::clamp(green, 0.0f, 1.0f);
+        _clearParam.clearColorB = std::clamp(blue, 0.0f, 1.0f);
+        _clearParam.clearColorA = std::clamp(alpha, 0.0f, 1.0f);
     }
 
     void RenderingContext::setClearDepth(float depth)
     {
-        // Non pipeline operation
-        _clearDepth = depth;
+        _clearParam.clearDepth = std::clamp(depth, 0.0f, 1.0f);// saturate
     }
 
     void RenderingContext::clearRenderTarget()
     {
-        // Non pipeline operation
-        TextureOperations::FillTextureColor(&(_renderTarget.colorBuffer), _clearColor);
-        TextureOperations::FillTextureDepth(&(_renderTarget.depthBuffer), _clearDepth);
+        Vector4 color(
+            _clearParam.clearColorR,
+            _clearParam.clearColorG,
+            _clearParam.clearColorB,
+            _clearParam.clearColorA
+        );
+        float depth = _clearParam.clearDepth;
+        TextureOperations::FillTextureColor(&(_renderTarget.colorBuffer), color);
+        TextureOperations::FillTextureDepth(&(_renderTarget.depthBuffer), depth);
     }
 
     void RenderingContext::enableVertexAttribute(int index)
     {
-        // IA
         assert(0 <= index && index < std::size(_inputLayout.elements));
         assert(0 <= index && index < std::size(_vertexBuffers.vertexBuffers));
         _inputLayout.vertexAttributeEnableBits |= (1u << index);
@@ -86,15 +91,13 @@ namespace SoftwareRasterizer
 
     void RenderingContext::disableVertexAttribute(int index)
     {
-        // IA
         assert(0 <= index && index < std::size(_inputLayout.elements));
         assert(0 <= index && index < std::size(_vertexBuffers.vertexBuffers));
         _inputLayout.vertexAttributeEnableBits &= ~(1u << index);
     }
 
-    void RenderingContext::setVertexAttribute(int index, int size, ComponentType type, size_t stride, const void* buffer)
+    void RenderingContext::setVertexAttribute(int index, int size, ComponentDataType type, size_t stride, const void* buffer)
     {
-        // IA
         assert(0 <= index && index < std::size(_inputLayout.elements));
         assert(0 <= index && index < std::size(_vertexBuffers.vertexBuffers));
         InputElement* element = &(_inputLayout.elements[index]);
@@ -108,26 +111,22 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setIndexBuffer(const uint16_t* indices, int indexNum)
     {
-        // IA
         _indexBuffer.indices = indices;
         _indexBuffer.indexNum = indexNum;
     }
 
     void RenderingContext::setUniformBlock(const void* uniformBlock)
     {
-        // VS / PS
         _constantBuffer.uniformBlock = uniformBlock;
     }
 
     void RenderingContext::setVertexShaderProgram(VertexShaderFuncPtr vertexShaderMain)
     {
-        // VS
         _vertexShaderProgram.vertexShaderMain = vertexShaderMain;
     }
 
     void RenderingContext::setViewport(int x, int y, int width, int height)
     {
-        // RS
         _viewport.viewportX = x;
         _viewport.viewportY = y;
         _viewport.viewportWidth = width;
@@ -146,63 +145,68 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setDepthRange(float nearVal, float farVal)
     {
-        // RS
         _depthRange.depthRangeNearVal = nearVal;
         _depthRange.depthRangeFarVal = farVal;
     }
 
-    void RenderingContext::setFrontFaceType(FrontFaceType frontFacetype)
+    void RenderingContext::setFrontFaceMode(FrontFaceMode frontFaceMode)
     {
-        // RS
-        _rasterizerState.frontFacetype = frontFacetype;
+        _rasterizerState.frontFaceMode = frontFaceMode;
     }
 
-    void RenderingContext::setCullFaceType(CullFaceType cullFaceType)
+    void RenderingContext::setCullFaceMode(CullFaceMode cullFaceMode)
     {
-        // RS
-        _rasterizerState.cullFaceType = cullFaceType;
+        _rasterizerState.cullFaceMode = cullFaceMode;
     }
 
     void RenderingContext::setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain)
     {
-        // PS
         _fragmentShaderProgram.fragmentShaderMain = fragmentShaderMain;
     }
 
-    void RenderingContext::setDepthFunc(ComparisonType depthFunc)
+    void RenderingContext::setDepthFunc(ComparisonFuncType depthFunc)
     {
-        // OM
         _depthState.depthFunc = depthFunc;
     }
 
     void RenderingContext::drawIndexed(PrimitiveTopologyType primitiveTopologyType)
     {
-        // IA I/O
+        _quadFragment.setQ00(&_q00);
+        _quadFragment.setQ01(&_q01);
+        _quadFragment.setQ10(&_q10);
+        _quadFragment.setQ11(&_q11);
+
+        // Set IA I/O.
         _inputAssemblyStage.input(&_inputLayout);
         _inputAssemblyStage.input(&_vertexBuffers);
         _inputAssemblyStage.input(&_indexBuffer);
         _inputAssemblyStage.input(primitiveTopologyType);
 
-        // VS I/O
+        // Set VS I/O.
         _vertexShaderStage.input(&_constantBuffer);
         _vertexShaderStage.input(&_vertexShaderProgram);
 
-        // RS I/O
+        // Set RS I/O.
         _rasterizeStage.input(&_windowSize);
         _rasterizeStage.input(&_rasterizerState);
         _rasterizeStage.input(&_viewport);
         _rasterizeStage.input(&_depthRange);
-        _rasterizeStage.ouput(this);
+        _rasterizeStage.output(&_quadFragment);
+        _rasterizeStage.output(this);
 
-        // PS I/O
+        // Set PS I/O.
         _fragmentShaderStage.input(&_constantBuffer);
         _fragmentShaderStage.input(&_fragmentShaderProgram);
+        _fragmentShaderStage.input(&_quadFragment);
+        _fragmentShaderStage.output(&_quadFragment);
 
-        // OM I/O
+        // Set OM I/O.
         _outputMergerStage.input(&_depthState);
         _outputMergerStage.input(&_depthRange);
-        _outputMergerStage.ouput(&_renderTarget);
+        _outputMergerStage.output(&_renderTarget);
 
+
+        // kick IA.
 
         _inputAssemblyStage.prepareReadPrimitive();
         _rasterizeStage.prepareRasterize();
@@ -210,13 +214,13 @@ namespace SoftwareRasterizer
         InputAssemblyStage::Primitive primitive;
         while (_inputAssemblyStage.readPrimitive(&primitive))
         {
-            ShadedVertex shadedVertices[3];
+            VertexDataB shadedVertices[3];
 
             for (int i = 0; i < primitive.vertexNum; i++)
             {
                 uint16_t vertexIndex = primitive.vertexIndices[i];
 
-                AttributeVertex attributeVertex;
+                VertexDataA attributeVertex;
                 _inputAssemblyStage.readAttributeVertex(vertexIndex, &attributeVertex);
 
                 _vertexShaderStage.executeShader(&attributeVertex, &(shadedVertices[i]));
@@ -226,10 +230,10 @@ namespace SoftwareRasterizer
         }
     }
 
-    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const ShadedVertex* vertices, int vertexNum)
+    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const VertexDataB* vertices, int vertexNum)
     {
         // プリミティブをクリップ
-        ShadedVertex clippedVertices[kClippingPointMaxNum];
+        VertexDataB clippedVertices[kClippingPointMaxNum];
         int clippedVertiexNum = 0;
         {
             ClipStage clipStage;
@@ -260,17 +264,35 @@ namespace SoftwareRasterizer
         }
     }
 
-    void RenderingContext::outputFragment(const Fragment* fragment)
+    void RenderingContext::outputFragment()
     {
-        Vector4 color;
-        _fragmentShaderStage.executeShader(fragment, &color);
+        _fragmentShaderStage.execute();
 
-        _outputMergerStage.execute(fragment->x, fragment->y, color, fragment->depth);
-
+        // TODO:
         // クアッド分出力されたらフラグメントシェーダーステージへ
-
         // 導関数を使いMIN/MGA判定
 
+        Vector4 c00 = _quadFragment.getQ00()->color;
+        Vector4 c01 = _quadFragment.getQ01()->color;
+        Vector4 c10 = _quadFragment.getQ10()->color;
+        Vector4 c11 = _quadFragment.getQ11()->color;
+
+        if (_quadFragment.getQ00()->isOnPrimitive)
+        {
+            _outputMergerStage.execute(_quadFragment.getQ00()->x, _quadFragment.getQ00()->y, c00, _quadFragment.getQ00()->depth);
+        }
+        if (_quadFragment.getQ01()->isOnPrimitive)
+        {
+            _outputMergerStage.execute(_quadFragment.getQ01()->x, _quadFragment.getQ01()->y, c01, _quadFragment.getQ01()->depth);
+        }
+        if (_quadFragment.getQ10()->isOnPrimitive)
+        {
+            _outputMergerStage.execute(_quadFragment.getQ10()->x, _quadFragment.getQ10()->y, c10, _quadFragment.getQ10()->depth);
+        }
+        if (_quadFragment.getQ11()->isOnPrimitive)
+        {
+            _outputMergerStage.execute(_quadFragment.getQ11()->x, _quadFragment.getQ11()->y, c11, _quadFragment.getQ11()->depth);
+        }
     }
 
 }

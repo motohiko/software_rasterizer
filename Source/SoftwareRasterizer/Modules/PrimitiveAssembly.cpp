@@ -7,7 +7,7 @@ namespace SoftwareRasterizer
         _primitiveType = primitiveType;
     }
 
-    void PrimitiveAssembly::setClipedVertices(const ShadedVertex* vertices, int vertiexNum)
+    void PrimitiveAssembly::setClipedVertices(const VertexDataB* vertices, int vertiexNum)
     {
         _vertiexNum = vertiexNum;
     }

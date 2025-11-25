@@ -11,8 +11,22 @@ namespace SoftwareRasterizer
     struct RasterPrimitive
     {
         PrimitiveType primitiveType;
-        ShadedVertex vertices[3];
+        VertexDataB vertices[3];
         int vertexNum;
+    };
+
+    struct Scanline
+    {
+        int min;
+        int max;
+    };
+
+    struct Raster
+    {
+        Scanline* scanlines;
+        int scanlineNum;
+        int min;
+        int max;
     };
 
     class RasterizeStage
@@ -23,13 +37,15 @@ namespace SoftwareRasterizer
         static void validateState(const Viewport* state);
 
         RasterizeStage();
+        ~RasterizeStage();
 
         void input(const WindowSize* windowSize) { _windowSize = windowSize; }
         void input(const RasterizerState* rasterizerState) { _rasterizerState = rasterizerState; }
         void input(const Viewport* viewport) { _viewport = viewport; }
         void input(const DepthRange* depthRange) { _depthRange = depthRange; }
-    
-        void ouput(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
+   
+        void output(QuadFragmentDataA* quadFragment) { _quadFragment = quadFragment; }
+        void output(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
 
         void prepareRasterize();
 
@@ -37,40 +53,46 @@ namespace SoftwareRasterizer
 
     private:
 
-        static void transformToNdcVertex(const ShadedVertex* vertex, NdcVertex* ndcVertex)
+        void transformToNdcVertex(const VertexDataB* vertex, VertexDataC* ndcVertex)
         {
             ndcVertex->ndcPosition = vertex->clipPosition.getXYZ() / vertex->clipPosition.w;
         }
 
-        Vector2 transformWindow(const NdcVertex* ndcVertex) const;
-        float mapDepthRange(const NdcVertex* ndcVertex) const;
+        Vector2 transformWindowSpace(const VertexDataC* ndcVertex) const;
 
-        void transformRasterVertex(const ShadedVertex* clippedPrimitiveVertices, const NdcVertex* ndcVertex, RasterVertex* rasterizationPoint) const;
+        float mapDepthRange(const VertexDataC* ndcVertex) const;
 
-        static float edgeFunction(const Vector2& a, const Vector2& b, const Vector2& c)
+        void transformRasterVertex(const VertexDataB* clippedPrimitiveVertices, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const;
+
+        float edgeFunction(const Vector2& a, const Vector2& b, const Vector2& c)
         {
+            // TODO：完全なエッジ関数
+            // 参考 Juan Pineda 1988 A Parallel Algorithm for Polygon Rasterization. 
+
             Vector2 ab = b - a;
             Vector2 ac = c - a;
             return ab.cross(ac);
         }
 
-        void rasterizeLine(const RasterVertex* p0, const RasterVertex* p1);
-        void rasterizeTriangle(const RasterVertex* rasterizationPoint0, const RasterVertex* rasterizationPoint1, const RasterVertex* rasterizationPopint2);
+        void rasterizeLine(const VertexDataD* p0, const VertexDataD* p1);
+        void rasterizeTriangle(const VertexDataD* rasterizationPoint0, const VertexDataD* rasterizationPoint1, const VertexDataD* rasterizationPopint2);
 
-        void getLineFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, Fragment* fragment);
-        bool getTriangleFragment(int x, int y, const RasterVertex* p0, const RasterVertex* p1, const RasterVertex* p2, Fragment* fragment);
+        void getLineFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, FragmentDataA* fragment);
+        void getTriangleFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2, FragmentDataA* fragment);
 
     private:
 
+        // input
         const WindowSize* _windowSize = nullptr;
         const RasterizerState* _rasterizerState = nullptr;
         const Viewport* _viewport = nullptr;
         const DepthRange* _depthRange = nullptr;
 
+        // output
+        QuadFragmentDataA* _quadFragment;
         class RenderingContext* _renderingContext = nullptr;
 
-        int _windowWidth = 0;
-        int _windowHeight = 0;
+        // work
 
         int _clipRectMinX = 0;
         int _clipRectMinY = 0;
@@ -78,6 +100,8 @@ namespace SoftwareRasterizer
         int _clipRectMaxY = 0;
 
         float _sarea2 = 0.0f;// singed area 2x
+
+        Raster _raster;
 
     };
 }

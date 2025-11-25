@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "..\Core\Types.h"
-
 namespace SoftwareRasterizer
 {
     struct DepthRange

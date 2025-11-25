@@ -8,6 +8,12 @@
 namespace Lib
 {
 
+    // 逆lerp
+    static inline float InverseLerp(float a, float b, float val)
+    {
+        return (val - a) / (b - a);
+    }
+
     struct BoundingBox2d
     {
         float minX;
@@ -113,7 +119,7 @@ namespace Lib
 
 
     // ビット 1 の個数
-    inline uint32_t popcnt(uint32_t bit)
+    static inline uint32_t popcnt(uint32_t bit)
     {
         bit = (bit & 0x55555555) + (bit >> 1 & 0x55555555);
         bit = (bit & 0x33333333) + (bit >> 2 & 0x33333333);
@@ -123,13 +129,13 @@ namespace Lib
         return bit;
     }
 
-    static int clamp8_fast(int x)
+    static inline int clamp8_fast(int x)
     {
         return ((x & ~(x >> 31)) | ((255 - x) >> 31)) & 255;
     }
 
     // 最も右にある1のみを残した値
-    inline uint32_t rightmost_set_bit(uint32_t bit)
+    static inline uint32_t rightmost_set_bit(uint32_t bit)
     {
         return bit & (~bit + 1);
     }

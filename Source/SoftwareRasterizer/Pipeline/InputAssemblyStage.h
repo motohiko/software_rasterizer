@@ -35,7 +35,7 @@ namespace SoftwareRasterizer
         void prepareReadPrimitive();
         bool readPrimitive(Primitive* primitive);
 
-        void readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const;
+        void readAttributeVertex(uint16_t vertexIndex, VertexDataA* vertex) const;
 
     private:
 
@@ -49,7 +49,7 @@ namespace SoftwareRasterizer
 
         int _readVertexCount = 0;
 
-        std::vector<AttributeVertex> _cache;
+        std::vector<VertexDataA> _cache;
 
     };
 }

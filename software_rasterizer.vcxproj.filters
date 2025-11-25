@@ -156,6 +156,12 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\State\ClearParam.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\Comparator.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MeshData.cpp">
@@ -219,6 +225,9 @@
       <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
   </ItemGroup>

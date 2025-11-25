@@ -57,7 +57,7 @@ namespace SoftwareRasterizer
         return true;
     }
 
-    void InputAssemblyStage::readAttributeVertex(uint16_t vertexIndex, AttributeVertex* vertex) const
+    void InputAssemblyStage::readAttributeVertex(uint16_t vertexIndex, VertexDataA* vertex) const
     {
         for (int i = 0; i < kMaxVertexAttributes; i++)
         {
@@ -72,7 +72,7 @@ namespace SoftwareRasterizer
                 uintptr_t ptr = ((uintptr_t)vertexBuffer->addr) + (inputElement->stride * vertexIndex);
                 switch (inputElement->type)
                 {
-                case ComponentType::kFloat:
+                case ComponentDataType::kFloat:
                     switch (inputElement->size)
                     {
                     case 4:
@@ -91,7 +91,7 @@ namespace SoftwareRasterizer
                         break;
                     }
                     break;
-                case ComponentType::kUnsignedByte:
+                case ComponentDataType::kUnsignedByte:
                     if (inputElement->normalized)
                     {
                         switch (inputElement->size)

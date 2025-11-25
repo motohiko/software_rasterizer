@@ -138,6 +138,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Core\Types.h" />
     <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\Comparator.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\RenderingContext.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\State\ClearParam.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\ConstantBuffer.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\DepthRange.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\DepthState.h" />
@@ -174,6 +176,7 @@
     <ClCompile Include="Source\MeshData.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\ClipStage.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp" />

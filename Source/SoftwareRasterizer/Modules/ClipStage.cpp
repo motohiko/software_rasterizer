@@ -40,7 +40,7 @@ namespace SoftwareRasterizer
 #endif
     }
 
-    static void lerpVertex(ShadedVertex* dst, const ShadedVertex& a, const ShadedVertex& b, float t)
+    static void lerpVertex(VertexDataB* dst, const VertexDataB& a, const VertexDataB& b, float t)
     {
         // ※ w も含め線形補間
 
@@ -60,7 +60,7 @@ namespace SoftwareRasterizer
         _primitiveType = primitiveType;
     }
 
-    void ClipStage::clipPrimitive(const ShadedVertex* vertices, int vertexNum, ShadedVertex* clippedVertices, int* clippedVertiexNum) const
+    void ClipStage::clipPrimitive(const VertexDataB* vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const
 	{
         switch (_primitiveType)
         {
@@ -76,7 +76,7 @@ namespace SoftwareRasterizer
         }
 	}
 
-    void ClipStage::clipPrimitiveLine(const ShadedVertex* primitiveVertices, int primitiveVertexCount, ShadedVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
+    void ClipStage::clipPrimitiveLine(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
     {
         if (primitiveVertexCount != 2)
         {
@@ -139,7 +139,7 @@ namespace SoftwareRasterizer
 #endif
     }
 
-    void ClipStage::clipPrimitiveTriangle(const ShadedVertex* primitiveVertices, int primitiveVertexCount, ShadedVertex* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
+    void ClipStage::clipPrimitiveTriangle(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
     {
         // Sutherland-Hodgman algorithm
         // Ivan Sutherland, Gary W. Hodgman: Reentrant Polygon Clipping. Communications of the ACM, vol. 17, pp. 32-42, 1974
@@ -181,10 +181,10 @@ namespace SoftwareRasterizer
             return;
         }
 
-        ShadedVertex inputList[kClippingPointMaxNum] = {};
+        VertexDataB inputList[kClippingPointMaxNum] = {};
         int inputListCount = 0;
 
-        ShadedVertex outputList[kClippingPointMaxNum] = {};
+        VertexDataB outputList[kClippingPointMaxNum] = {};
         int outputListCount = 0;
 
         // List outputList = subjectPolygon;
@@ -211,17 +211,17 @@ namespace SoftwareRasterizer
             {
                 // Point current_point = inputList[i];
                 // Point prev_point = inputList[(i - 1) % inputList.count];
-                ShadedVertex& currentPoint = inputList[j];
-                ShadedVertex& prevPoint = inputList[((j - 1) + inputListCount) % inputListCount];// (0 - 1) % n = -1 になるので、 n を足してから余剰を求める
+                VertexDataB& currentPoint = inputList[j];
+                VertexDataB& prevPoint = inputList[((j - 1) + inputListCount) % inputListCount];// (0 - 1) % n = -1 になるので、 n を足してから余剰を求める
 
-                ShadedVertex& p0 = prevPoint;
-                ShadedVertex& p1 = currentPoint;
+                VertexDataB& p0 = prevPoint;
+                VertexDataB& p1 = currentPoint;
 
                 // 境界座標系に変換（0 <= d のとき indide）
                 float d0 = transformClippingBoundaryCoordinate(p0.clipPosition, &kClipPlaneParameters[i]);
                 float d1 = transformClippingBoundaryCoordinate(p1.clipPosition, &kClipPlaneParameters[i]);
 
-                ShadedVertex intersectingPoint;
+                VertexDataB intersectingPoint;
 
                 // current_point inside clipEdge
                 if (0.0f <= d1)
