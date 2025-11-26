@@ -220,239 +220,95 @@ namespace SoftwareRasterizer
     }
 
 
-    float XatY(const Vector2* a, const Vector2* b, float y)
+    bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
     {
-        return a->x + (y - a->y) * (b->x - a->x) / (b->y - a->y);
+        return std::abs(b.y - a.y) <= epsilon;
+    }
+
+    float XatY(const Vector2& a, const Vector2& b, float y)
+    {
+        float slope = (b.y - a.y) / (b.x - a.x);
+        float x = a.x + (y - a.y) / slope;
+        return x;
+    }
+
+    void ScanLine(const Vector2& a, const Vector2& b, int y, Scanline* scanline)
+    {
+        bool a_min = (a.y < b.y);
+        Vector2 min = a_min ? a : b;
+        Vector2 max = a_min ? b : a;
+
+        if (y < (int)min.y)
+        {
+            scanline->min = min.x;
+            scanline->max = min.x;
+        }
+        else if ((int)max.y < y)
+        {
+            scanline->min = max.x;
+            scanline->max = max.x;
+        }
+        else
+        {
+            if (IsAlmostHorizontal(a, b))
+            {
+                scanline->min = (int)std::min(a.x, b.x);
+                scanline->max = (int)std::max(a.x, b.x);
+            }
+            else
+            {
+                float x0 = XatY(a, b, y);
+                float x1 = XatY(a, b, y + 1);
+                scanline->min = (int)std::min(x0, x1);
+                scanline->max = (int)std::max(x0, x1);
+            }
+        }
     }
 
     void RasterizeStage::rasterizeLine(const VertexDataD* p0, const VertexDataD* p1)
     {
-#if !0
-        const VertexDataD* a = p0;
-        const VertexDataD* b = p1;
-
-        if (a->wndPosition.y > b->wndPosition.y)
+#if 0
+        _raster.min = (int)std::min(p0->wndPosition.y, p1->wndPosition.y);
+        _raster.max = (int)std::max(p0->wndPosition.y, p1->wndPosition.y);
+        _raster.min = std::clamp(_raster.min, _clipRectMinY, _clipRectMaxY);
+        _raster.max = std::clamp(_raster.max, _clipRectMinY, _clipRectMaxY);
+        for (int y = _raster.min; y <= _raster.max; y++)
         {
-            std::swap(a, b);
+            Scanline* scanline = &(_raster.scanlines[y]);
+            ScanLine(p0->wndPosition, p1->wndPosition, y, scanline);
+            scanline->min = std::clamp(scanline->min, _clipRectMinX, _clipRectMaxX);
+            scanline->max = std::clamp(scanline->max, _clipRectMinX, _clipRectMaxX);
         }
-
-        int baseX = (int)(a->wndPosition.x);
-        int baseY = (int)(a->wndPosition.y);
-
-        int x, y;
-
-        y = baseY;
-        for (;;)
+#else
+        _raster.min = (int)std::min(p0->wndPosition.y, p1->wndPosition.y);
+        _raster.max = (int)std::max(p0->wndPosition.y, p1->wndPosition.y);
+        _raster.min = std::clamp(_raster.min, _clipRectMinY, _clipRectMaxY);
+        _raster.max = std::clamp(_raster.max, _clipRectMinY, _clipRectMaxY);
+        for (int y = _raster.min; y <= _raster.max; y++)
         {
-            x = baseX;
-            getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-            getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-            getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-            getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-            if (_quadFragment->getQ00()->isOnPrimitive ||
-                _quadFragment->getQ01()->isOnPrimitive ||
-                _quadFragment->getQ10()->isOnPrimitive ||
-                _quadFragment->getQ11()->isOnPrimitive)
-            {
-                _renderingContext->outputFragment();
-
-                for (x = baseX - 2; ; x -= 2)
-                {
-                    getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-                    getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-                    getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-                    getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-                    if (_quadFragment->getQ00()->isOnPrimitive ||
-                        _quadFragment->getQ01()->isOnPrimitive ||
-                        _quadFragment->getQ10()->isOnPrimitive ||
-                        _quadFragment->getQ11()->isOnPrimitive)
-                    {
-                        _renderingContext->outputFragment();
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                for (x = baseX + 2; ; x += 2)
-                {
-                    getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-                    getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-                    getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-                    getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-                    if (_quadFragment->getQ00()->isOnPrimitive ||
-                        _quadFragment->getQ01()->isOnPrimitive ||
-                        _quadFragment->getQ10()->isOnPrimitive ||
-                        _quadFragment->getQ11()->isOnPrimitive)
-                    {
-                        _renderingContext->outputFragment();
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                y += 2;
-            }
-            else
-            {
-                y += 2;
-
-                break;
-            }
+            Scanline* scanline = &(_raster.scanlines[y]);
+            scanline->min = (int)std::min(p0->wndPosition.x, p1->wndPosition.x);
+            scanline->max = (int)std::max(p0->wndPosition.x, p1->wndPosition.x);
+            scanline->min = std::clamp(scanline->min, _clipRectMinX, _clipRectMaxX);
+            scanline->max = std::clamp(scanline->max, _clipRectMinX, _clipRectMaxX);
         }
-        
-        if (b->wndPosition.x < a->wndPosition.x)
-        {
-            for (;;)
-            {
-                int cnt = 0;
-                for (x = baseX - 2; 0 <= x; x -= 2)
-                {
-                    getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-                    getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-                    getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-                    getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-                    if (_quadFragment->getQ00()->isOnPrimitive ||
-                        _quadFragment->getQ01()->isOnPrimitive ||
-                        _quadFragment->getQ10()->isOnPrimitive ||
-                        _quadFragment->getQ11()->isOnPrimitive)
-                    {
-                        _renderingContext->outputFragment();
-                        cnt++;
-                        baseX = x;
-                        break;
-                    }
-                }
-
-                for (x = baseX - 2; 0 <= x; x -= 2)
-                {
-                    getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-                    getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-                    getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-                    getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-                    if (_quadFragment->getQ00()->isOnPrimitive ||
-                        _quadFragment->getQ01()->isOnPrimitive ||
-                        _quadFragment->getQ10()->isOnPrimitive ||
-                        _quadFragment->getQ11()->isOnPrimitive)
-                    {
-                        _renderingContext->outputFragment();
-                        cnt++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                if (cnt == 0)
-                {
-                    break;
-                }
-
-                y += 2;
-            }
-        }
-        else
-        {
-            for (;;)
-            {
-                int cnt = 0;
-                for (x = baseX + 2; x <= (_windowSize->windowWidth - 1); x += 2)
-                {
-                    getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-                    getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-                    getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-                    getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-                    if (_quadFragment->getQ00()->isOnPrimitive ||
-                        _quadFragment->getQ01()->isOnPrimitive ||
-                        _quadFragment->getQ10()->isOnPrimitive ||
-                        _quadFragment->getQ11()->isOnPrimitive)
-                    {
-                        _renderingContext->outputFragment();
-                        cnt++;
-                        baseX = x;
-                        break;
-                    }
-                }
-
-                for (x = baseX + 2; x <= (_windowSize->windowWidth - 1); x += 2)
-                {
-                    getLineFragment(x + 0, y + 0, p0, p1, _quadFragment->getQ00());
-                    getLineFragment(x + 1, y + 0, p0, p1, _quadFragment->getQ01());
-                    getLineFragment(x + 0, y + 1, p0, p1, _quadFragment->getQ10());
-                    getLineFragment(x + 1, y + 1, p0, p1, _quadFragment->getQ11());
-                    if (_quadFragment->getQ00()->isOnPrimitive ||
-                        _quadFragment->getQ01()->isOnPrimitive ||
-                        _quadFragment->getQ10()->isOnPrimitive ||
-                        _quadFragment->getQ11()->isOnPrimitive)
-                    {
-                        _renderingContext->outputFragment();
-                        cnt++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                if (cnt == 0)
-                {
-                    break;
-                }
-
-                y += 2;
-            }
-        }
-
 #endif
 
-#if 0
-        for (int qy = 0; qy < _raster.scanlineNum; qy++)
+        for (int y = _raster.min; y <= _raster.max; y += 2)
         {
-            _raster.scanlines[qy].min = 0x7fffffff;
-            _raster.scanlines[qy].max = -1;
-        }
-        _raster.min = 0x7fffffff;
-        _raster.max = -1;
-
-
-        {
-            int ax = p0->wndPosition.x / 2;
-            int ay = p0->wndPosition.y / 2;
-            int bx = p1->wndPosition.x / 2;
-            int by = p1->wndPosition.y / 2;
-
-            Lib::BresenhamLine bresenhamLine;
-            bresenhamLine.setup(ax, ay, bx, by);
-            do
+            int y0 = y;
+            int y1 = y + 1;
+            int y1clamped = std::clamp(y1, _raster.min, _raster.max);
+            int xmin = std::min(_raster.scanlines[y0].min, _raster.scanlines[y1clamped].min);
+            int xmax = std::max(_raster.scanlines[y0].max, _raster.scanlines[y1clamped].max);
+            for (int x = xmin; x <= xmax; x += 2)
             {
-                int qx = bresenhamLine.x;
-                int qy = bresenhamLine.y;
-                if (0 <= qy && qy <= (_raster.scanlineNum - 1))
-                {
-                    _raster.scanlines[qy].min = std::min(_raster.scanlines[qy].min, qx - 1);
-                    _raster.scanlines[qy].max = std::max(_raster.scanlines[qy].max, qx + 1);
-                    _raster.min = std::min(_raster.min, qy);
-                    _raster.max = std::max(_raster.max, qy);
-
-                }
-            } while (bresenhamLine.next());
-        }
-
-        for (int qy = _raster.max; _raster.min <= qy; qy--)// 上から下へ
-        {
-            for (int qx = _raster.scanlines[qy].min; qx <= _raster.scanlines[qy].max; qx++)
-            {
-                int fx = 2 * qx;
-                int fy = 2 * qy;
-                getLineFragment(fx + 0, fy - 0, p0, p1, _quadFragment->getQ00());
-                getLineFragment(fx + 1, fy - 0, p0, p1, _quadFragment->getQ01());
-                getLineFragment(fx + 0, fy - 1, p0, p1, _quadFragment->getQ10());
-                getLineFragment(fx + 1, fy - 1, p0, p1, _quadFragment->getQ11());
-
+                int x0 = x;
+                int x1 = x + 1;
+                getLineFragment(x0, y0, p0, p1, _quadFragment->getQ00());
+                getLineFragment(x1, y0, p0, p1, _quadFragment->getQ01());
+                getLineFragment(x0, y1, p0, p1, _quadFragment->getQ10());
+                getLineFragment(x1, y1, p0, p1, _quadFragment->getQ11());
                 if (_quadFragment->getQ00()->isOnPrimitive ||
                     _quadFragment->getQ01()->isOnPrimitive ||
                     _quadFragment->getQ10()->isOnPrimitive ||
@@ -462,13 +318,59 @@ namespace SoftwareRasterizer
                 }
             }
         }
-#endif
+    }
+
+    void RasterizeStage::scan(const Vector2& a, const Vector2& b)
+    {
     }
 
     void RasterizeStage::rasterizeTriangle(const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2)
     {
         _sarea2 = edgeFunction(p0->wndPosition, p1->wndPosition, p2->wndPosition);
 
+#if 0
+        const Vector2& a = p0->wndPosition;
+        const Vector2& b = p1->wndPosition;
+        const Vector2& c = p2->wndPosition;
+
+        _raster.min = (int)std::min(a.y, std::min(b.y, c.y));
+        _raster.max = (int)std::max(a.y, std::max(b.y, c.y));
+        _raster.min = std::clamp(_raster.min, _clipRectMinY, _clipRectMaxY);
+        _raster.max = std::clamp(_raster.max, _clipRectMinY, _clipRectMaxY);
+        for (int y = _raster.min; y <= _raster.max; y++)
+        {
+            Scanline* scanline = &(_raster.scanlines[y]);
+            scanline->min = (int)std::min(a.x, std::min(b.x, c.x));
+            scanline->max = (int)std::max(a.x, std::max(b.x, b.x));
+            scanline->min = std::clamp(scanline->min, _clipRectMinX, _clipRectMaxX);
+            scanline->max = std::clamp(scanline->max, _clipRectMinX, _clipRectMaxX);
+        }
+
+        for (int y = _raster.min; y <= _raster.max; y += 2)
+        {
+            int y0 = y;
+            int y1 = y + 1;
+            int y1clamped = std::clamp(y1, _raster.min, _raster.max);
+            int xmin = std::min(_raster.scanlines[y0].min, _raster.scanlines[y1clamped].min);
+            int xmax = std::max(_raster.scanlines[y0].max, _raster.scanlines[y1clamped].max);
+            for (int x = xmin; x <= xmax; x += 2)
+            {
+                int x0 = x;
+                int x1 = x + 1;
+                getTriangleFragment(x0, y0, p0, p1, p2, _quadFragment->getQ00());
+                getTriangleFragment(x1, y0, p0, p1, p2, _quadFragment->getQ01());
+                getTriangleFragment(x0, y1, p0, p1, p2, _quadFragment->getQ10());
+                getTriangleFragment(x1, y1, p0, p1, p2, _quadFragment->getQ11());
+                if (_quadFragment->getQ00()->isOnPrimitive ||
+                    _quadFragment->getQ01()->isOnPrimitive ||
+                    _quadFragment->getQ10()->isOnPrimitive ||
+                    _quadFragment->getQ11()->isOnPrimitive)
+                {
+                    _renderingContext->outputFragment();
+                }
+            }
+        }
+#else
         // ラスタライズの範囲を絞り込む
         Lib::BoundingBox2d boundingBox = {};
         boundingBox.init();
@@ -486,9 +388,9 @@ namespace SoftwareRasterizer
         maxX = std::min(maxX, _clipRectMaxX);
         maxY = std::min(maxY, _clipRectMaxY);
 
-        for (int y = maxY; minY <= y; y-=2)// 上から下へ
+        for (int y = maxY; minY <= y; y -= 2)// 上から下へ
         {
-            for (int x = minX; x <= maxX; x+=2)
+            for (int x = minX; x <= maxX; x += 2)
             {
                 getTriangleFragment(x + 0, y - 0, p0, p1, p2, _quadFragment->getQ00());
                 getTriangleFragment(x + 1, y - 0, p0, p1, p2, _quadFragment->getQ01());
@@ -504,6 +406,7 @@ namespace SoftwareRasterizer
                 }
             }
         }
+#endif
     }
 
 

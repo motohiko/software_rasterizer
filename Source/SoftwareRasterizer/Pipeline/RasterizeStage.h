@@ -74,6 +74,8 @@ namespace SoftwareRasterizer
             return ab.cross(ac);
         }
 
+        void scan(const Vector2& a, const Vector2& b);
+
         void rasterizeLine(const VertexDataD* p0, const VertexDataD* p1);
         void rasterizeTriangle(const VertexDataD* rasterizationPoint0, const VertexDataD* rasterizationPoint1, const VertexDataD* rasterizationPopint2);
 
