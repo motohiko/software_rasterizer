@@ -15,19 +15,29 @@ namespace SoftwareRasterizer
         int vertexNum;
     };
 
+
     struct Scanline
     {
-        int min;
-        int max;
+        int minX;
+        int maxX;
     };
 
     struct Raster
     {
         Scanline* scanlines;
         int scanlineNum;
-        int min;
-        int max;
+        int minY;
+        int maxY;
     };
+
+    struct Seg
+    {
+        const Vector2* p0;
+        const Vector2* p1;
+        int minY;
+        int maxY;
+    };
+
 
     class RasterizeStage
 	{
@@ -73,8 +83,6 @@ namespace SoftwareRasterizer
             Vector2 ac = c - a;
             return ab.cross(ac);
         }
-
-        void scan(const Vector2& a, const Vector2& b);
 
         void rasterizeLine(const VertexDataD* p0, const VertexDataD* p1);
         void rasterizeTriangle(const VertexDataD* rasterizationPoint0, const VertexDataD* rasterizationPoint1, const VertexDataD* rasterizationPopint2);
