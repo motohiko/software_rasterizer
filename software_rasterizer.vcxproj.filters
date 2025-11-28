@@ -162,6 +162,9 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Comparator.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MeshData.cpp">
@@ -228,6 +231,9 @@
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,7 +3,7 @@
 #include "..\..\Lib\Algorithm.h"
 #include <cassert>
 #include <cmath>// lerp floor ceil abs 
-#include <algorithm>// min max
+#include <algorithm>// min max clamp
 #include <cfloat>//FLT_EPSILON
 
 namespace SoftwareRasterizer
@@ -14,13 +14,10 @@ namespace SoftwareRasterizer
 
     RasterizeStage::RasterizeStage()
     {
-        _raster.scanlines = nullptr;
-        _raster.scanlineNum = 0;
     }
 
     RasterizeStage::~RasterizeStage()
     {
-        delete _raster.scanlines;
     }
 
     void RasterizeStage::prepareRasterize()
@@ -35,14 +32,10 @@ namespace SoftwareRasterizer
         _clipRectMaxX = std::min(windowMaxX, viewportMaxX);
         _clipRectMaxY = std::min(windowMaxY, viewportMaxY);
 
-        int scanlineNum = _windowSize->windowHeight;
-        if (_raster.scanlineNum != scanlineNum)
-        {
-            delete _raster.scanlines;
-            _raster.scanlines = new Scanline[scanlineNum];
-            _raster.scanlineNum = scanlineNum;
-        }
+        _rasterizer.setClipRect(_clipRectMinX, _clipRectMinY, _clipRectMaxX, _clipRectMaxY);
 
+        int scanlineNum = _windowSize->windowHeight;
+        _rasterizer.setSsanlineNum(_windowSize->windowHeight);
     }
 
     // 正規化デバイス座標からウィンドウ座標へ変換
@@ -220,117 +213,21 @@ namespace SoftwareRasterizer
     }
 
 
-    bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
-    {
-        return std::abs(b.y - a.y) <= epsilon;
-    }
-
-    float XatY(const Vector2& a, const Vector2& b, float y)
-    {
-        float slope = (b.y - a.y) / (b.x - a.x);
-        float x = a.x + (y - a.y) / slope;
-        return x;
-    }
-
-    void ScanLine(const Vector2* a, const Vector2* b, int y, int* xMin, int* xMax)
-    {
-        Vector2 p0;
-        Vector2 p1;
-        if (a->y <= b->y)
-        {
-            p0 = *a;
-            p1 = *b;
-        }
-        else
-        {
-            p0 = *b;
-            p1 = *a;
-        }
-
-        // セルの上下
-        float y0 = y;
-        float y1 = y + 1.0f;
-
-        // y0とy1の範囲で線分をクリップ
-        if (p1.y < y0)
-        {
-            p0 = p1;
-        }
-        else if (y1 < p0.y)
-        {
-            p1 = p0;
-        }
-        else
-        {
-            if (p0.y < y0 && y0 < p1.y)
-            {
-                p0.x = XatY(p0, p1, y0);
-                p0.y = y0;
-            }
-            if (p0.y < y1 && y1 < p1.y)
-            {
-                p1.x = XatY(p0, p1, y1);
-                p1.y = y1;
-            }
-        }
-
-        *xMin = (int)std::min(p0.x, p1.x);
-        *xMax = (int)std::max(p0.x, p1.x);
-    }
-
     void RasterizeStage::rasterizeLine(const VertexDataD* p0, const VertexDataD* p1)
     {
-#if !0
-        _raster.minY = 0x7fffffff;
-        _raster.maxY = 0;
+        _rasterizer.begin();
 
-        Seg seg;
-        seg.p0 = &(p0->wndPosition);
-        seg.p1 = &(p1->wndPosition);
-
-        seg.minY = (int)std::min(seg.p0->y, seg.p1->y);
-        seg.maxY = (int)std::max(seg.p0->y, seg.p1->y);
-        seg.minY = std::clamp(seg.minY, _clipRectMinY, _clipRectMaxY);
-        seg.maxY = std::clamp(seg.maxY, _clipRectMinY, _clipRectMaxY);
-        _raster.minY = std::min(_raster.minY, seg.minY);
-        _raster.maxY = std::max(_raster.maxY, seg.maxY);
-
-        for (int y = _raster.minY; y <= _raster.maxY; y++)
+        bool opt = true;
+        if (opt)
         {
-            Scanline* scanline = &(_raster.scanlines[y]);
-            scanline->minX = 0x7fffffff;
-            scanline->maxX = 0;
+            _rasterizer.addEgde(&(p0->wndPosition), &(p1->wndPosition));
+        }
+        else
+        {
+            _rasterizer.addBoundingBox(&(p0->wndPosition), &(p1->wndPosition));
         }
 
-        for (int y = seg.minY; y <= seg.maxY; y++)
-        {
-            int minX, maxX;
-            ScanLine(seg.p0, seg.p1, y, &minX, &maxX);
-
-            minX = std::clamp(minX, _clipRectMinX, _clipRectMaxX);
-            maxX = std::clamp(maxX, _clipRectMinX, _clipRectMaxX);
-
-            Scanline* scanline = &(_raster.scanlines[y]);
-            scanline->minX = std::min(scanline->minX, minX);
-            scanline->maxX = std::max(scanline->maxX, maxX);
-        }
-
-#else
-
-        _raster.minY = (int)std::min(p0->wndPosition.y, p1->wndPosition.y);
-        _raster.maxY = (int)std::max(p0->wndPosition.y, p1->wndPosition.y);
-        _raster.minY = std::clamp(_raster.minY, _clipRectMinY, _clipRectMaxY);
-        _raster.maxY = std::clamp(_raster.maxY, _clipRectMinY, _clipRectMaxY);
-        for (int y = _raster.minY; y <= _raster.maxY; y++)
-        {
-            Scanline* scanline = &(_raster.scanlines[y]);
-            scanline->minX = (int)std::min(p0->wndPosition.x, p1->wndPosition.x);
-            scanline->maxX = (int)std::max(p0->wndPosition.x, p1->wndPosition.x);
-            scanline->minX = std::clamp(scanline->minX, _clipRectMinX, _clipRectMaxX);
-            scanline->maxX = std::clamp(scanline->maxX, _clipRectMinX, _clipRectMaxX);
-        }
-#endif
-
+        const Raster& _raster = *_rasterizer.getRaster();
         for (int y = _raster.minY; y <= _raster.maxY; y += 2)
         {
             int y0 = y;
@@ -355,78 +252,28 @@ namespace SoftwareRasterizer
                 }
             }
         }
+
+        _rasterizer.end();
     }
 
     void RasterizeStage::rasterizeTriangle(const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2)
     {
-
-#if !0
-        _raster.minY = 0x7fffffff;
-        _raster.maxY = 0;
-
-        Seg seg[3];
-
-        seg[0].p0 = &(p0->wndPosition);
-        seg[0].p1 = &(p1->wndPosition);
-        seg[1].p0 = &(p1->wndPosition);
-        seg[1].p1 = &(p2->wndPosition);
-        seg[2].p0 = &(p2->wndPosition);
-        seg[2].p1 = &(p0->wndPosition);
-
-        for (int i = 0; i < 3; i++)
+        _rasterizer.begin();
+        bool opt = true;
+        if (opt)
         {
-            seg[i].minY = (int)std::min(seg[i].p0->y, seg[i].p1->y);
-            seg[i].maxY = (int)std::max(seg[i].p0->y, seg[i].p1->y);
-            seg[i].minY = std::clamp(seg[i].minY, _clipRectMinY, _clipRectMaxY);
-            seg[i].maxY = std::clamp(seg[i].maxY, _clipRectMinY, _clipRectMaxY);
-            _raster.minY = std::min(_raster.minY, seg[i].minY);
-            _raster.maxY = std::max(_raster.maxY, seg[i].maxY);
+            _rasterizer.addEgde(&(p0->wndPosition), &(p1->wndPosition));
+            _rasterizer.addEgde(&(p1->wndPosition), &(p2->wndPosition));
+            _rasterizer.addEgde(&(p2->wndPosition), &(p0->wndPosition));
         }
-
-        for (int y = _raster.minY; y <= _raster.maxY; y++)
+        else
         {
-            Scanline* scanline = &(_raster.scanlines[y]);
-            scanline->minX = 0x7fffffff;
-            scanline->maxX = 0;
+            _rasterizer.addBoundingBox(&(p0->wndPosition), &(p1->wndPosition), &(p2->wndPosition));
         }
-
-        for (int i = 0; i < 3; i++)
-        {
-            for (int y = seg[i].minY; y <= seg[i].maxY; y++)
-            {
-                int minX, maxX;
-                ScanLine(seg[i].p0, seg[i].p1, y, &minX, &maxX);
-
-                minX = std::clamp(minX, _clipRectMinX, _clipRectMaxX);
-                maxX = std::clamp(maxX, _clipRectMinX, _clipRectMaxX);
-
-                Scanline* scanline = &(_raster.scanlines[y]);
-                scanline->minX = std::min(scanline->minX, minX);
-                scanline->maxX = std::max(scanline->maxX, maxX);
-            }
-        }
-
-#else
-        const Vector2& a = p0->wndPosition;
-        const Vector2& b = p1->wndPosition;
-        const Vector2& c = p2->wndPosition;
-
-        _raster.minY = (int)std::min(a.y, std::min(b.y, c.y));
-        _raster.maxY = (int)std::max(a.y, std::max(b.y, c.y));
-        _raster.minY = std::clamp(_raster.minY, _clipRectMinY, _clipRectMaxY);
-        _raster.maxY = std::clamp(_raster.maxY, _clipRectMinY, _clipRectMaxY);
-        for (int y = _raster.minY; y <= _raster.maxY; y++)
-        {
-            Scanline* scanline = &(_raster.scanlines[y]);
-            scanline->minX = (int)std::min(a.x, std::min(b.x, c.x));
-            scanline->maxX = (int)std::max(a.x, std::max(b.x, c.x));
-            scanline->minX = std::clamp(scanline->minX, _clipRectMinX, _clipRectMaxX);
-            scanline->maxX = std::clamp(scanline->maxX, _clipRectMinX, _clipRectMaxX);
-        }
-#endif
 
         _sarea2 = edgeFunction(p0->wndPosition, p1->wndPosition, p2->wndPosition);
 
+        const Raster& _raster = *_rasterizer.getRaster();
         for (int y = _raster.minY; y <= _raster.maxY; y += 2)
         {
             int y0 = y;
@@ -451,6 +298,8 @@ namespace SoftwareRasterizer
                 }
             }
         }
+
+        _rasterizer.end();
     }
 
 

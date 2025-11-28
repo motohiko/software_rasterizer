@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "..\Modules\Rasterizer.h"
 #include "..\State\WindowSize.h"
 #include "..\State\RasterizerState.h"
 #include "..\State\Viewport.h"
@@ -14,30 +15,6 @@ namespace SoftwareRasterizer
         VertexDataB vertices[3];
         int vertexNum;
     };
-
-
-    struct Scanline
-    {
-        int minX;
-        int maxX;
-    };
-
-    struct Raster
-    {
-        Scanline* scanlines;
-        int scanlineNum;
-        int minY;
-        int maxY;
-    };
-
-    struct Seg
-    {
-        const Vector2* p0;
-        const Vector2* p1;
-        int minY;
-        int maxY;
-    };
-
 
     class RasterizeStage
 	{
@@ -109,9 +86,9 @@ namespace SoftwareRasterizer
         int _clipRectMaxX = 0;
         int _clipRectMaxY = 0;
 
-        float _sarea2 = 0.0f;// singed area 2x
+        Rasterizer _rasterizer;
 
-        Raster _raster;
+        float _sarea2 = 0.0f;// singed area 2x
 
     };
 }

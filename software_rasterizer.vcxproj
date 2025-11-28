@@ -141,6 +141,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Comparator.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureUnit.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h" />
@@ -179,6 +180,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureUnit.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp" />
