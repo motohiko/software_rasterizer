@@ -166,7 +166,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\WindowSize.h" />
     <ClInclude Include="Source\SoftwareRasterizer\SamplerUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Utility.h" />
-    <ClInclude Include="Source\Test.h" />
+    <ClInclude Include="Source\ModelViewer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp" />
@@ -190,7 +190,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\VertexShaderStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\SamplerUtility.cpp" />
-    <ClCompile Include="Source\Test.cpp" />
+    <ClCompile Include="Source\ModelViewer.cpp" />
     <ClCompile Include="Source\WinMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

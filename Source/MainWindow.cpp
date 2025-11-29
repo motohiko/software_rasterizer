@@ -1,9 +1,5 @@
 ﻿#include "MainWindow.h" 
-
 #include <tchar.h>
-#include <algorithm>
-#include <cmath>
-#include <stdio.h>
 
 void PrintDebugLog(const TCHAR* format, ...)
 {
@@ -12,7 +8,7 @@ void PrintDebugLog(const TCHAR* format, ...)
     va_start(args, format);
     _vstprintf_s(buffer, sizeof(buffer) / sizeof(TCHAR), format, args);
     va_end(args);
-    OutputDebugString(buffer);
+    OutputDebugStringW(buffer);
 }
 
 MainWindow::MainWindow()
@@ -21,7 +17,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    if (_hwnd != NULL)
+    if (NULL != _hwnd)
     {
         DestroyWindow(_hwnd);
     }
@@ -31,22 +27,22 @@ bool MainWindow::create(HINSTANCE hInstance)
 {
     const TCHAR CLASS_NAME[] = TEXT("SoftwareRasterizer");
 
-    WNDCLASSEX wcex = {};
-    wcex.cbSize = sizeof(WNDCLASSEX);
+    WNDCLASSEXW wcex = {};
+    wcex.cbSize = sizeof(WNDCLASSEXW);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = (WNDPROC)WindowProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hIcon = LoadIconW(NULL, IDI_APPLICATION);
+    wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)NULL;
     wcex.lpszMenuName = NULL;
     wcex.lpszClassName = CLASS_NAME;
-    wcex.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-    RegisterClassEx(&wcex);
+    wcex.hIconSm = LoadIconW(NULL, IDI_APPLICATION);
+    RegisterClassExW(&wcex);
 
-    CreateWindowEx(
+    CreateWindowExW(
         0,
         CLASS_NAME,
         TEXT("SoftwareRasterizer"),
@@ -59,7 +55,7 @@ bool MainWindow::create(HINSTANCE hInstance)
         (LPVOID)this
     );
 
-    return (_hwnd != NULL);
+    return (NULL != _hwnd);
 }
 
 void MainWindow::show(int nShowCmd)
@@ -75,41 +71,39 @@ LRESULT CALLBACK MainWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
     {
 
     case WM_NCCREATE:
-
-    {
-        LPCREATESTRUCT cs = (LPCREATESTRUCT)lParam;
-        self = (MainWindow*)(cs->lpCreateParams);
-        self->_hwnd = hwnd;
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)self);
-    
-        return self->handleMessage(uMsg, wParam, lParam);
-    }
-
-    case WM_NCDESTROY:
-
-    {
-        self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-
-        LRESULT result = self->handleMessage(uMsg, wParam, lParam);
-
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
-        self->_hwnd = NULL;
-
-        return result;
-    }
-
-    default:
-
-        self = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-        if (self != nullptr)
         {
+            LPCREATESTRUCT lpCreateStruct = (LPCREATESTRUCT)lParam;
+
+            self = (MainWindow*)(lpCreateStruct->lpCreateParams);
+            self->_hwnd = hwnd;
+            SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR)self);
+    
             return self->handleMessage(uMsg, wParam, lParam);
         }
-        else
+
+    case WM_NCDESTROY:
         {
-            // WM_NCCREATE 前の WM_GETMINMAXINFO など
-            OutputDebugString(TEXT("GWLP_USERDATA is null.\n"));
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+            self = (MainWindow*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+
+            LRESULT result = self->handleMessage(uMsg, wParam, lParam);
+
+            SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
+            self->_hwnd = NULL;
+
+            return result;
+        }
+
+    default:
+        {
+            self = (MainWindow*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+            if (nullptr == self)
+            {
+                // note. WM_NCCREATE の前に WM_GETMINMAXINFO が一度だけ送られてくる、それ以外は想定外
+                OutputDebugStringW(TEXT("GWLP_USERDATA is null.\n"));
+                return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+            }
+
+            return self->handleMessage(uMsg, wParam, lParam);
         }
 
     }
@@ -120,177 +114,190 @@ LRESULT MainWindow::handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
 
-    case WM_LBUTTONDOWN:
-
-        _lastMousePosX = LOWORD(lParam);
-        _lastMousePosY = HIWORD(lParam);
-        _isDragging = true;
-        SetCapture(_hwnd);
-        return 0;
-
-    case WM_MOUSEMOVE:
-        if (_isDragging)
-        {
-            POINT currentMousePos;
-            currentMousePos.x = LOWORD(lParam);
-            currentMousePos.y = HIWORD(lParam);
-
-            int dx = currentMousePos.x - _lastMousePosX;
-            int dy = currentMousePos.y - _lastMousePosY;
-
-            _lastMousePosX = currentMousePos.x;
-            _lastMousePosY = currentMousePos.y;
-
-            _camera.angleX += dy * 0.01f;
-            _camera.angleY += dx * 0.01f;
-
-            // 再描画を要求
-            InvalidateRect(_hwnd, NULL, TRUE);
-        }
-        return 0;
-
     case WM_DESTROY:
-
-        if (NULL != _hDibBm)
         {
-            DeleteObject(_hDibBm);
-            _hDibBm = NULL;
+            deleteFrameBuffer();
+
+            PostQuitMessage(0);
+            return 0;
         }
-
-        if (nullptr != _depthBuffer)
-        {
-            free(_depthBuffer);
-            _depthBuffer = nullptr;
-        }
-
-        PostQuitMessage(0);
-
-        return 0;
 
     case WM_SIZE:
-    {
-        _renderingContext.setWindowSize(0, 0);
-        _renderingContext.setRenderTargetColorBuffer(nullptr, 0, 0, 0);
-        _renderingContext.setRenderTargetDepthBuffer(nullptr, 0, 0, 0);
-        _renderingContext.setViewport(0, 0, 0, 0);
-
-        if (NULL != _hDibBm)
         {
-            DeleteObject(_hDibBm);
-            _hDibBm = NULL;
+            UINT state = (UINT)wParam;
+            int cx = (short)LOWORD(lParam);
+            int cy = (short)HIWORD(lParam);
+
+            deleteFrameBuffer();
+            createFrameBuffer();
+
+            InvalidateRect(_hwnd, NULL, TRUE);
+            return 0;
         }
 
-        if (nullptr != _depthBuffer)
+    case WM_LBUTTONDOWN:
         {
-            free(_depthBuffer);
-            _depthBuffer = nullptr;
+            BOOL fDoubleClick = FALSE;
+            int x = (short)LOWORD(lParam);
+            int y = (short)HIWORD(lParam);
+            UINT keyFlags = (UINT)wParam;
+
+            _isLButtonDragging = true;
+            _lastMousePosX = x;
+            _lastMousePosY = y;
+
+            SetCapture(_hwnd);
+            return 0;
         }
-
-        RECT clientRect = {};
-        GetClientRect(_hwnd, &clientRect);// left と top は常に 0
-
-        int frameWidth = clientRect.right;
-        int frameHeight = clientRect.bottom;
-        //frameWidth = clientRect.right / 2;
-        //frameHeight = clientRect.bottom / 2;
-
-        HDC hWndDC = GetDC(_hwnd);
-        BITMAPINFOHEADER bih = {};
-        bih.biSize = sizeof(BITMAPINFOHEADER);
-        bih.biWidth = frameWidth;
-        bih.biHeight = frameHeight;
-        bih.biPlanes = 1;
-        bih.biBitCount = 32;
-        bih.biCompression = BI_RGB;
-        VOID* pvBits = nullptr;
-        _hDibBm = CreateDIBSection(hWndDC, (BITMAPINFO*)&bih, DIB_RGB_COLORS, &pvBits, NULL, 0);
-        ReleaseDC(_hwnd, hWndDC);
-
-        DIBSECTION dibSection = {};
-        if (NULL != _hDibBm)
-        {
-            GetObject(_hDibBm, sizeof(DIBSECTION), &dibSection);
-        }
-
-        int depthByteCount = 4;// TODO: rename
-
-        _depthBuffer = malloc(depthByteCount * frameWidth * frameHeight);
-
-        _renderingContext.setWindowSize(frameWidth, frameHeight);
-        _renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, frameWidth, frameHeight, (int)dibSection.dsBm.bmWidthBytes);
-        _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, frameWidth, frameHeight, depthByteCount * dibSection.dsBm.bmWidth);
-        _renderingContext.setViewport(0, 0, frameWidth, frameHeight);
-
-        // 再描画を要求
-        InvalidateRect(_hwnd, NULL, TRUE);
-        return 0;
-    }
 
     case WM_LBUTTONUP:
+        {
+            int x = (short)LOWORD(lParam);
+            int y = (short)HIWORD(lParam);
+            UINT keyFlags = (UINT)wParam;
 
-        _isDragging = false;
+            _isLButtonDragging = false;
 
-        ReleaseCapture();
-        return 0;
+            ReleaseCapture();
+            return 0;
+        }
+
+    case WM_MOUSEMOVE:
+        {
+            int x = (short)LOWORD(lParam);
+            int y = (short)HIWORD(lParam);
+            UINT keyFlags = (UINT)wParam;
+
+            if (_isLButtonDragging)
+            {
+                int xDelta = x - _lastMousePosX;
+                int yDelta = y - _lastMousePosY;
+
+                _modelViewer.onLButtonDrag(xDelta, yDelta);
+
+                InvalidateRect(_hwnd, NULL, TRUE);
+            }
+
+            _lastMousePosX = x;
+            _lastMousePosY = y;
+
+            return 0;
+        }
 
     case WM_MOUSEWHEEL:
-    {
-        int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        _camera.zoom += zDelta * -0.001f;
-        _camera.zoom = std::clamp(_camera.zoom, 0.001f, FLT_MAX);
-        // 再描画を要求
-        InvalidateRect(_hwnd, NULL, TRUE);
-        return 0;
-    }
+        {
+            int xPos = (short)LOWORD(lParam);
+            int yPos = (short)HIWORD(lParam);
+            //int zDelta = (short)HIWORD(wParam);
+            UINT fwKeys = (UINT)(short)LOWORD(wParam);
+
+            short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+            _modelViewer.onMouseWweel(zDelta);
+
+            InvalidateRect(_hwnd, NULL, TRUE);
+            return 0;
+        }
 
     case WM_KEYDOWN:
-        switch (wParam)
         {
-        case 'W':
-            _camera.focusPositionZ += 0.1f;
-            break;
-        case 'S':
-            _camera.focusPositionZ -= 0.1f;
-            break;
-        case 'A':
-            _camera.focusPositionX -= 0.1f;
-            break;
-        case 'D':
-            _camera.focusPositionX += 0.1f;
-            break;
-        case 'Q':
-            _camera.focusPositionY += 0.1f;
-            break;
-        case 'E':
-            _camera.focusPositionY -= 0.1f;
-            break;
+            UINT vk = (UINT)wParam;
+            BOOL fDown = TRUE;
+            int cRepeat = (short)LOWORD(lParam);
+            UINT flags = (UINT)HIWORD(lParam);
+
+            _modelViewer.onKeyDown(vk);
+
+            InvalidateRect(_hwnd, NULL, TRUE);
+            return 0;
         }
-        // 再描画を要求
-        InvalidateRect(_hwnd, NULL, TRUE);
-        return 0;
 
     case WM_PAINT:
-    {
-        PAINTSTRUCT ps = {};
-        BeginPaint(_hwnd, &ps);
+        {
+            PAINTSTRUCT ps = {};
+            BeginPaint(_hwnd, &ps);
 
-        // DIBにレンダリング
-        _scene.RenderScene(&_renderingContext, &_camera);
+            // DIBにシーンを描画
+            _modelViewer.onPaint(&_renderingContext);
 
-        // レンダリング結果をウィンドウへ転送
-        HDC hdcSrc = CreateCompatibleDC(ps.hdc);
-        HGDIOBJ hBmPrev = SelectObject(hdcSrc, _hDibBm);
-        BitBlt(ps.hdc, 0, 0, _renderingContext.getWindowWidth(), _renderingContext.getWindowHeight(), hdcSrc, 0, 0, SRCCOPY);
-        //StretchBlt(ps.hdc, 0, 0, g_renderingContext.getFrameWidth() * 2, g_renderingContext.getFrameHeight() * 2, hdcSrc, 0, 0, g_renderingContext.getFrameWidth(), g_renderingContext.getFrameHeight(), SRCCOPY);
-        SelectObject(hdcSrc, hBmPrev);
-        DeleteDC(hdcSrc);
+            HDC hdcSrc = CreateCompatibleDC(ps.hdc);
+            HGDIOBJ hBmPrev = SelectObject(hdcSrc, _hDib);
 
-        EndPaint(_hwnd, &ps);
-        return 0;
-    }
+            // 描画結果をウィンドウへ転送
+            BitBlt(ps.hdc, 0, 0, _renderingContext.getWindowWidth(), _renderingContext.getWindowHeight(), hdcSrc, 0, 0, SRCCOPY);
+            //StretchBlt(ps.hdc, 0, 0, g_renderingContext.getFrameWidth() * 2, g_renderingContext.getFrameHeight() * 2, hdcSrc, 0, 0, g_renderingContext.getFrameWidth(), g_renderingContext.getFrameHeight(), SRCCOPY);
+
+            SelectObject(hdcSrc, hBmPrev);
+            DeleteDC(hdcSrc);
+
+            EndPaint(_hwnd, &ps);
+            return 0;
+        }
 
     default:
-        return DefWindowProc(_hwnd, uMsg, wParam, lParam);
+
+        return DefWindowProcW(_hwnd, uMsg, wParam, lParam);
+
     }
 
 }
+
+void MainWindow::createFrameBuffer()
+{
+    RECT clientRect = {};
+    GetClientRect(_hwnd, &clientRect);// left と top は常に 0
+    int clientWidth = clientRect.right;
+    int clientHeight = clientRect.bottom;
+    //clientWidth = clientRect.right / 2;
+    //clientHeight = clientRect.bottom / 2;
+
+    HDC hWndDC = GetDC(_hwnd);
+
+    BITMAPINFOHEADER bih = {};
+    bih.biSize = sizeof(BITMAPINFOHEADER);
+    bih.biWidth = clientWidth;
+    bih.biHeight = clientHeight;
+    bih.biPlanes = 1;
+    bih.biBitCount = 32;
+    bih.biCompression = BI_RGB;
+    VOID* pvBits = nullptr;
+    _hDib = CreateDIBSection(hWndDC, (BITMAPINFO*)&bih, DIB_RGB_COLORS, &pvBits, NULL, 0);
+
+    ReleaseDC(_hwnd, hWndDC);
+
+    DIBSECTION dibSection = {};
+    if (NULL != _hDib)
+    {
+        GetObjectW(_hDib, sizeof(DIBSECTION), &dibSection);
+    }
+
+    int depthByteCount = 4;// TODO: rename
+
+    _depthBuffer = std::malloc(depthByteCount * clientWidth * clientHeight);
+
+    _renderingContext.setWindowSize(clientWidth, clientHeight);
+    _renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, clientWidth, clientHeight, (int)dibSection.dsBm.bmWidthBytes);
+    _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, clientWidth, clientHeight, depthByteCount * dibSection.dsBm.bmWidth);
+    _renderingContext.setViewport(0, 0, clientWidth, clientHeight);
+}
+
+void MainWindow::deleteFrameBuffer()
+{
+    _renderingContext.setWindowSize(0, 0);
+    _renderingContext.setRenderTargetColorBuffer(nullptr, 0, 0, 0);
+    _renderingContext.setRenderTargetDepthBuffer(nullptr, 0, 0, 0);
+    _renderingContext.setViewport(0, 0, 0, 0);
+
+    if (NULL != _hDib)
+    {
+        DeleteObject(_hDib);
+        _hDib = NULL;
+    }
+
+    if (nullptr != _depthBuffer)
+    {
+        std::free(_depthBuffer);
+        _depthBuffer = nullptr;
+    }
+}
+

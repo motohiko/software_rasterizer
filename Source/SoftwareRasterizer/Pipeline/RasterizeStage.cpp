@@ -243,10 +243,10 @@ namespace SoftwareRasterizer
                 getLineFragment(x1, y0, p0, p1, _quadFragment->getQ01());
                 getLineFragment(x0, y1, p0, p1, _quadFragment->getQ10());
                 getLineFragment(x1, y1, p0, p1, _quadFragment->getQ11());
-                if (_quadFragment->getQ00()->isOnPrimitive ||
-                    _quadFragment->getQ01()->isOnPrimitive ||
-                    _quadFragment->getQ10()->isOnPrimitive ||
-                    _quadFragment->getQ11()->isOnPrimitive)
+                if (_quadFragment->getQ00()->pixelCovered ||
+                    _quadFragment->getQ01()->pixelCovered ||
+                    _quadFragment->getQ10()->pixelCovered ||
+                    _quadFragment->getQ11()->pixelCovered)
                 {
                     _renderingContext->outputFragment();
                 }
@@ -289,10 +289,10 @@ namespace SoftwareRasterizer
                 getTriangleFragment(x1, y0, p0, p1, p2, _quadFragment->getQ01());
                 getTriangleFragment(x0, y1, p0, p1, p2, _quadFragment->getQ10());
                 getTriangleFragment(x1, y1, p0, p1, p2, _quadFragment->getQ11());
-                if (_quadFragment->getQ00()->isOnPrimitive ||
-                    _quadFragment->getQ01()->isOnPrimitive ||
-                    _quadFragment->getQ10()->isOnPrimitive ||
-                    _quadFragment->getQ11()->isOnPrimitive)
+                if (_quadFragment->getQ00()->pixelCovered ||
+                    _quadFragment->getQ01()->pixelCovered ||
+                    _quadFragment->getQ10()->pixelCovered ||
+                    _quadFragment->getQ11()->pixelCovered)
                 {
                     _renderingContext->outputFragment();
                 }
@@ -352,22 +352,22 @@ namespace SoftwareRasterizer
             Vector2 diamondCorner3(x + 0.0f, y + 0.5f);
 
             // 菱形の各辺と交差判定
-            fragment->isOnPrimitive = false;
+            fragment->pixelCovered = false;
             if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner0, diamondCorner1))
             {
-                fragment->isOnPrimitive = true;
+                fragment->pixelCovered = true;
             }
             if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner1, diamondCorner2))
             {
-                fragment->isOnPrimitive = true;
+                fragment->pixelCovered = true;
             }
             if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner2, diamondCorner3))
             {
-                fragment->isOnPrimitive = true;
+                fragment->pixelCovered = true;
             }
             if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner3, diamondCorner0))
             {
-                fragment->isOnPrimitive = true;
+                fragment->pixelCovered = true;
             }
         }
 
@@ -430,18 +430,18 @@ namespace SoftwareRasterizer
 
         // ピクセルの中心を内外判定
         // TODO: up-left rule.
-        fragment->isOnPrimitive = true;
+        fragment->pixelCovered = true;
         if (b0 < 0.0f)
         {
-            fragment->isOnPrimitive = false;
+            fragment->pixelCovered = false;
         }
         if (b1 < 0.0f)
         {
-            fragment->isOnPrimitive = false;
+            fragment->pixelCovered = false;
         }
         if (b2 < 0.0f)
         {
-            fragment->isOnPrimitive = false;
+            fragment->pixelCovered = false;
         }
 
         // 補間

@@ -1,15 +1,11 @@
 ﻿#pragma once
 
-#include "Test.h"
-#include "SoftwareRasterizer\RenderingContext.h"
-
 #include "PreIncludeWindows.h"
 #include <Windows.h>
-#include <Windowsx.h>
 #include "PostIncludeWindows.h"
 
-using namespace Test;
-using namespace SoftwareRasterizer;
+#include "ModelViewer.h"
+#include "SoftwareRasterizer\RenderingContext.h"
 
 class MainWindow
 {
@@ -29,20 +25,20 @@ private:
 
     LRESULT handleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    void createFrameBuffer();
+    void deleteFrameBuffer();
+
 private:
 
     HWND _hwnd = NULL;
-
-    HBITMAP _hDibBm = NULL;         // カラーバッファ
-    void* _depthBuffer = nullptr;  // 
-
-    RenderingContext _renderingContext;
+    HBITMAP _hDib = NULL;
+    void* _depthBuffer = nullptr;
 
     int _lastMousePosX = 0;
     int _lastMousePosY = 0;
-    bool _isDragging = false;
+    bool _isLButtonDragging = false;
 
-    TestCamera _camera;
-    ModelViewer _scene;
+    SoftwareRasterizer::RenderingContext _renderingContext;
+    Test::ModelViewer _modelViewer;
 
 };

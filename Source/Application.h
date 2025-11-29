@@ -3,7 +3,8 @@
 #include "PreIncludeWindows.h"
 #include <Windows.h>
 #include "PostIncludeWindows.h"
-#include "MainWindow.h" 
+
+class MainWindow;
 
 class Application
 {

@@ -75,7 +75,7 @@ namespace SoftwareRasterizer
         int x;// フラグメントの座標（ウィンドウ座標系）
         int y;
 
-        bool isOnPrimitive;
+        bool pixelCovered;
 
         Vector2 wndPosition;// フラグメントの中心座標（ウィンドウ座標系）
         float depth;// 深度

@@ -277,19 +277,19 @@ namespace SoftwareRasterizer
         Vector4 c10 = _quadFragment.getQ10()->color;
         Vector4 c11 = _quadFragment.getQ11()->color;
 
-        if (_quadFragment.getQ00()->isOnPrimitive)
+        if (_quadFragment.getQ00()->pixelCovered)
         {
             _outputMergerStage.execute(_quadFragment.getQ00()->x, _quadFragment.getQ00()->y, c00, _quadFragment.getQ00()->depth);
         }
-        if (_quadFragment.getQ01()->isOnPrimitive)
+        if (_quadFragment.getQ01()->pixelCovered)
         {
             _outputMergerStage.execute(_quadFragment.getQ01()->x, _quadFragment.getQ01()->y, c01, _quadFragment.getQ01()->depth);
         }
-        if (_quadFragment.getQ10()->isOnPrimitive)
+        if (_quadFragment.getQ10()->pixelCovered)
         {
             _outputMergerStage.execute(_quadFragment.getQ10()->x, _quadFragment.getQ10()->y, c10, _quadFragment.getQ10()->depth);
         }
-        if (_quadFragment.getQ11()->isOnPrimitive)
+        if (_quadFragment.getQ11()->pixelCovered)
         {
             _outputMergerStage.execute(_quadFragment.getQ11()->x, _quadFragment.getQ11()->y, c11, _quadFragment.getQ11()->depth);
         }
