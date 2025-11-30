@@ -23,18 +23,21 @@ namespace SoftwareRasterizer
 
     private:
 
-        float fetchTexelDepth(int x, int y) const;
-
+        float normalizeDepth(float depth);
         bool depthTest(float depth, float storedDepth);
 
         void storeTexelColor(int x, int y, const Vector4& color);
+
+        float fetchTexelDepth(int x, int y) const;
         void storeTexelDepth(int x, int y, float depth);
 
     private:
 
+        // input
         const DepthState* _depthState = nullptr;
         const DepthRange* _depthRange = nullptr;
 
+        // output
         RenderTarget* _renderTarget = nullptr;
         
     };

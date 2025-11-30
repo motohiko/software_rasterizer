@@ -1,6 +1,6 @@
 ﻿#include "RasterizeStage.h"
 #include "..\RenderingContext.h"
-#include "..\..\Lib\Algorithm.h"
+#include "..\Modules\Interpolator.h"
 #include <cassert>
 #include <cmath>// lerp floor ceil abs 
 #include <algorithm>// min max clamp
@@ -39,7 +39,7 @@ namespace SoftwareRasterizer
     }
 
     // 正規化デバイス座標からウィンドウ座標へ変換
-    Vector2 RasterizeStage::transformWindowSpace(const VertexDataC* ndcVertex) const
+    Vector2 RasterizeStage::transformWindowCoord(const VertexDataC* ndcVertex) const
     {
         // 
         // 参考 https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
@@ -93,39 +93,39 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::transformRasterVertex(const VertexDataB* clippedPrimitiveVertex, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const
     {
-#ifndef NDEBUG
-        if (false)
-        {
-            float lazyW = std::abs(clippedPrimitiveVertex->clipPosition.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertex->clipPosition.x && clippedPrimitiveVertex->clipPosition.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertex->clipPosition.y && clippedPrimitiveVertex->clipPosition.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertex->clipPosition.z && clippedPrimitiveVertex->clipPosition.z <= lazyW);
-        }
-#endif
-
         //
         // ビューポート変換
         //
 
+#ifndef NDEBUG
+        if (false)
+        {
+            float lazyW = std::abs(clippedPrimitiveVertex->clipCoord.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertex->clipCoord.x && clippedPrimitiveVertex->clipCoord.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertex->clipCoord.y && clippedPrimitiveVertex->clipCoord.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertex->clipCoord.z && clippedPrimitiveVertex->clipCoord.z <= lazyW);
+        }
+#endif
+
         // 正規化デバイス座標からウィンドウ座標へ変換
-        rasterizationPoint->wndPosition = transformWindowSpace(ndcVertex);
+        rasterizationPoint->wndCoord = transformWindowCoord(ndcVertex);
 
         // 正規化デバイス座標の z を深度範囲にマップ
         rasterizationPoint->depth = mapDepthRange(ndcVertex);
 
         //  1/W を保存（パースペクティブコレクト対応）
-        float w = clippedPrimitiveVertex->clipPosition.w;
+        float w = clippedPrimitiveVertex->clipCoord.w;
         assert(w != 0.0f);
         rasterizationPoint->invW = 1.0f / w;
 
         //  補間変数も W で除算（パースペクティブコレクト対応）
-        for (int i = 0; i < clippedPrimitiveVertex->varyingNum; i++)
+        for (int i = 0; i < kMaxVaryings; i++)
         {
-            rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
+            if (_varyingEnabledBits->varyingEnabledBits & (1u << i))
+            {
+                rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
+            }
         }
-
-        // TODO: remove
-        rasterizationPoint->varyingNum = clippedPrimitiveVertex->varyingNum;
     }
 
     void RasterizeStage::rasterizePrimitive(RasterPrimitive& rasterPrimitive)
@@ -182,7 +182,7 @@ namespace SoftwareRasterizer
             }
         }
 
-        // ビューポート変換とデプス値へのマッピング
+        // ビューポート変換
         VertexDataD rasterVertices[3];
         int rasterVertexNum = rasterPrimitive.vertexNum;
         for (int i = 0; i < rasterVertexNum; i++)
@@ -220,11 +220,11 @@ namespace SoftwareRasterizer
         bool opt = true;
         if (opt)
         {
-            _rasterizer.addEgde(&(p0->wndPosition), &(p1->wndPosition));
+            _rasterizer.addEgde(&(p0->wndCoord), &(p1->wndCoord));
         }
         else
         {
-            _rasterizer.addBoundingBox(&(p0->wndPosition), &(p1->wndPosition));
+            _rasterizer.addBoundingBox(&(p0->wndCoord), &(p1->wndCoord));
         }
 
         const Raster& _raster = *_rasterizer.getRaster();
@@ -239,16 +239,16 @@ namespace SoftwareRasterizer
             {
                 int x0 = x;
                 int x1 = x + 1;
-                getLineFragment(x0, y0, p0, p1, _quadFragment->getQ00());
-                getLineFragment(x1, y0, p0, p1, _quadFragment->getQ01());
-                getLineFragment(x0, y1, p0, p1, _quadFragment->getQ10());
-                getLineFragment(x1, y1, p0, p1, _quadFragment->getQ11());
-                if (_quadFragment->getQ00()->pixelCovered ||
-                    _quadFragment->getQ01()->pixelCovered ||
-                    _quadFragment->getQ10()->pixelCovered ||
-                    _quadFragment->getQ11()->pixelCovered)
+                getLineFragment(x0, y0, p0, p1, &(_quadFragment->q00));
+                getLineFragment(x1, y0, p0, p1, &(_quadFragment->q01));
+                getLineFragment(x0, y1, p0, p1, &(_quadFragment->q10));
+                getLineFragment(x1, y1, p0, p1, &(_quadFragment->q11));
+                if (_quadFragment->q00.pixelCovered ||
+                    _quadFragment->q01.pixelCovered ||
+                    _quadFragment->q10.pixelCovered ||
+                    _quadFragment->q11.pixelCovered)
                 {
-                    _renderingContext->outputFragment();
+                    _renderingContext->outputQuad();
                 }
             }
         }
@@ -262,16 +262,16 @@ namespace SoftwareRasterizer
         bool opt = true;
         if (opt)
         {
-            _rasterizer.addEgde(&(p0->wndPosition), &(p1->wndPosition));
-            _rasterizer.addEgde(&(p1->wndPosition), &(p2->wndPosition));
-            _rasterizer.addEgde(&(p2->wndPosition), &(p0->wndPosition));
+            _rasterizer.addEgde(&(p0->wndCoord), &(p1->wndCoord));
+            _rasterizer.addEgde(&(p1->wndCoord), &(p2->wndCoord));
+            _rasterizer.addEgde(&(p2->wndCoord), &(p0->wndCoord));
         }
         else
         {
-            _rasterizer.addBoundingBox(&(p0->wndPosition), &(p1->wndPosition), &(p2->wndPosition));
+            _rasterizer.addBoundingBox(&(p0->wndCoord), &(p1->wndCoord), &(p2->wndCoord));
         }
 
-        _sarea2 = edgeFunction(p0->wndPosition, p1->wndPosition, p2->wndPosition);
+        _sarea_abc = edgeFunction(p0->wndCoord, p1->wndCoord, p2->wndCoord);
 
         const Raster& _raster = *_rasterizer.getRaster();
         for (int y = _raster.minY; y <= _raster.maxY; y += 2)
@@ -285,16 +285,16 @@ namespace SoftwareRasterizer
             {
                 int x0 = x;
                 int x1 = x + 1;
-                getTriangleFragment(x0, y0, p0, p1, p2, _quadFragment->getQ00());
-                getTriangleFragment(x1, y0, p0, p1, p2, _quadFragment->getQ01());
-                getTriangleFragment(x0, y1, p0, p1, p2, _quadFragment->getQ10());
-                getTriangleFragment(x1, y1, p0, p1, p2, _quadFragment->getQ11());
-                if (_quadFragment->getQ00()->pixelCovered ||
-                    _quadFragment->getQ01()->pixelCovered ||
-                    _quadFragment->getQ10()->pixelCovered ||
-                    _quadFragment->getQ11()->pixelCovered)
+                getTriangleFragment(x0, y0, p0, p1, p2, &(_quadFragment->q00));
+                getTriangleFragment(x1, y0, p0, p1, p2, &(_quadFragment->q01));
+                getTriangleFragment(x0, y1, p0, p1, p2, &(_quadFragment->q10));
+                getTriangleFragment(x1, y1, p0, p1, p2, &(_quadFragment->q11));
+                if (_quadFragment->q00.pixelCovered ||
+                    _quadFragment->q01.pixelCovered ||
+                    _quadFragment->q10.pixelCovered ||
+                    _quadFragment->q11.pixelCovered)
                 {
-                    _renderingContext->outputFragment();
+                    _renderingContext->outputQuad();
                 }
             }
         }
@@ -342,125 +342,46 @@ namespace SoftwareRasterizer
         return true;
     }
 
-    void RasterizeStage::getLineFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, FragmentDataA* fragment)
+    void RasterizeStage::getLineFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, FragmentData* fragment)
     {
-        {
-            // 菱形の各頂点
-            Vector2 diamondCorner0(x + 0.5f, y + 0.0f);
-            Vector2 diamondCorner1(x + 1.0f, y + 0.5f);
-            Vector2 diamondCorner2(x + 0.5f, y + 1.0f);
-            Vector2 diamondCorner3(x + 0.0f, y + 0.5f);
+        // 菱形の各頂点
+        Vector2 diamondCorner0(x + 0.5f, y + 0.0f);
+        Vector2 diamondCorner1(x + 1.0f, y + 0.5f);
+        Vector2 diamondCorner2(x + 0.5f, y + 1.0f);
+        Vector2 diamondCorner3(x + 0.0f, y + 0.5f);
 
-            // 菱形の各辺と交差判定
-            fragment->pixelCovered = false;
-            if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner0, diamondCorner1))
-            {
-                fragment->pixelCovered = true;
-            }
-            if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner1, diamondCorner2))
-            {
-                fragment->pixelCovered = true;
-            }
-            if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner2, diamondCorner3))
-            {
-                fragment->pixelCovered = true;
-            }
-            if (CheckSegmentsIntersect(p0->wndPosition, p1->wndPosition, diamondCorner3, diamondCorner0))
-            {
-                fragment->pixelCovered = true;
-            }
+        // 菱形の各辺と交差判定
+        fragment->pixelCovered = false;
+        if (CheckSegmentsIntersect(a->wndCoord, b->wndCoord, diamondCorner0, diamondCorner1))
+        {
+            fragment->pixelCovered = true;
+        }
+        if (CheckSegmentsIntersect(a->wndCoord, b->wndCoord, diamondCorner1, diamondCorner2))
+        {
+            fragment->pixelCovered = true;
+        }
+        if (CheckSegmentsIntersect(a->wndCoord, b->wndCoord, diamondCorner2, diamondCorner3))
+        {
+            fragment->pixelCovered = true;
+        }
+        if (CheckSegmentsIntersect(a->wndCoord, b->wndCoord, diamondCorner3, diamondCorner0))
+        {
+            fragment->pixelCovered = true;
         }
 
-        {
-            Vector2 a(p0->wndPosition.x, p0->wndPosition.y);
-            Vector2 b(p1->wndPosition.x, p1->wndPosition.y);
-            Vector2 c((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
-            Vector2 ab(b - a);
-            Vector2 ac(c - a);
-            float acLengthClosest = Vector2::Normalize(ab).dot(ac);
+        Vector2 p_wndCoord((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
+        Vector2 ab(b->wndCoord - a->wndCoord);
+        Vector2 ap(p_wndCoord - a->wndCoord);
+        float apLengthClosest = Vector2::Normalize(ab).dot(ap);
 
-            float t = acLengthClosest / ab.getNorm();
-            t = std::clamp(t, 0.0f, 1.0f);
+        float t = apLengthClosest / ab.getNorm();
+        t = std::clamp(t, 0.0f, 1.0f);
 
-            // ２点間を補間
-            Vector2 wndPosition = Vector2::Lerp(p0->wndPosition, p1->wndPosition, t);
-            float depth = std::lerp(p0->depth, p1->depth, t);
-            float invW = std::lerp(p0->invW, p1->invW, t);
+        VertexDataD p;
+        Interpolator::InterpolateLinear(&p, a, b, t, _varyingEnabledBits);
 
-            Vector4 varyingVariables[kMaxVaryings] = {};
-            int varyingNum = p0->varyingNum;// TODO:
-            for (int i = 0; i < varyingNum; i++)
-            {
-                const Vector4& v0 = p0->varyingsDividedByW[i];
-                const Vector4& v1 = p1->varyingsDividedByW[i];
-                varyingVariables[i] = Vector4::Lerp(v0, v1, t);
-            }
-
-            assert(0.0f != invW);
-            float w = 1.0f / invW;
-
-            const bool noperspective = false;
-            if (noperspective)
-            {
-                w = 1.0f;
-            }
-
-            fragment->x = x;
-            fragment->y = y;
-            fragment->wndPosition = c;// wndPosition;
-            fragment->depth = depth;
-            fragment->invW = invW;
-            for (int i = 0; i < varyingNum; i++)
-            {
-                fragment->varyings[i] = varyingVariables[i] * w;
-            }
-            fragment->varyingNum = varyingNum;
-        }
-    }
-
-    void RasterizeStage::getTriangleFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2, FragmentDataA* fragment)
-    {
-        Vector2 p(x + 0.5f, y + 0.5f);// ピクセルの中心
-
-        // 重心座標の重みを求める（外積は三角形の面積の２倍）
-        assert(0.0f != _sarea2);
-        float b0 = edgeFunction(p1->wndPosition, p2->wndPosition, p) / _sarea2;
-        float b1 = edgeFunction(p2->wndPosition, p0->wndPosition, p) / _sarea2;
-        float b2 = edgeFunction(p0->wndPosition, p1->wndPosition, p) / _sarea2;
-
-        // ピクセルの中心を内外判定
-        // TODO: up-left rule.
-        fragment->pixelCovered = true;
-        if (b0 < 0.0f)
-        {
-            fragment->pixelCovered = false;
-        }
-        if (b1 < 0.0f)
-        {
-            fragment->pixelCovered = false;
-        }
-        if (b2 < 0.0f)
-        {
-            fragment->pixelCovered = false;
-        }
-
-        // 補間
-        Vector2 wndPosition = (p0->wndPosition * b0) + (p1->wndPosition * b1) + (p2->wndPosition * b2);
-        float depth = (b0 * p0->depth) + (b1 * p1->depth) + (b2 * p2->depth);
-        float invW = (b0 * p0->invW) + (b1 * p1->invW) + (b2 * p2->invW);
-
-        Vector4 varyingVariables[kMaxVaryings] = {};
-        int varyingNum = p0->varyingNum;// TODO:
-        for (int i = 0; i < varyingNum; i++)
-        {
-            const Vector4& v0 = p0->varyingsDividedByW[i];
-            const Vector4& v1 = p1->varyingsDividedByW[i];
-            const Vector4& v2 = p2->varyingsDividedByW[i];
-            varyingVariables[i] = ((v0 * b0) + (v1 * b1) + (v2 * b2));
-        }
-
-        assert(0.0f != invW);
-        float w = 1.0f / invW;
+        assert(0.0f != p.invW);
+        float w = 1.0f / p.invW;
 
         const bool noperspective = false;
         if (noperspective)
@@ -470,14 +391,67 @@ namespace SoftwareRasterizer
 
         fragment->x = x;
         fragment->y = y;
-        fragment->wndPosition = p;
-        fragment->depth = depth;
-        fragment->invW = invW;
-        for (int i = 0; i < varyingNum; i++)
+        fragment->wndCoord = p.wndCoord;
+        fragment->depth = p.depth;
+        fragment->invW = p.invW;
+        for (int i = 0; i < kMaxVaryings; i++)
         {
-            fragment->varyings[i] = varyingVariables[i] * w;
+            if (_varyingEnabledBits->varyingEnabledBits & (1u << i))
+            {
+                fragment->varyings[i] = p.varyingsDividedByW[i] * w;
+            }
         }
-        fragment->varyingNum = varyingNum;
-
     }
+
+    void RasterizeStage::getTriangleFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, FragmentData* fragment)
+    {
+        Vector2 p_wndCoord(x + 0.5f, y + 0.5f);// ピクセルの中心
+
+        assert(0.0f != _sarea_abc);
+        BarycentricCoord baryCoord;
+        baryCoord.r1 = edgeFunction(b->wndCoord, c->wndCoord, p_wndCoord) / _sarea_abc;
+        baryCoord.r2 = edgeFunction(c->wndCoord, a->wndCoord, p_wndCoord) / _sarea_abc;
+        baryCoord.r3 = edgeFunction(a->wndCoord, b->wndCoord, p_wndCoord) / _sarea_abc;
+
+        // ピクセルの中心を内外判定
+        fragment->pixelCovered = true;
+        if (baryCoord.r1 < 0.0f)
+        {
+            fragment->pixelCovered = false;
+        }
+        if (baryCoord.r2 < 0.0f)
+        {
+            fragment->pixelCovered = false;
+        }
+        if (baryCoord.r3 < 0.0f)
+        {
+            fragment->pixelCovered = false;
+        }
+
+        VertexDataD p;
+        Interpolator::InterpolateBarycentric(&p, a, b, c, &baryCoord, _varyingEnabledBits);
+
+        assert(0.0f != p.invW);
+        float w = 1.0f / p.invW;
+
+        const bool noperspective = false;
+        if (noperspective)
+        {
+            w = 1.0f;
+        }
+
+        fragment->x = x;
+        fragment->y = y;
+        fragment->wndCoord = p.wndCoord;
+        fragment->depth = p.depth;
+        fragment->invW = p.invW;
+        for (int i = 0; i < kMaxVaryings; i++)
+        {
+            if (_varyingEnabledBits->varyingEnabledBits & (1u << i))
+            {
+                fragment->varyings[i] = p.varyingsDividedByW[i] * w;
+            }
+        }
+    }
+
 }

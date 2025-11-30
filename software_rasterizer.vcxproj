@@ -139,6 +139,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Comparator.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\Interpolator.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\FragmentShaderProgram.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\IndexBuffer.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\Texture2D.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\State\VaryingEnabledBits.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\VertexBuffers.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\InputLayout.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\RasterizerState.h" />
@@ -178,6 +180,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\ClipStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\Interpolator.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp" />

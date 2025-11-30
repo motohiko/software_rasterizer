@@ -17,23 +17,25 @@ namespace SoftwareRasterizer
 
         void input(const ConstantBuffer* constantBuffer) { _constantBuffer = constantBuffer; }
         void input(const FragmentShaderProgram* fragmentShaderProgram) { _fragmentShaderProgram = fragmentShaderProgram; }
-        void input(const QuadFragmentDataA* quadFragment) { _quadFragment = quadFragment; }
+        void input(const QuadFragmentData* quadFragment) { _quadFragment = quadFragment; }
 
-        void output(QuadFragmentDataA* quadFragment) { _outQuadFragment = quadFragment; }
+        void output(QuadPixelData* quadPixelData) { _quadPixelData = quadPixelData; }
 
         void execute();
 
     private:
 
-        void executeShader(const FragmentDataA* fragment, Vector4* color) const;
+        void executeShader(const FragmentData* inputFragment, PixelData* outputPixel) const;
 
     private:
 
+        // input
         const ConstantBuffer* _constantBuffer;
         const FragmentShaderProgram* _fragmentShaderProgram;
-        const QuadFragmentDataA* _quadFragment;
+        const QuadFragmentData* _quadFragment;
 
-        QuadFragmentDataA* _outQuadFragment;
+        // output
+        QuadPixelData* _quadPixelData;
 
     };
 }

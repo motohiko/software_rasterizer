@@ -34,7 +34,6 @@
 #include "..\Modules\Comparator.h" 
 #include "..\..\Lib\Algorithm.h"
 #include <algorithm>// clamp
-#include <cmath>// lerp
 
 namespace SoftwareRasterizer
 {
@@ -46,10 +45,13 @@ namespace SoftwareRasterizer
     {
         // x, y はウィンドウ座標
 
+        float normarizedDpeth = normalizeDepth(depth);
+
         if (_depthState->depthTestEnabled)
         {
             float storedDepth = fetchTexelDepth(x, y);
-            bool passed = depthTest(depth, storedDepth);
+
+            bool passed = depthTest(normarizedDpeth, storedDepth);
             if (!passed)
             {
                 return;
@@ -57,20 +59,16 @@ namespace SoftwareRasterizer
         }
 
         storeTexelColor(x, y, color);
-        storeTexelDepth(x, y, depth);
+        storeTexelDepth(x, y, normarizedDpeth);
     }
 
-    float OutputMergerStage::fetchTexelDepth(int x, int y) const
+    float OutputMergerStage::normalizeDepth(float depth)
     {
-        float normarizedDpeth = TextureOperations::FetchTexelDepth(&(_renderTarget->depthBuffer), x, y);
-
-        // [0,1] -> DepthRange にマップする
+        // [0,1] にマップする
         float a = _depthRange->depthRangeNearVal;
         float b = _depthRange->depthRangeFarVal;
-        float t = normarizedDpeth;
-        float dpeth = std::lerp(a, b, t);
-
-        return dpeth;
+        float t = Lib::InverseLerp(a, b, depth);
+        return std::clamp(t, 0.0f, 1.0f);// saturate
     }
 
     bool OutputMergerStage::depthTest(float depth, float storedDepth)
@@ -83,15 +81,14 @@ namespace SoftwareRasterizer
         TextureOperations::StoreTexelColor(&(_renderTarget->colorBuffer), x, y, color);
     }
 
+    float OutputMergerStage::fetchTexelDepth(int x, int y) const
+    {
+        return TextureOperations::FetchTexelDepth(&(_renderTarget->depthBuffer), x, y);
+    }
+
     void OutputMergerStage::storeTexelDepth(int x, int y, float depth)
     {
-        // DepthRange -> [0,1] にマップする
-        float a = _depthRange->depthRangeNearVal;
-        float b = _depthRange->depthRangeFarVal;
-        float t = Lib::InverseLerp(a, b, depth);
-        float normarizedDpeth = std::clamp(t, 0.0f, 1.0f);// saturate
-
-        TextureOperations::StoreTexelDepth(&(_renderTarget->depthBuffer), x,y, normarizedDpeth);
+        TextureOperations::StoreTexelDepth(&(_renderTarget->depthBuffer), x,y, depth);
     }
 
 }

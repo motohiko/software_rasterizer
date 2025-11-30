@@ -1,4 +1,5 @@
 ﻿#include "ClipStage.h"
+#include "..\Modules\Interpolator.h"
 #include <cmath>// abs
 #include <cassert>
 
@@ -40,21 +41,6 @@ namespace SoftwareRasterizer
 #endif
     }
 
-    static void lerpVertex(VertexDataB* dst, const VertexDataB& a, const VertexDataB& b, float t)
-    {
-        // ※ w も含め線形補間
-
-        int varyingNum = a.varyingNum;
-
-        dst->clipPosition = Vector4::Lerp(a.clipPosition, b.clipPosition, t);
-        for (int i = 0; i < varyingNum; ++i)
-        {
-            dst->varyings[i] = Vector4::Lerp(a.varyings[i], b.varyings[i], t);
-        }
-
-        dst->varyingNum = varyingNum;
-    }
-
     void ClipStage::setPrimitiveType(PrimitiveType primitiveType)
     {
         _primitiveType = primitiveType;
@@ -76,6 +62,11 @@ namespace SoftwareRasterizer
         }
 	}
 
+    void ClipStage::setVaryingEnabledBits(const VaryingEnabledBits* varyingEnabledBits)
+    {
+        _varyingEnabledBits = varyingEnabledBits;
+    }
+
     void ClipStage::clipPrimitiveLine(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
     {
         if (primitiveVertexCount != 2)
@@ -93,15 +84,15 @@ namespace SoftwareRasterizer
         for (int i = 0; i < kClippingPlaneNum; i++)
         {
             // 境界座標系に変換
-            float d0 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[0].clipPosition, &kClipPlaneParameters[i]);
-            float d1 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[1].clipPosition, &kClipPlaneParameters[i]);
+            float d0 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[0].clipCoord, &kClipPlaneParameters[i]);
+            float d1 = transformClippingBoundaryCoordinate(clippedPrimitiveVertices[1].clipCoord, &kClipPlaneParameters[i]);
             if (0.0f < d0)
             {
                 if (d1 < 0.0f)
                 {
                     // d0: indide, d1: outside
                     const float t = d0 / (d0 - d1);
-                    lerpVertex(&clippedPrimitiveVertices[1], clippedPrimitiveVertices[0], clippedPrimitiveVertices[1], t);
+                    Interpolator::InterpolateLinear(&clippedPrimitiveVertices[1], &clippedPrimitiveVertices[0], &clippedPrimitiveVertices[1], t, _varyingEnabledBits);
                 }
                 else
                 {
@@ -112,7 +103,7 @@ namespace SoftwareRasterizer
             {
                 // d0: outside, d1: inside
                 const float t = d0 / (d0 - d1);
-                lerpVertex(&clippedPrimitiveVertices[0], clippedPrimitiveVertices[0], clippedPrimitiveVertices[1], t);
+                Interpolator::InterpolateLinear(&clippedPrimitiveVertices[0], &clippedPrimitiveVertices[0], &clippedPrimitiveVertices[1], t, _varyingEnabledBits);
             }
             else
             {
@@ -126,15 +117,15 @@ namespace SoftwareRasterizer
 #ifndef NDEBUG
         if (false)
         {
-            float lazyW = std::abs(clippedPrimitiveVertices[0].clipPosition.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertices[0].clipPosition.x && clippedPrimitiveVertices[0].clipPosition.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[0].clipPosition.y && clippedPrimitiveVertices[0].clipPosition.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[0].clipPosition.z && clippedPrimitiveVertices[0].clipPosition.z <= lazyW);
+            float lazyW = std::abs(clippedPrimitiveVertices[0].clipCoord.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipCoord.x && clippedPrimitiveVertices[0].clipCoord.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipCoord.y && clippedPrimitiveVertices[0].clipCoord.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[0].clipCoord.z && clippedPrimitiveVertices[0].clipCoord.z <= lazyW);
 
-            lazyW = std::abs(clippedPrimitiveVertices[1].clipPosition.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertices[1].clipPosition.x && clippedPrimitiveVertices[1].clipPosition.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[1].clipPosition.y && clippedPrimitiveVertices[1].clipPosition.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertices[1].clipPosition.z && clippedPrimitiveVertices[1].clipPosition.z <= lazyW);
+            lazyW = std::abs(clippedPrimitiveVertices[1].clipCoord.w) + 0.00001f;
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipCoord.x && clippedPrimitiveVertices[1].clipCoord.x <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipCoord.y && clippedPrimitiveVertices[1].clipCoord.y <= lazyW);
+            assert(-lazyW <= clippedPrimitiveVertices[1].clipCoord.z && clippedPrimitiveVertices[1].clipCoord.z <= lazyW);
         }
 #endif
     }
@@ -218,8 +209,8 @@ namespace SoftwareRasterizer
                 VertexDataB& p1 = currentPoint;
 
                 // 境界座標系に変換（0 <= d のとき indide）
-                float d0 = transformClippingBoundaryCoordinate(p0.clipPosition, &kClipPlaneParameters[i]);
-                float d1 = transformClippingBoundaryCoordinate(p1.clipPosition, &kClipPlaneParameters[i]);
+                float d0 = transformClippingBoundaryCoordinate(p0.clipCoord, &kClipPlaneParameters[i]);
+                float d1 = transformClippingBoundaryCoordinate(p1.clipCoord, &kClipPlaneParameters[i]);
 
                 VertexDataB intersectingPoint;
 
@@ -231,7 +222,7 @@ namespace SoftwareRasterizer
                     {
                         // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
                         float t = d1 / (d1 - d0);
-                        lerpVertex(&intersectingPoint, p1, p0, t);
+                        Interpolator::InterpolateLinear(&intersectingPoint, &p1, &p0, t, _varyingEnabledBits);
 
                         // outputList.add(Intersecting_point);
                         if (!(outputListCount < kClippingPointMaxNum))
@@ -257,7 +248,7 @@ namespace SoftwareRasterizer
                 {
                     // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
                     float t = d1 / (d1 - d0);
-                    lerpVertex(&intersectingPoint, p1, p0, t);
+                    Interpolator::InterpolateLinear(&intersectingPoint, &p1, &p0, t, _varyingEnabledBits);
 
                     // outputList.add(Intersecting_point);
                     assert(outputListCount < kClippingPointMaxNum);

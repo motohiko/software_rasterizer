@@ -1,5 +1,5 @@
 ﻿#include "Rasterizer.h"
-#include <cmath>// lerp floor ceil abs 
+#include <cmath>// floor ceil abs 
 #include <algorithm>// min max clamp
 #include <cfloat>//FLT_EPSILON
 

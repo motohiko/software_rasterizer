@@ -34,10 +34,9 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setRenderTargetColorBuffer(void* addr, int width, int height, int widthBytes)
     {
-        //assert(nullptr != addr);
-        //assert(0 <= width);
-        //assert(0 <= height);
-        //assert(width <= widthBytes);
+        assert(0 <= width);
+        assert(0 <= height);
+        assert(width <= widthBytes);
         _renderTarget.colorBuffer.addr = addr;
         _renderTarget.colorBuffer.width = width;
         _renderTarget.colorBuffer.height = height;
@@ -46,10 +45,9 @@ namespace SoftwareRasterizer
 
     void RenderingContext::setRenderTargetDepthBuffer(void* addr, int width, int height, int widthBytes)
     {
-        //assert(nullptr != addr);
-        //assert(0 <= width);
-        //assert(0 <= height);
-        //assert(width <= widthBytes);
+        assert(0 <= width);
+        assert(0 <= height);
+        assert(width <= widthBytes);
         _renderTarget.depthBuffer.addr = addr;
         _renderTarget.depthBuffer.width = width;
         _renderTarget.depthBuffer.height = height;
@@ -82,18 +80,19 @@ namespace SoftwareRasterizer
         TextureOperations::FillTextureDepth(&(_renderTarget.depthBuffer), depth);
     }
 
+    void RenderingContext::setUniformBlock(const void* uniformBlock)
+    {
+        _constantBuffer.uniformBlock = uniformBlock;
+    }
+
     void RenderingContext::enableVertexAttribute(int index)
     {
-        assert(0 <= index && index < std::size(_inputLayout.elements));
-        assert(0 <= index && index < std::size(_vertexBuffers.vertexBuffers));
-        _inputLayout.vertexAttributeEnableBits |= (1u << index);
+        _inputLayout.vertexAttributeEnabledBits |= (1u << index);
     }
 
     void RenderingContext::disableVertexAttribute(int index)
     {
-        assert(0 <= index && index < std::size(_inputLayout.elements));
-        assert(0 <= index && index < std::size(_vertexBuffers.vertexBuffers));
-        _inputLayout.vertexAttributeEnableBits &= ~(1u << index);
+        _inputLayout.vertexAttributeEnabledBits &= ~(1u << index);
     }
 
     void RenderingContext::setVertexAttribute(int index, int size, ComponentDataType type, size_t stride, const void* buffer)
@@ -115,9 +114,14 @@ namespace SoftwareRasterizer
         _indexBuffer.indexNum = indexNum;
     }
 
-    void RenderingContext::setUniformBlock(const void* uniformBlock)
+    void RenderingContext::enableVarying(int index)
     {
-        _constantBuffer.uniformBlock = uniformBlock;
+        _varyingEnabledBits.varyingEnabledBits |= (1u << index);
+    }
+
+    void RenderingContext::disableVarying(int index)
+    {
+        _varyingEnabledBits.varyingEnabledBits &= ~(1u << index);
     }
 
     void RenderingContext::setVertexShaderProgram(VertexShaderFuncPtr vertexShaderMain)
@@ -171,11 +175,6 @@ namespace SoftwareRasterizer
 
     void RenderingContext::drawIndexed(PrimitiveTopologyType primitiveTopologyType)
     {
-        _quadFragment.setQ00(&_q00);
-        _quadFragment.setQ01(&_q01);
-        _quadFragment.setQ10(&_q10);
-        _quadFragment.setQ11(&_q11);
-
         // Set IA I/O.
         _inputAssemblyStage.input(&_inputLayout);
         _inputAssemblyStage.input(&_vertexBuffers);
@@ -188,6 +187,7 @@ namespace SoftwareRasterizer
 
         // Set RS I/O.
         _rasterizeStage.input(&_windowSize);
+        _rasterizeStage.input(&_varyingEnabledBits);
         _rasterizeStage.input(&_rasterizerState);
         _rasterizeStage.input(&_viewport);
         _rasterizeStage.input(&_depthRange);
@@ -198,7 +198,7 @@ namespace SoftwareRasterizer
         _fragmentShaderStage.input(&_constantBuffer);
         _fragmentShaderStage.input(&_fragmentShaderProgram);
         _fragmentShaderStage.input(&_quadFragment);
-        _fragmentShaderStage.output(&_quadFragment);
+        _fragmentShaderStage.output(&_quadPixel);
 
         // Set OM I/O.
         _outputMergerStage.input(&_depthState);
@@ -238,6 +238,8 @@ namespace SoftwareRasterizer
         {
             ClipStage clipStage;
             clipStage.setPrimitiveType(primitiveType);
+            clipStage.setVaryingEnabledBits(&_varyingEnabledBits);
+
             clipStage.clipPrimitive(vertices, vertexNum, clippedVertices, &clippedVertiexNum);
         }
 
@@ -264,34 +266,39 @@ namespace SoftwareRasterizer
         }
     }
 
-    void RenderingContext::outputFragment()
+    void RenderingContext::outputQuad()
     {
         _fragmentShaderStage.execute();
 
-        // TODO:
-        // クアッド分出力されたらフラグメントシェーダーステージへ
-        // 導関数を使いMIN/MGA判定
+        const FragmentData* fragment;
+        const PixelData* pixel;
 
-        Vector4 c00 = _quadFragment.getQ00()->color;
-        Vector4 c01 = _quadFragment.getQ01()->color;
-        Vector4 c10 = _quadFragment.getQ10()->color;
-        Vector4 c11 = _quadFragment.getQ11()->color;
+        fragment = &(_quadFragment.q00);
+        pixel = &(_quadPixel.q00);
+        if (fragment->pixelCovered)
+        {
+            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
+        }
 
-        if (_quadFragment.getQ00()->pixelCovered)
+        fragment = &(_quadFragment.q01);
+        pixel = &(_quadPixel.q01);
+        if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(_quadFragment.getQ00()->x, _quadFragment.getQ00()->y, c00, _quadFragment.getQ00()->depth);
+            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
         }
-        if (_quadFragment.getQ01()->pixelCovered)
+
+        fragment = &(_quadFragment.q10);
+        pixel = &(_quadPixel.q10);
+        if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(_quadFragment.getQ01()->x, _quadFragment.getQ01()->y, c01, _quadFragment.getQ01()->depth);
+            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
         }
-        if (_quadFragment.getQ10()->pixelCovered)
+
+        fragment = &(_quadFragment.q11);
+        pixel = &(_quadPixel.q11);
+        if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(_quadFragment.getQ10()->x, _quadFragment.getQ10()->y, c10, _quadFragment.getQ10()->depth);
-        }
-        if (_quadFragment.getQ11()->pixelCovered)
-        {
-            _outputMergerStage.execute(_quadFragment.getQ11()->x, _quadFragment.getQ11()->y, c11, _quadFragment.getQ11()->depth);
+            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
         }
     }
 

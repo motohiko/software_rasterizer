@@ -2,6 +2,7 @@
 
 #include "..\Modules\Rasterizer.h"
 #include "..\State\WindowSize.h"
+#include "..\State\VaryingEnabledBits.h"
 #include "..\State\RasterizerState.h"
 #include "..\State\Viewport.h"
 #include "..\State\DepthRange.h"
@@ -27,11 +28,12 @@ namespace SoftwareRasterizer
         ~RasterizeStage();
 
         void input(const WindowSize* windowSize) { _windowSize = windowSize; }
+        void input(const VaryingEnabledBits* varyingEnabledBits) { _varyingEnabledBits = varyingEnabledBits; }
         void input(const RasterizerState* rasterizerState) { _rasterizerState = rasterizerState; }
         void input(const Viewport* viewport) { _viewport = viewport; }
         void input(const DepthRange* depthRange) { _depthRange = depthRange; }
    
-        void output(QuadFragmentDataA* quadFragment) { _quadFragment = quadFragment; }
+        void output(QuadFragmentData* quadFragment) { _quadFragment = quadFragment; }
         void output(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
 
         void prepareRasterize();
@@ -42,10 +44,10 @@ namespace SoftwareRasterizer
 
         void transformToNdcVertex(const VertexDataB* vertex, VertexDataC* ndcVertex)
         {
-            ndcVertex->ndcPosition = vertex->clipPosition.getXYZ() / vertex->clipPosition.w;
+            ndcVertex->ndcPosition = vertex->clipCoord.getXYZ() / vertex->clipCoord.w;
         }
 
-        Vector2 transformWindowSpace(const VertexDataC* ndcVertex) const;
+        Vector2 transformWindowCoord(const VertexDataC* ndcVertex) const;
 
         float mapDepthRange(const VertexDataC* ndcVertex) const;
 
@@ -64,22 +66,23 @@ namespace SoftwareRasterizer
         void rasterizeLine(const VertexDataD* p0, const VertexDataD* p1);
         void rasterizeTriangle(const VertexDataD* rasterizationPoint0, const VertexDataD* rasterizationPoint1, const VertexDataD* rasterizationPopint2);
 
-        void getLineFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, FragmentDataA* fragment);
-        void getTriangleFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2, FragmentDataA* fragment);
+        void getLineFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, FragmentData* fragment);
+        void getTriangleFragment(int x, int y, const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2, FragmentData* fragment);
 
     private:
 
         // input
         const WindowSize* _windowSize = nullptr;
+        const VaryingEnabledBits* _varyingEnabledBits;
         const RasterizerState* _rasterizerState = nullptr;
         const Viewport* _viewport = nullptr;
         const DepthRange* _depthRange = nullptr;
 
         // output
-        QuadFragmentDataA* _quadFragment;
+        QuadFragmentData* _quadFragment;
         class RenderingContext* _renderingContext = nullptr;
 
-        // work
+    private:
 
         int _clipRectMinX = 0;
         int _clipRectMinY = 0;
@@ -88,7 +91,7 @@ namespace SoftwareRasterizer
 
         Rasterizer _rasterizer;
 
-        float _sarea2 = 0.0f;// singed area 2x
+        float _sarea_abc = 0.0f;// singed area 2x
 
     };
 }

@@ -39,10 +39,16 @@ namespace SoftwareRasterizer
 
     private:
 
+        // input
         const InputLayout* _inputLayout = nullptr;
         const VertexBuffers* _vertexBuffers = nullptr;
         const IndexBuffer* _indexBuffer = nullptr;
         PrimitiveTopologyType _primitiveTopologyType = PrimitiveTopologyType::kNone;
+
+        // output
+        // TODO:
+
+    private:
 
         PrimitiveType _primitiveType = PrimitiveType::kNone;
         int _primitiveVertexNum = 0;

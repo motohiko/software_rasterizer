@@ -165,6 +165,12 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\State\VaryingEnabledBits.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\Interpolator.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MeshData.cpp">
@@ -178,9 +184,6 @@
     </ClCompile>
     <ClCompile Include="Source\Lib\Vector.cpp">
       <Filter>ソース ファイル\Lib</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp">
-      <Filter>ソース ファイル\SoftwareRasterizer</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
@@ -235,6 +238,12 @@
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\Interpolator.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

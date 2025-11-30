@@ -165,11 +165,13 @@ namespace Test
             renderingContext->enableVertexAttribute(1);
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), gridColors);
             renderingContext->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
+            renderingContext->enableVarying(0);
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
 
             renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
+            renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
         }
@@ -188,6 +190,7 @@ namespace Test
             renderingContext->enableVertexAttribute(1);
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), xAxisColors);
             renderingContext->setIndexBuffer(kDefaultIndices, 2);
+            renderingContext->enableVarying(0);
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
 
@@ -202,6 +205,7 @@ namespace Test
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), zAxisColors);
             renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
+            renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
             renderingContext->setDepthFunc(ComparisonFuncType::kDefault);
@@ -219,6 +223,7 @@ namespace Test
             renderingContext->enableVertexAttribute(1);
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), polygonColors);
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);// 流用
+            renderingContext->enableVarying(0);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// 流用
 
             renderingContext->setFrontFaceMode(FrontFaceMode::kCounterClockwise);
@@ -226,6 +231,7 @@ namespace Test
 
             renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
+            renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
             renderingContext->setFrontFaceMode(FrontFaceMode::kDefault);
@@ -258,6 +264,8 @@ namespace Test
             renderingContext->setVertexAttribute(1, 2, ComponentDataType::kFloat, sizeof(float) * 2, kMeshUvs);
             renderingContext->enableVertexAttribute(2);
             renderingContext->setVertexAttribute(2, 3, ComponentDataType::kFloat, sizeof(float) * 3, kMeshNormals);
+            renderingContext->enableVarying(0);
+            renderingContext->enableVarying(1);
             renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
             renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
 
@@ -266,6 +274,8 @@ namespace Test
 
             renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
+            renderingContext->disableVarying(0);
+            renderingContext->disableVarying(1);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
             renderingContext->disableVertexAttribute(2);

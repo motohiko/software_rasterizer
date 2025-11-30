@@ -18,6 +18,7 @@
 #include "State\DepthRange.h"
 #include "State\FragmentShaderProgram.h"
 #include "State\DepthState.h"
+#include "State\VaryingEnabledBits.h"
 #include "Core\Types.h"
 #include <cstdint>
 
@@ -41,13 +42,16 @@ namespace SoftwareRasterizer
         void setClearDepth(float depth);// glClearDepth
         void clearRenderTarget();// glClear
 
+        void setUniformBlock(const void* uniformBlock);
+
         void enableVertexAttribute(int index);// glEnableVertexAttribArray
         void disableVertexAttribute(int index);// glDisableVertexAttribArray
         void setVertexAttribute(int index, int size, ComponentDataType type, size_t stride, const void* buffer);// glVertexAttribPointer
 
         void setIndexBuffer(const uint16_t* indices, int indexNum);// glBufferData
 
-        void setUniformBlock(const void* uniformBlock);
+        void enableVarying(int index);
+        void disableVarying(int index);
 
         void setVertexShaderProgram(VertexShaderFuncPtr vertexShaderMain);// glUseProgram
 
@@ -69,7 +73,7 @@ namespace SoftwareRasterizer
     private:
 
         void outputPrimitive(PrimitiveType primitiveType, const VertexDataB* vertices, int vertexNum);
-        void outputFragment();
+        void outputQuad();
 
     private:
 
@@ -79,6 +83,7 @@ namespace SoftwareRasterizer
         InputLayout _inputLayout;                       // IA
         VertexBuffers _vertexBuffers;                   // IA
         IndexBuffer _indexBuffer;                       // IA
+        VaryingEnabledBits _varyingEnabledBits;         // RS
         VertexShaderProgram _vertexShaderProgram;       // VS
         RasterizerState _rasterizerState;               // RS
         Viewport _viewport;                             // RS
@@ -87,9 +92,10 @@ namespace SoftwareRasterizer
         RenderTarget _renderTarget;                     // OM
         DepthState _depthState;                         // OM
 
+
     private:
 
-        // Pipeline
+        // Pipeline stages.
         InputAssemblyStage _inputAssemblyStage;     // IA
         VertexShaderStage _vertexShaderStage;       // VS
         RasterizeStage _rasterizeStage;             // RS
@@ -102,12 +108,9 @@ namespace SoftwareRasterizer
         friend class FragmentShaderStage;
         friend class OutputMergerStage;
 
-        // I/O data.
-        FragmentDataA _q00 = {};
-        FragmentDataA _q01 = {};
-        FragmentDataA _q10 = {};
-        FragmentDataA _q11 = {};
-        QuadFragmentDataA _quadFragment = {};
+        // Pipeline datas.
+        QuadFragmentData _quadFragment = {};
+        QuadPixelData _quadPixel = {};
 
     };
 }

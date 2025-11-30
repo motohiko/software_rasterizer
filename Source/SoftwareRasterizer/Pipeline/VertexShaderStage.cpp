@@ -27,7 +27,6 @@ namespace SoftwareRasterizer
         _vertexShaderProgram->vertexShaderMain(&vertexShaderInput, &vertexShaderOutput);
         assert(vertexShaderOutput.varyingNum < kMaxVaryings);
 
-        outputVertex->clipPosition = vertexShaderOutput.position;
-        outputVertex->varyingNum = vertexShaderOutput.varyingNum;
+        outputVertex->clipCoord = vertexShaderOutput.position;
     }
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "..\Core\Types.h"
+#include "..\State\VaryingEnabledBits.h"
 
 namespace SoftwareRasterizer
 {
@@ -12,6 +13,7 @@ namespace SoftwareRasterizer
 	public:
 
         void setPrimitiveType(PrimitiveType primitiveType);
+        void setVaryingEnabledBits(const VaryingEnabledBits* varyingEnabledBits);
 
         void clipPrimitive(const VertexDataB* vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const;
 
@@ -23,6 +25,7 @@ namespace SoftwareRasterizer
 	private:
 
         PrimitiveType _primitiveType;
+        const VaryingEnabledBits* _varyingEnabledBits;
 
     };
 }

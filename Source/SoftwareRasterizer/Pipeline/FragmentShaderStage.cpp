@@ -14,22 +14,25 @@ namespace SoftwareRasterizer
 
     void FragmentShaderStage::execute()
     {
-        executeShader(_quadFragment->getQ00(), &(_outQuadFragment->getQ00()->color));
-        executeShader(_quadFragment->getQ01(), &(_outQuadFragment->getQ01()->color));
-        executeShader(_quadFragment->getQ10(), &(_outQuadFragment->getQ10()->color));
-        executeShader(_quadFragment->getQ11(), &(_outQuadFragment->getQ11()->color));
+        // TODO: 導関数対応＆MIN/MGA判定
+
+        executeShader(&(_quadFragment->q00), &(_quadPixelData->q00));
+        executeShader(&(_quadFragment->q01), &(_quadPixelData->q01));
+        executeShader(&(_quadFragment->q10), &(_quadPixelData->q10));
+        executeShader(&(_quadFragment->q11), &(_quadPixelData->q11));
     }
 
-    void FragmentShaderStage::executeShader(const FragmentDataA* inputFragment, Vector4* outputColor) const
+    void FragmentShaderStage::executeShader(const FragmentData* inputFragment, PixelData* outputPixel) const
     {
         FragmentShaderInput fragmentShaderInput;
         fragmentShaderInput.uniformBlock = _constantBuffer->uniformBlock;
-        fragmentShaderInput.fragCoord = Vector4(inputFragment->wndPosition, inputFragment->depth, inputFragment->invW);
+        fragmentShaderInput.fragCoord = Vector4(inputFragment->wndCoord, inputFragment->depth, inputFragment->invW);
         fragmentShaderInput.varyings = inputFragment->varyings;
 
         FragmentShaderOutput fragmentShaderOutput;
         _fragmentShaderProgram->fragmentShaderMain(&fragmentShaderInput, &fragmentShaderOutput);
 
-        *outputColor = fragmentShaderOutput.fragColor;
+        outputPixel->color = fragmentShaderOutput.fragColor;
+        outputPixel->depth = inputFragment->depth;
     }
 }

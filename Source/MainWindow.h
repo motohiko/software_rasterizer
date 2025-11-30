@@ -3,7 +3,6 @@
 #include "PreIncludeWindows.h"
 #include <Windows.h>
 #include "PostIncludeWindows.h"
-
 #include "ModelViewer.h"
 #include "SoftwareRasterizer\RenderingContext.h"
 
@@ -38,7 +37,7 @@ private:
     int _lastMousePosY = 0;
     bool _isLButtonDragging = false;
 
-    SoftwareRasterizer::RenderingContext _renderingContext;
     Test::ModelViewer _modelViewer;
 
+    SoftwareRasterizer::RenderingContext _renderingContext;
 };

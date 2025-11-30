@@ -22,8 +22,12 @@ namespace SoftwareRasterizer
 
     private:
 
+        // input
         const ConstantBuffer* _constantBuffer;
         const VertexShaderProgram* _vertexShaderProgram;
+
+        // output
+        // TODO:
 
     };
 }

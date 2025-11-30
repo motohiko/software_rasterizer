@@ -1,7 +1,4 @@
 ﻿#include "SamplerUtility.h"
-#include "Modules\TextureOperations.h" 
-#include <cmath>// floor, modff
-#include <algorithm>//clamp
 
 namespace SoftwareRasterizer
 {
