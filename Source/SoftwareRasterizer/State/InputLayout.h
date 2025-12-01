@@ -24,6 +24,8 @@ namespace SoftwareRasterizer
     {
         InputElement elements[kMaxVertexAttributes] = {};
 
-        uint32_t vertexAttributeEnabledBits = 0;
+        uint32_t enabledVertexAttributeIndexBits = 0;
+
+        //int numVertexAttributes = 0;
     };
 }

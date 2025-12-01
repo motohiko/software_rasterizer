@@ -18,7 +18,7 @@
 #include "State\DepthRange.h"
 #include "State\FragmentShaderProgram.h"
 #include "State\DepthState.h"
-#include "State\VaryingEnabledBits.h"
+#include "State\VaryingIndexState.h"
 #include "Core\Types.h"
 #include <cstdint>
 
@@ -83,7 +83,7 @@ namespace SoftwareRasterizer
         InputLayout _inputLayout;                       // IA
         VertexBuffers _vertexBuffers;                   // IA
         IndexBuffer _indexBuffer;                       // IA
-        VaryingEnabledBits _varyingEnabledBits;         // RS
+        VaryingIndexState _varyingIndexState;           // RS
         VertexShaderProgram _vertexShaderProgram;       // VS
         RasterizerState _rasterizerState;               // RS
         Viewport _viewport;                             // RS
@@ -95,7 +95,7 @@ namespace SoftwareRasterizer
 
     private:
 
-        // Pipeline stages.
+        // パイプラインのステージごとの処理
         InputAssemblyStage _inputAssemblyStage;     // IA
         VertexShaderStage _vertexShaderStage;       // VS
         RasterizeStage _rasterizeStage;             // RS
@@ -108,9 +108,10 @@ namespace SoftwareRasterizer
         friend class FragmentShaderStage;
         friend class OutputMergerStage;
 
-        // Pipeline datas.
+        // パイプライン間で受け渡しされるデータ
         QuadFragmentData _quadFragment = {};
         QuadPixelData _quadPixel = {};
 
     };
+
 }

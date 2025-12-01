@@ -14,18 +14,15 @@ public:
     Application();
     ~Application();
 
-    void initialize(HINSTANCE hInstance);
+    bool initialize(HINSTANCE hInstance);
 
-    bool createMainWindows(int nShowCmd);
+    void showMainWindows(int nShowCmd);
 
     void messageLoop();
 
 private:
 
-    HINSTANCE _hInstance;
-
     MainWindow* _mainWindow;
 
 };
 
-extern Application* application;

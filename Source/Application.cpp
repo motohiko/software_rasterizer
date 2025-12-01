@@ -1,39 +1,32 @@
 ﻿#include "Application.h" 
 #include "MainWindow.h" 
 
-Application* application;
-
 Application::Application() :
-    _hInstance(NULL),
     _mainWindow(nullptr)
 {
-    application = this;
 }
 
 Application::~Application()
 {
     delete _mainWindow;
-    application = nullptr;
 }
 
-void Application::initialize(HINSTANCE hInstance)
-{
-    _hInstance = hInstance;
-}
-
-bool Application::createMainWindows(int nShowCmd)
+bool Application::initialize(HINSTANCE hInstance)
 {
     _mainWindow = new MainWindow();
 
-    bool created = _mainWindow->create(_hInstance);
+    bool created = _mainWindow->create(hInstance);
     if (!created)
     {
         return false;
     }
 
-    _mainWindow->show(nShowCmd);
-
     return true;
+}
+
+void Application::showMainWindows(int nShowCmd)
+{
+    _mainWindow->show(nShowCmd);
 }
 
 void Application::messageLoop()

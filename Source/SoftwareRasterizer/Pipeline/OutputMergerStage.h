@@ -23,8 +23,8 @@ namespace SoftwareRasterizer
 
     private:
 
-        float normalizeDepth(float depth);
-        bool depthTest(float depth, float storedDepth);
+        float normalizeDepth(float depth) const;
+        bool depthTest(float depth, float storedDepth) const;
 
         void storeTexelColor(int x, int y, const Vector4& color);
 

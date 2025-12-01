@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "..\Core\Types.h"
-#include "..\State\VaryingEnabledBits.h"
+#include "..\State\VaryingIndexState.h"
 
 namespace SoftwareRasterizer
 {
@@ -22,10 +22,10 @@ namespace SoftwareRasterizer
 
 	public:
 
-        static void InterpolateLinear(VertexDataB* p, const VertexDataB* a, const VertexDataB* b, float t, const VaryingEnabledBits* varyingEnabledBits);
-        static void InterpolateLinear(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, float t, const VaryingEnabledBits* varyingEnabledBits);
+        static void InterpolateLinear(VertexDataB* p, const VertexDataB* a, const VertexDataB* b, float t, const VaryingIndexState* varyingIndexState);
+        static void InterpolateLinear(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, float t, const VaryingIndexState* varyingIndexState);
 
-        static void InterpolateBarycentric(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, const BarycentricCoord* baryCoord, const VaryingEnabledBits* varyingEnabledBits);
+        static void InterpolateBarycentric(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, const BarycentricCoord* baryCoord, const VaryingIndexState* varyingIndexState);
        
     };
 }

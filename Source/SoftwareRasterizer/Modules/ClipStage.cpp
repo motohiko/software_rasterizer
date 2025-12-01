@@ -62,9 +62,9 @@ namespace SoftwareRasterizer
         }
 	}
 
-    void ClipStage::setVaryingEnabledBits(const VaryingEnabledBits* varyingEnabledBits)
+    void ClipStage::setVaryingEnabledBits(const VaryingIndexState* varyingIndexState)
     {
-        _varyingEnabledBits = varyingEnabledBits;
+        _varyingIndexState = varyingIndexState;
     }
 
     void ClipStage::clipPrimitiveLine(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
@@ -92,7 +92,7 @@ namespace SoftwareRasterizer
                 {
                     // d0: indide, d1: outside
                     const float t = d0 / (d0 - d1);
-                    Interpolator::InterpolateLinear(&clippedPrimitiveVertices[1], &clippedPrimitiveVertices[0], &clippedPrimitiveVertices[1], t, _varyingEnabledBits);
+                    Interpolator::InterpolateLinear(&clippedPrimitiveVertices[1], &clippedPrimitiveVertices[0], &clippedPrimitiveVertices[1], t, _varyingIndexState);
                 }
                 else
                 {
@@ -103,7 +103,7 @@ namespace SoftwareRasterizer
             {
                 // d0: outside, d1: inside
                 const float t = d0 / (d0 - d1);
-                Interpolator::InterpolateLinear(&clippedPrimitiveVertices[0], &clippedPrimitiveVertices[0], &clippedPrimitiveVertices[1], t, _varyingEnabledBits);
+                Interpolator::InterpolateLinear(&clippedPrimitiveVertices[0], &clippedPrimitiveVertices[0], &clippedPrimitiveVertices[1], t, _varyingIndexState);
             }
             else
             {
@@ -222,7 +222,7 @@ namespace SoftwareRasterizer
                     {
                         // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
                         float t = d1 / (d1 - d0);
-                        Interpolator::InterpolateLinear(&intersectingPoint, &p1, &p0, t, _varyingEnabledBits);
+                        Interpolator::InterpolateLinear(&intersectingPoint, &p1, &p0, t, _varyingIndexState);
 
                         // outputList.add(Intersecting_point);
                         if (!(outputListCount < kClippingPointMaxNum))
@@ -248,7 +248,7 @@ namespace SoftwareRasterizer
                 {
                     // Point Intersecting_point = ComputeIntersection(prev_point, current_point, clipEdge)
                     float t = d1 / (d1 - d0);
-                    Interpolator::InterpolateLinear(&intersectingPoint, &p1, &p0, t, _varyingEnabledBits);
+                    Interpolator::InterpolateLinear(&intersectingPoint, &p1, &p0, t, _varyingIndexState);
 
                     // outputList.add(Intersecting_point);
                     assert(outputListCount < kClippingPointMaxNum);

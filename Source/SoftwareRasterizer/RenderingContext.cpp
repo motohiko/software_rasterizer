@@ -87,12 +87,12 @@ namespace SoftwareRasterizer
 
     void RenderingContext::enableVertexAttribute(int index)
     {
-        _inputLayout.vertexAttributeEnabledBits |= (1u << index);
+        _inputLayout.enabledVertexAttributeIndexBits |= (1u << index);
     }
 
     void RenderingContext::disableVertexAttribute(int index)
     {
-        _inputLayout.vertexAttributeEnabledBits &= ~(1u << index);
+        _inputLayout.enabledVertexAttributeIndexBits &= ~(1u << index);
     }
 
     void RenderingContext::setVertexAttribute(int index, int size, ComponentDataType type, size_t stride, const void* buffer)
@@ -116,12 +116,12 @@ namespace SoftwareRasterizer
 
     void RenderingContext::enableVarying(int index)
     {
-        _varyingEnabledBits.varyingEnabledBits |= (1u << index);
+        _varyingIndexState.enabledVaryingIndexBits |= (1u << index);
     }
 
     void RenderingContext::disableVarying(int index)
     {
-        _varyingEnabledBits.varyingEnabledBits &= ~(1u << index);
+        _varyingIndexState.enabledVaryingIndexBits &= ~(1u << index);
     }
 
     void RenderingContext::setVertexShaderProgram(VertexShaderFuncPtr vertexShaderMain)
@@ -187,7 +187,7 @@ namespace SoftwareRasterizer
 
         // Set RS I/O.
         _rasterizeStage.input(&_windowSize);
-        _rasterizeStage.input(&_varyingEnabledBits);
+        _rasterizeStage.input(&_varyingIndexState);
         _rasterizeStage.input(&_rasterizerState);
         _rasterizeStage.input(&_viewport);
         _rasterizeStage.input(&_depthRange);
@@ -238,7 +238,7 @@ namespace SoftwareRasterizer
         {
             ClipStage clipStage;
             clipStage.setPrimitiveType(primitiveType);
-            clipStage.setVaryingEnabledBits(&_varyingEnabledBits);
+            clipStage.setVaryingEnabledBits(&_varyingIndexState);
 
             clipStage.clipPrimitive(vertices, vertexNum, clippedVertices, &clippedVertiexNum);
         }

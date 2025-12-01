@@ -113,15 +113,21 @@ namespace SoftwareRasterizer
         // 正規化デバイス座標の z を深度範囲にマップ
         rasterizationPoint->depth = mapDepthRange(ndcVertex);
 
-        //  1/W を保存（パースペクティブコレクト対応）
         float w = clippedPrimitiveVertex->clipCoord.w;
+        const bool noperspective = false;
+        if (noperspective)
+        {
+            w = 1.0f;
+        }
+
+        //  1/W を保存（パースペクティブコレクト対応）
         assert(w != 0.0f);
         rasterizationPoint->invW = 1.0f / w;
 
-        //  補間変数も W で除算（パースペクティブコレクト対応）
+        //  補間変数を W で除算しておく（パースペクティブコレクト対応）
         for (int i = 0; i < kMaxVaryings; i++)
         {
-            if (_varyingEnabledBits->varyingEnabledBits & (1u << i))
+            if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
                 rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
             }
@@ -378,16 +384,10 @@ namespace SoftwareRasterizer
         t = std::clamp(t, 0.0f, 1.0f);
 
         VertexDataD p;
-        Interpolator::InterpolateLinear(&p, a, b, t, _varyingEnabledBits);
+        Interpolator::InterpolateLinear(&p, a, b, t, _varyingIndexState);
 
         assert(0.0f != p.invW);
         float w = 1.0f / p.invW;
-
-        const bool noperspective = false;
-        if (noperspective)
-        {
-            w = 1.0f;
-        }
 
         fragment->x = x;
         fragment->y = y;
@@ -396,7 +396,7 @@ namespace SoftwareRasterizer
         fragment->invW = p.invW;
         for (int i = 0; i < kMaxVaryings; i++)
         {
-            if (_varyingEnabledBits->varyingEnabledBits & (1u << i))
+            if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
                 fragment->varyings[i] = p.varyingsDividedByW[i] * w;
             }
@@ -429,16 +429,10 @@ namespace SoftwareRasterizer
         }
 
         VertexDataD p;
-        Interpolator::InterpolateBarycentric(&p, a, b, c, &baryCoord, _varyingEnabledBits);
+        Interpolator::InterpolateBarycentric(&p, a, b, c, &baryCoord, _varyingIndexState);
 
         assert(0.0f != p.invW);
         float w = 1.0f / p.invW;
-
-        const bool noperspective = false;
-        if (noperspective)
-        {
-            w = 1.0f;
-        }
 
         fragment->x = x;
         fragment->y = y;
@@ -447,7 +441,7 @@ namespace SoftwareRasterizer
         fragment->invW = p.invW;
         for (int i = 0; i < kMaxVaryings; i++)
         {
-            if (_varyingEnabledBits->varyingEnabledBits & (1u << i))
+            if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
                 fragment->varyings[i] = p.varyingsDividedByW[i] * w;
             }

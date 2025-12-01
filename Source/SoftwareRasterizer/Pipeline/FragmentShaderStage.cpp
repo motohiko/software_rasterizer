@@ -12,6 +12,10 @@ namespace SoftwareRasterizer
     {
     }
 
+    FragmentShaderStage::~FragmentShaderStage()
+    {
+    }
+
     void FragmentShaderStage::execute()
     {
         // TODO: 導関数対応＆MIN/MGA判定

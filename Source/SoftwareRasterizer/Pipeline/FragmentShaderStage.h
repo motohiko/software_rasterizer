@@ -14,6 +14,7 @@ namespace SoftwareRasterizer
         static void validateState(const FragmentShaderProgram* state);
 
         FragmentShaderStage();
+        ~FragmentShaderStage();
 
         void input(const ConstantBuffer* constantBuffer) { _constantBuffer = constantBuffer; }
         void input(const FragmentShaderProgram* fragmentShaderProgram) { _fragmentShaderProgram = fragmentShaderProgram; }

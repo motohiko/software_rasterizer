@@ -2,7 +2,7 @@
 
 #include "..\Modules\Rasterizer.h"
 #include "..\State\WindowSize.h"
-#include "..\State\VaryingEnabledBits.h"
+#include "..\State\VaryingIndexState.h"
 #include "..\State\RasterizerState.h"
 #include "..\State\Viewport.h"
 #include "..\State\DepthRange.h"
@@ -28,7 +28,7 @@ namespace SoftwareRasterizer
         ~RasterizeStage();
 
         void input(const WindowSize* windowSize) { _windowSize = windowSize; }
-        void input(const VaryingEnabledBits* varyingEnabledBits) { _varyingEnabledBits = varyingEnabledBits; }
+        void input(const VaryingIndexState* varyingIndexState) { _varyingIndexState = varyingIndexState; }
         void input(const RasterizerState* rasterizerState) { _rasterizerState = rasterizerState; }
         void input(const Viewport* viewport) { _viewport = viewport; }
         void input(const DepthRange* depthRange) { _depthRange = depthRange; }
@@ -73,7 +73,7 @@ namespace SoftwareRasterizer
 
         // input
         const WindowSize* _windowSize = nullptr;
-        const VaryingEnabledBits* _varyingEnabledBits;
+        const VaryingIndexState* _varyingIndexState;
         const RasterizerState* _rasterizerState = nullptr;
         const Viewport* _viewport = nullptr;
         const DepthRange* _depthRange = nullptr;

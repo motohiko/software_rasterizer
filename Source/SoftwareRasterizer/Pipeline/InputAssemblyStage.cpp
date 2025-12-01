@@ -61,7 +61,7 @@ namespace SoftwareRasterizer
     {
         for (int i = 0; i < kMaxVertexAttributes; i++)
         {
-            if (_inputLayout->vertexAttributeEnabledBits & (1u << i))
+            if (_inputLayout->enabledVertexAttributeIndexBits & (1u << i))
             {
                 const InputElement* inputElement = &(_inputLayout->elements[i]);
                 const VertexBuffer* vertexBuffer = &(_vertexBuffers->vertexBuffers[i]);

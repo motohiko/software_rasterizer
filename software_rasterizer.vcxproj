@@ -158,7 +158,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\FragmentShaderProgram.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\IndexBuffer.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\Texture2D.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\State\VaryingEnabledBits.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\State\VaryingIndexState.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\VertexBuffers.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\InputLayout.h" />
     <ClInclude Include="Source\SoftwareRasterizer\State\RasterizerState.h" />

@@ -62,7 +62,7 @@ namespace SoftwareRasterizer
         storeTexelDepth(x, y, normarizedDpeth);
     }
 
-    float OutputMergerStage::normalizeDepth(float depth)
+    float OutputMergerStage::normalizeDepth(float depth) const
     {
         // [0,1] にマップする
         float a = _depthRange->depthRangeNearVal;
@@ -71,7 +71,7 @@ namespace SoftwareRasterizer
         return std::clamp(t, 0.0f, 1.0f);// saturate
     }
 
-    bool OutputMergerStage::depthTest(float depth, float storedDepth)
+    bool OutputMergerStage::depthTest(float depth, float storedDepth) const
     {
         return Comparator::Evaluate(depth, _depthState->depthFunc, storedDepth);
     }

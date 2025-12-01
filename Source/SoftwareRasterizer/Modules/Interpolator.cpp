@@ -3,12 +3,12 @@
 
 namespace SoftwareRasterizer
 {
-    void Interpolator::InterpolateLinear(VertexDataB* p, const VertexDataB* a, const VertexDataB* b, float t, const VaryingEnabledBits* varyingEnabledBits)
+    void Interpolator::InterpolateLinear(VertexDataB* p, const VertexDataB* a, const VertexDataB* b, float t, const VaryingIndexState* varyingIndexState)
     {
         p->clipCoord = Vector4::Lerp(a->clipCoord, b->clipCoord, t);
         for (int i = 0; i < kMaxVaryings; i++)
         {
-            if (varyingEnabledBits->varyingEnabledBits & (1u << i))
+            if (varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
                 const Vector4& av = a->varyings[i];
                 const Vector4& bv = b->varyings[i];
@@ -17,7 +17,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    void Interpolator::InterpolateLinear(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, float t, const VaryingEnabledBits* varyingEnabledBits)
+    void Interpolator::InterpolateLinear(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, float t, const VaryingIndexState* varyingIndexState)
     {
         p->wndCoord.x = std::lerp(a->wndCoord.x, b->wndCoord.x, t);
         p->wndCoord.y = std::lerp(a->wndCoord.y, b->wndCoord.y, t);
@@ -25,7 +25,7 @@ namespace SoftwareRasterizer
         p->invW = std::lerp(a->invW, b->invW, t);
         for (int i = 0; i < kMaxVaryings; i++)
         {
-            if (varyingEnabledBits->varyingEnabledBits & (1u << i))
+            if (varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
                 const Vector4& av = a->varyingsDividedByW[i];
                 const Vector4& bv = b->varyingsDividedByW[i];
@@ -39,7 +39,7 @@ namespace SoftwareRasterizer
     //    return (a * baryCoord->r1) + (b * baryCoord->r2) + (c * baryCoord->r3);
     //}
 
-    void Interpolator::InterpolateBarycentric(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, const BarycentricCoord* baryCoord, const VaryingEnabledBits* varyingEnabledBits)
+    void Interpolator::InterpolateBarycentric(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, const BarycentricCoord* baryCoord, const VaryingIndexState* varyingIndexState)
     {
         float r1 = baryCoord->r1;
         float r2 = baryCoord->r2;
@@ -50,7 +50,7 @@ namespace SoftwareRasterizer
         p->invW = (a->invW * r1) + (b->invW * r2) + (c->invW * r3);
         for (int i = 0; i < kMaxVaryings; i++)
         {
-            if (varyingEnabledBits->varyingEnabledBits & (1u << i))
+            if (varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
                 const Vector4& av = a->varyingsDividedByW[i];
                 const Vector4& bv = b->varyingsDividedByW[i];
