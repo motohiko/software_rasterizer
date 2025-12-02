@@ -41,7 +41,7 @@ namespace SoftwareRasterizer
     {
     }
 
-    void OutputMergerStage::execute(int x, int y, const Vector4& color, float depth)
+    void OutputMergerStage::execute(const IntVector2& texelCoord, const Vector4& color, float depth)
     {
         // x, y はウィンドウ座標
 
@@ -49,7 +49,7 @@ namespace SoftwareRasterizer
 
         if (_depthState->depthTestEnabled)
         {
-            float storedDepth = fetchTexelDepth(x, y);
+            float storedDepth = fetchTexelDepth(texelCoord);
 
             bool passed = depthTest(normarizedDpeth, storedDepth);
             if (!passed)
@@ -58,8 +58,8 @@ namespace SoftwareRasterizer
             }
         }
 
-        storeTexelColor(x, y, color);
-        storeTexelDepth(x, y, normarizedDpeth);
+        storeTexelColor(texelCoord, color);
+        storeTexelDepth(texelCoord, normarizedDpeth);
     }
 
     float OutputMergerStage::normalizeDepth(float depth) const
@@ -76,19 +76,19 @@ namespace SoftwareRasterizer
         return Comparator::Evaluate(depth, _depthState->depthFunc, storedDepth);
     }
 
-    void OutputMergerStage::storeTexelColor(int x, int y, const Vector4& color)
+    void OutputMergerStage::storeTexelColor(const IntVector2& texelCoord, const Vector4& color)
     {
-        TextureOperations::StoreTexelColor(&(_renderTarget->colorBuffer), x, y, color);
+        TextureOperations::StoreTexelColor(&(_renderTarget->colorBuffer), texelCoord, color);
     }
 
-    float OutputMergerStage::fetchTexelDepth(int x, int y) const
+    float OutputMergerStage::fetchTexelDepth(const IntVector2& texelCoord) const
     {
-        return TextureOperations::FetchTexelDepth(&(_renderTarget->depthBuffer), x, y);
+        return TextureOperations::FetchTexelDepth(&(_renderTarget->depthBuffer), texelCoord);
     }
 
-    void OutputMergerStage::storeTexelDepth(int x, int y, float depth)
+    void OutputMergerStage::storeTexelDepth(const IntVector2& texelCoord, float depth)
     {
-        TextureOperations::StoreTexelDepth(&(_renderTarget->depthBuffer), x,y, depth);
+        TextureOperations::StoreTexelDepth(&(_renderTarget->depthBuffer), texelCoord, depth);
     }
 
 }

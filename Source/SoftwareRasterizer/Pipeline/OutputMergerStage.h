@@ -19,17 +19,17 @@ namespace SoftwareRasterizer
 
         void output(RenderTarget* renderTarget) { _renderTarget = renderTarget; }
 
-        void execute(int x, int y, const Vector4& color, float depth);
+        void execute(const IntVector2& texelCoord, const Vector4& color, float depth);
 
     private:
 
         float normalizeDepth(float depth) const;
         bool depthTest(float depth, float storedDepth) const;
 
-        void storeTexelColor(int x, int y, const Vector4& color);
+        void storeTexelColor(const IntVector2& texelCoord, const Vector4& color);
 
-        float fetchTexelDepth(int x, int y) const;
-        void storeTexelDepth(int x, int y, float depth);
+        float fetchTexelDepth(const IntVector2& texelCoord) const;
+        void storeTexelDepth(const IntVector2& texelCoord, float depth);
 
     private:
 

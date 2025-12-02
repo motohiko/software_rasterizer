@@ -16,11 +16,11 @@ namespace SoftwareRasterizer
 		static void FillTextureColor(Texture2D* texture, const Vector4& color);
 		static void FillTextureDepth(Texture2D* texture, float depth);
 
-		static Vector4 FetchTexelColor(const Texture2D* texture, int tx, int ty);
-		static float FetchTexelDepth(const Texture2D* texture, int tx, int ty);
+		static Vector4 FetchTexelColor(const Texture2D* texture, const IntVector2& texelCoord);
+		static float FetchTexelDepth(const Texture2D* texture, const IntVector2& texelCoord);
 
-		static void StoreTexelColor(Texture2D* texture, int tx, int ty, const Vector4& color);
-		static void StoreTexelDepth(Texture2D* texture, int tx, int ty, float depth);
+		static void StoreTexelColor(Texture2D* texture, const IntVector2& texelCoord, const Vector4& color);
+		static void StoreTexelDepth(Texture2D* texture, const IntVector2& texelCoord, float depth);
 
 	};
 

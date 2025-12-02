@@ -22,6 +22,7 @@ namespace SoftwareRasterizer
         p->wndCoord.x = std::lerp(a->wndCoord.x, b->wndCoord.x, t);
         p->wndCoord.y = std::lerp(a->wndCoord.y, b->wndCoord.y, t);
         p->depth = std::lerp(a->depth, b->depth, t);
+        p->depthDividedByW = std::lerp(a->depthDividedByW, b->depthDividedByW, t);
         p->invW = std::lerp(a->invW, b->invW, t);
         for (int i = 0; i < kMaxVaryings; i++)
         {
@@ -44,9 +45,10 @@ namespace SoftwareRasterizer
         float r1 = baryCoord->r1;
         float r2 = baryCoord->r2;
         float r3 = baryCoord->r3;
-
+        
         p->wndCoord = (a->wndCoord * r1) + (b->wndCoord * r2) + (c->wndCoord * r3);
         p->depth = (a->depth * r1) + (b->depth * r2) + (c->depth * r3);
+        p->depthDividedByW = (a->depthDividedByW * r1) + (b->depthDividedByW * r2) + (c->depthDividedByW * r3);
         p->invW = (a->invW * r1) + (b->invW * r2) + (c->invW * r3);
         for (int i = 0; i < kMaxVaryings; i++)
         {

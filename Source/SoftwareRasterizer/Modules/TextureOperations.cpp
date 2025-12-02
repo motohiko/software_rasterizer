@@ -110,7 +110,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    Vector4 TextureOperations::FetchTexelColor(const Texture2D* texture, int tx, int ty)
+    Vector4 TextureOperations::FetchTexelColor(const Texture2D* texture, const IntVector2& texelCoord)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -118,12 +118,13 @@ namespace SoftwareRasterizer
         size_t widthBytes = texture->widthBytes;
         size_t byteCount = 4;// TODO: rename
 
-        if (tx < 0 || width <= tx || ty < 0 || height <= ty)
+        if (texelCoord.x < 0 || width <= texelCoord.x ||
+            texelCoord.y < 0 || height <= texelCoord.y)
         {
             return Vector4::kZero;
         }
 
-        size_t offset = (widthBytes * ty) + (byteCount * tx);
+        size_t offset = (widthBytes * texelCoord.y) + (byteCount * texelCoord.x);
         uintptr_t src = addr + offset;
 
         ColorR8G8B8A8 texel = *(const ColorR8G8B8A8*)src;
@@ -138,7 +139,7 @@ namespace SoftwareRasterizer
         return color;
     }
 
-    float TextureOperations::FetchTexelDepth(const Texture2D* texture, int tx, int ty)
+    float TextureOperations::FetchTexelDepth(const Texture2D* texture, const IntVector2& texelCoord)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -146,12 +147,13 @@ namespace SoftwareRasterizer
         size_t widthBytes = texture->widthBytes;
         size_t byteCount = 4;// TODO: rename
 
-        if (tx < 0 || width <= tx || ty < 0 || height <= ty)
+        if (texelCoord.x < 0 || width <= texelCoord.x ||
+            texelCoord.y < 0 || height <= texelCoord.y)
         {
             return 0.0f;
         }
 
-        size_t offset = (widthBytes * ty) + (byteCount * tx);
+        size_t offset = (widthBytes * texelCoord.y) + (byteCount * texelCoord.x);
         uintptr_t src = addr + offset;
 
         DepthStencilD24S8 texel = *(const DepthStencilD24S8*)src;
@@ -160,7 +162,7 @@ namespace SoftwareRasterizer
 
     }
 
-    void TextureOperations::StoreTexelColor(Texture2D* texture, int tx, int ty, const Vector4& color)
+    void TextureOperations::StoreTexelColor(Texture2D* texture, const IntVector2& texelCoord, const Vector4& color)
     {
         // x, y はウィンドウ座標
         // DIBは左下が(0,0)なので上下反転は不要
@@ -171,12 +173,13 @@ namespace SoftwareRasterizer
         size_t widthBytes = texture->widthBytes;
         size_t byteCount = 4;// TODO: rename
 
-        if (tx < 0 || width <= tx || ty < 0 || height <= ty)
+        if (texelCoord.x < 0 || width <= texelCoord.x ||
+            texelCoord.y < 0 || height <= texelCoord.y)
         {
             return;
         }
 
-        size_t offset = (widthBytes * ty) + (byteCount * tx);
+        size_t offset = (widthBytes * texelCoord.y) + (byteCount * texelCoord.x);
         uintptr_t dst = addr + offset;
 
         ColorB8G8R8A8 texel;
@@ -188,7 +191,7 @@ namespace SoftwareRasterizer
         *(ColorB8G8R8A8*)dst = texel;
     }
 
-    void TextureOperations::StoreTexelDepth(Texture2D* texture, int tx, int ty, float depth)
+    void TextureOperations::StoreTexelDepth(Texture2D* texture, const IntVector2& texelCoord, float depth)
     {
         uintptr_t addr = (uintptr_t)(texture->addr);
         size_t width = texture->width;
@@ -196,12 +199,13 @@ namespace SoftwareRasterizer
         size_t widthBytes = texture->widthBytes;
         size_t byteCount = sizeof(uint32_t);// TODO: rename
 
-        if (tx < 0 || width <= tx || ty < 0 || height <= ty)
+        if (texelCoord.x < 0 || width <= texelCoord.x ||
+            texelCoord.y < 0 || height <= texelCoord.y)
         {
             return;
         }
 
-        size_t offset = (widthBytes * ty) + (sizeof(float) * tx);
+        size_t offset = (widthBytes * texelCoord.y) + (sizeof(float) * texelCoord.x);
         uintptr_t dst = addr + offset;
 
         uint32_t d24 = NormalizedConverter::DenormalizeU24(depth);

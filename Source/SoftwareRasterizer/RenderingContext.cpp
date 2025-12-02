@@ -277,28 +277,28 @@ namespace SoftwareRasterizer
         pixel = &(_quadPixel.q00);
         if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
+            _outputMergerStage.execute(fragment->pixelCoord, pixel->color, pixel->depth);
         }
 
         fragment = &(_quadFragment.q01);
         pixel = &(_quadPixel.q01);
         if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
+            _outputMergerStage.execute(fragment->pixelCoord, pixel->color, pixel->depth);
         }
 
         fragment = &(_quadFragment.q10);
         pixel = &(_quadPixel.q10);
         if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
+            _outputMergerStage.execute(fragment->pixelCoord, pixel->color, pixel->depth);
         }
 
         fragment = &(_quadFragment.q11);
         pixel = &(_quadPixel.q11);
         if (fragment->pixelCovered)
         {
-            _outputMergerStage.execute(fragment->x, fragment->y, pixel->color, pixel->depth);
+            _outputMergerStage.execute(fragment->pixelCoord, pixel->color, pixel->depth);
         }
     }
 

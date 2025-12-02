@@ -58,26 +58,36 @@ namespace SoftwareRasterizer
 
     struct VertexDataC// TODO: renmae
     {
-        //Vector3 ndCoord;
-        Vector3 ndcPosition;// 頂点座標（正規化デバイス空間）
+        Vector3 ndcCoord;// 頂点座標（正規化デバイス空間）
+        //float w;
+        //Vector4 varyings[kMaxVaryings];
     };
 
     struct VertexDataD// TODO: renmae
     {
         Vector2 wndCoord;// 頂点座標（ウィンドウ空間）
         float depth;
+        float depthDividedByW;// test code.
         float invW;// = 1 / clipCoord.w
         Vector4 varyingsDividedByW[kMaxVaryings];
     };
 
-    struct FragmentData
+    struct IntVector2
     {
-        int x;// フラグメント座標（ウィンドウ空間）
+        int x;
         int y;
 
-        bool pixelCovered;
+        IntVector2() = default;
+        IntVector2(int x, int y) : x(x), y(y)
+        {
+        }
+    };
 
-        Vector2 wndCoord;// ピクセルの中心座標（ウィンドウ空間）
+    struct FragmentData
+    {
+        IntVector2 pixelCoord;// ピクセルの座標
+        bool pixelCovered;
+        Vector2 wndCoord;// フラグメントの中心座標（ウィンドウ空間）
         float depth;
         float invW;// = 1 / clipCoord.w
         Vector4 varyings[kMaxVaryings];

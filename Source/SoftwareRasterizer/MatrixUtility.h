@@ -37,8 +37,6 @@
 // 
 
 #include "Core\Types.h"
-#include "..\Lib\Matrix.h"
-#include "..\Lib\Vector.h"
 
 namespace SoftwareRasterizer
 {

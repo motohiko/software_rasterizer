@@ -26,7 +26,7 @@ namespace SoftwareRasterizer
 
     public:
 
-        static Vector4 SamplePoint(const Sampler2D* sampler, int tx, int ty);
+        static Vector4 SamplePoint(const Sampler2D* sampler, const IntVector2& texelCoord);
         static Vector4 SampleNearestPoint(const Sampler2D* sampler, const Vector2& texcoord);
         static Vector4 SampleBilinear(const Sampler2D* sampler, const Vector2& texcoord);
 

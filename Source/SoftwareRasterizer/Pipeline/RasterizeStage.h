@@ -44,7 +44,7 @@ namespace SoftwareRasterizer
 
         void transformToNdcVertex(const VertexDataB* vertex, VertexDataC* ndcVertex)
         {
-            ndcVertex->ndcPosition = vertex->clipCoord.getXYZ() / vertex->clipCoord.w;
+            ndcVertex->ndcCoord = vertex->clipCoord.getXYZ() / vertex->clipCoord.w;
         }
 
         Vector2 transformWindowCoord(const VertexDataC* ndcVertex) const;

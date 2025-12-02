@@ -70,8 +70,8 @@ namespace SoftwareRasterizer
         float height = (float)_viewport->viewportHeight;
 
         return Vector2(
-            ((ndcVertex->ndcPosition.x + 1.0f) * (width / 2.0f)) + x,
-            ((ndcVertex->ndcPosition.y + 1.0f) * (height / 2.0f)) + y
+            ((ndcVertex->ndcCoord.x + 1.0f) * (width / 2.0f)) + x,
+            ((ndcVertex->ndcCoord.y + 1.0f) * (height / 2.0f)) + y
         );
     }
 
@@ -87,7 +87,7 @@ namespace SoftwareRasterizer
         // 正規化座標は左手系（奥に+Z）
         // 
 
-        float t = (ndcVertex->ndcPosition.z + 1.0f) / 2.0f;
+        float t = (ndcVertex->ndcCoord.z + 1.0f) / 2.0f;
         return std::lerp(_depthRange->depthRangeNearVal, _depthRange->depthRangeFarVal, t);
     }
 
@@ -107,21 +107,22 @@ namespace SoftwareRasterizer
         }
 #endif
 
-        // 正規化デバイス座標からウィンドウ座標へ変換
-        rasterizationPoint->wndCoord = transformWindowCoord(ndcVertex);
-
-        // 正規化デバイス座標の z を深度範囲にマップ
-        rasterizationPoint->depth = mapDepthRange(ndcVertex);
-
         float w = clippedPrimitiveVertex->clipCoord.w;
+        assert(w != 0.0f);
         const bool noperspective = false;
         if (noperspective)
         {
             w = 1.0f;
         }
 
+        // 正規化デバイス座標からウィンドウ座標へ変換
+        rasterizationPoint->wndCoord = transformWindowCoord(ndcVertex);
+
+        // 正規化デバイス座標の z を深度範囲にマップ
+        rasterizationPoint->depth = mapDepthRange(ndcVertex);
+        rasterizationPoint->depthDividedByW = rasterizationPoint->depth / w;// test code.
+
         //  1/W を保存（パースペクティブコレクト対応）
-        assert(w != 0.0f);
         rasterizationPoint->invW = 1.0f / w;
 
         //  補間変数を W で除算しておく（パースペクティブコレクト対応）
@@ -146,9 +147,9 @@ namespace SoftwareRasterizer
         // フェイスカリング
         if (PrimitiveType::kTriangle == rasterPrimitive.primitiveType)
         {
-            Vector2 p0 = ndcVertices[0].ndcPosition.getXY();
-            Vector2 p1 = ndcVertices[1].ndcPosition.getXY();
-            Vector2 p2 = ndcVertices[2].ndcPosition.getXY();
+            Vector2 p0 = ndcVertices[0].ndcCoord.getXY();
+            Vector2 p1 = ndcVertices[1].ndcCoord.getXY();
+            Vector2 p2 = ndcVertices[2].ndcCoord.getXY();
 
             float n;
             switch (_rasterizerState->frontFaceMode)
@@ -319,12 +320,10 @@ namespace SoftwareRasterizer
         float dSideVal = ab.cross(ad);
         if (FLT_EPSILON < cSideVal && FLT_EPSILON < dSideVal)
         {
-            // 交差しない
             return false;
         }
         if (cSideVal < -FLT_EPSILON && dSideVal < -FLT_EPSILON)
         {
-            // 交差しない
             return false;
         }
 
@@ -336,12 +335,10 @@ namespace SoftwareRasterizer
         float bSideVal = cd.cross(cb);
         if (FLT_EPSILON < aSideVal && FLT_EPSILON < bSideVal)
         {
-            // 交差しない
             return false;
         }
         if (aSideVal < -FLT_EPSILON && bSideVal < -FLT_EPSILON)
         {
-            // 交差しない
             return false;
         }
 
@@ -350,13 +347,13 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::getLineFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, FragmentData* fragment)
     {
-        // 菱形の各頂点
+        fragment->pixelCoord = IntVector2(x, y);
+
+        // 菱形の各辺と交差判定
         Vector2 diamondCorner0(x + 0.5f, y + 0.0f);
         Vector2 diamondCorner1(x + 1.0f, y + 0.5f);
         Vector2 diamondCorner2(x + 0.5f, y + 1.0f);
         Vector2 diamondCorner3(x + 0.0f, y + 0.5f);
-
-        // 菱形の各辺と交差判定
         fragment->pixelCovered = false;
         if (CheckSegmentsIntersect(a->wndCoord, b->wndCoord, diamondCorner0, diamondCorner1))
         {
@@ -375,11 +372,13 @@ namespace SoftwareRasterizer
             fragment->pixelCovered = true;
         }
 
-        Vector2 p_wndCoord((float)x + 0.5f, (float)y + 0.5f);// ピクセルの中心
+        // ピクセルの中心
+        Vector2 p_wndCoord((float)x + 0.5f, (float)y + 0.5f);
+
+        // 線分上の最寄り位置を求める
         Vector2 ab(b->wndCoord - a->wndCoord);
         Vector2 ap(p_wndCoord - a->wndCoord);
         float apLengthClosest = Vector2::Normalize(ab).dot(ap);
-
         float t = apLengthClosest / ab.getNorm();
         t = std::clamp(t, 0.0f, 1.0f);
 
@@ -389,10 +388,9 @@ namespace SoftwareRasterizer
         assert(0.0f != p.invW);
         float w = 1.0f / p.invW;
 
-        fragment->x = x;
-        fragment->y = y;
         fragment->wndCoord = p.wndCoord;
         fragment->depth = p.depth;
+        //fragment->depth = p.depthDividedByW * w;
         fragment->invW = p.invW;
         for (int i = 0; i < kMaxVaryings; i++)
         {
@@ -405,10 +403,14 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::getTriangleFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, FragmentData* fragment)
     {
-        Vector2 p_wndCoord(x + 0.5f, y + 0.5f);// ピクセルの中心
+        fragment->pixelCoord = IntVector2(x, y);
 
-        assert(0.0f != _sarea_abc);
+        // ピクセルの中心
+        Vector2 p_wndCoord(x + 0.5f, y + 0.5f);
+
+        // 重心座標
         BarycentricCoord baryCoord;
+        assert(0.0f != _sarea_abc);
         baryCoord.r1 = edgeFunction(b->wndCoord, c->wndCoord, p_wndCoord) / _sarea_abc;
         baryCoord.r2 = edgeFunction(c->wndCoord, a->wndCoord, p_wndCoord) / _sarea_abc;
         baryCoord.r3 = edgeFunction(a->wndCoord, b->wndCoord, p_wndCoord) / _sarea_abc;
@@ -434,10 +436,9 @@ namespace SoftwareRasterizer
         assert(0.0f != p.invW);
         float w = 1.0f / p.invW;
 
-        fragment->x = x;
-        fragment->y = y;
         fragment->wndCoord = p.wndCoord;
         fragment->depth = p.depth;
+        //fragment->depth = p.depthDividedByW * w;
         fragment->invW = p.invW;
         for (int i = 0; i < kMaxVaryings; i++)
         {
