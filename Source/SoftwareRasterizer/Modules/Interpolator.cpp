@@ -22,8 +22,9 @@ namespace SoftwareRasterizer
         p->wndCoord.x = std::lerp(a->wndCoord.x, b->wndCoord.x, t);
         p->wndCoord.y = std::lerp(a->wndCoord.y, b->wndCoord.y, t);
         p->depth = std::lerp(a->depth, b->depth, t);
-        p->depthDividedByW = std::lerp(a->depthDividedByW, b->depthDividedByW, t);
         p->invW = std::lerp(a->invW, b->invW, t);
+
+        p->clipCoordDividedByW = Vector4::Lerp(a->clipCoordDividedByW, b->clipCoordDividedByW, t);// test code.
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (varyingIndexState->enabledVaryingIndexBits & (1u << i))
@@ -48,8 +49,9 @@ namespace SoftwareRasterizer
         
         p->wndCoord = (a->wndCoord * r1) + (b->wndCoord * r2) + (c->wndCoord * r3);
         p->depth = (a->depth * r1) + (b->depth * r2) + (c->depth * r3);
-        p->depthDividedByW = (a->depthDividedByW * r1) + (b->depthDividedByW * r2) + (c->depthDividedByW * r3);
         p->invW = (a->invW * r1) + (b->invW * r2) + (c->invW * r3);
+
+        p->clipCoordDividedByW = (a->clipCoordDividedByW * r1) + (b->clipCoordDividedByW * r2) + (c->clipCoordDividedByW * r3);
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (varyingIndexState->enabledVaryingIndexBits & (1u << i))

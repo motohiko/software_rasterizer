@@ -76,7 +76,7 @@ namespace SoftwareRasterizer
     }
 
     // 正規化デバイス座標の z を深度範囲にマップ
-    float RasterizeStage::mapDepthRange(const VertexDataC* ndcVertex) const
+    float RasterizeStage::mapDepthRange(float z) const
     {
         //
         // 参考 https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDepthRange.xhtml
@@ -87,7 +87,7 @@ namespace SoftwareRasterizer
         // 正規化座標は左手系（奥に+Z）
         // 
 
-        float t = (ndcVertex->ndcCoord.z + 1.0f) / 2.0f;
+        float t = (z + 1.0f) / 2.0f;
         return std::lerp(_depthRange->depthRangeNearVal, _depthRange->depthRangeFarVal, t);
     }
 
@@ -119,11 +119,12 @@ namespace SoftwareRasterizer
         rasterizationPoint->wndCoord = transformWindowCoord(ndcVertex);
 
         // 正規化デバイス座標の z を深度範囲にマップ
-        rasterizationPoint->depth = mapDepthRange(ndcVertex);
-        rasterizationPoint->depthDividedByW = rasterizationPoint->depth / w;// test code.
+        rasterizationPoint->depth = mapDepthRange(ndcVertex->ndcCoord.z);
 
         //  1/W を保存（パースペクティブコレクト対応）
         rasterizationPoint->invW = 1.0f / w;
+
+        rasterizationPoint->clipCoordDividedByW = clippedPrimitiveVertex->clipCoord / w;// test code.
 
         //  補間変数を W で除算しておく（パースペクティブコレクト対応）
         for (int i = 0; i < kMaxVaryings; i++)
@@ -390,8 +391,8 @@ namespace SoftwareRasterizer
 
         fragment->wndCoord = p.wndCoord;
         fragment->depth = p.depth;
-        //fragment->depth = p.depthDividedByW * w;
         fragment->invW = p.invW;
+
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
@@ -399,6 +400,10 @@ namespace SoftwareRasterizer
                 fragment->varyings[i] = p.varyingsDividedByW[i] * w;
             }
         }
+
+        Vector4 clipCoord = p.clipCoordDividedByW * w;// test code.
+        Vector4 ndcCoord = clipCoord / clipCoord.w;        
+        fragment->depth = mapDepthRange(ndcCoord.z);
     }
 
     void RasterizeStage::getTriangleFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, FragmentData* fragment)
@@ -438,8 +443,8 @@ namespace SoftwareRasterizer
 
         fragment->wndCoord = p.wndCoord;
         fragment->depth = p.depth;
-        //fragment->depth = p.depthDividedByW * w;
         fragment->invW = p.invW;
+
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
@@ -447,6 +452,10 @@ namespace SoftwareRasterizer
                 fragment->varyings[i] = p.varyingsDividedByW[i] * w;
             }
         }
+
+        Vector4 clipCoord = p.clipCoordDividedByW * w;// test code.
+        Vector4 ndcCoord = clipCoord / clipCoord.w;
+        fragment->depth = mapDepthRange(ndcCoord.z);
     }
 
 }

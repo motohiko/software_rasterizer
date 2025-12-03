@@ -49,7 +49,7 @@ namespace SoftwareRasterizer
 
         Vector2 transformWindowCoord(const VertexDataC* ndcVertex) const;
 
-        float mapDepthRange(const VertexDataC* ndcVertex) const;
+        float mapDepthRange(float z) const;
 
         void transformRasterVertex(const VertexDataB* clippedPrimitiveVertices, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const;
 

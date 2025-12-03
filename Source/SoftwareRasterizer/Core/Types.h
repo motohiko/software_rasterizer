@@ -67,8 +67,9 @@ namespace SoftwareRasterizer
     {
         Vector2 wndCoord;// 頂点座標（ウィンドウ空間）
         float depth;
-        float depthDividedByW;// test code.
         float invW;// = 1 / clipCoord.w
+
+        Vector4 clipCoordDividedByW;// test code.
         Vector4 varyingsDividedByW[kMaxVaryings];
     };
 
