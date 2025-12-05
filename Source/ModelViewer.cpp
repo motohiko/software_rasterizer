@@ -213,6 +213,7 @@ namespace Test
         }
 
         // 色付き三角形を描画（頂点色は赤緑青の順、反時計周り）
+        if (false)
         {
             const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
             const Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
@@ -238,10 +239,56 @@ namespace Test
             renderingContext->setCullFaceMode(CullFaceMode::kDefault);
         }
 
+        // 色付き三角形を描画（頂点色は赤緑青の順、時計周り）
+        {
+            // (-3, 2) (-1, 2)
+            // (-3, 0) (-1, 0)
+            const uint16_t polygonIndices[6] = { 0, 1, 2, 1, 3, 2 };
+            const Vector3 polygonPositions[4] = { { -3.0f, 2.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f }, { -1.0f, 0.0f,  0.0f } };
+            const Vector2 polygonUVs[4] = { { 0.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f }, { 1.0f, 0.0f } };
+            const Vector3 polygonNormals[4] = { { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f  }, { 0.0f, 0.0f, 1.0f  }, { 0.0f, 0.0f, 1.0f  } };
+
+            Texture2D texture = {};
+            texture.addr = kTexture;
+            texture.width = 256;
+            texture.height = 256;
+            texture.widthBytes = 4 * 256;
+
+            Sampler2D sampler = {};
+            sampler.texture = &texture;
+            sampler.minFilter = FilterType::kPoint;
+            sampler.magFilter = FilterType::kPoint;
+
+            uniformBlock.meshTexture = &sampler;
+
+            renderingContext->setIndexBuffer(polygonIndices, 6);
+            renderingContext->enableVertexAttribute(0);
+            renderingContext->setVertexAttribute(0, 3, ComponentDataType::kFloat, sizeof(Vector3), polygonPositions);
+            renderingContext->enableVertexAttribute(1);
+            renderingContext->setVertexAttribute(1, 2, ComponentDataType::kFloat, sizeof(Vector2), polygonUVs);
+            renderingContext->enableVertexAttribute(2);
+            renderingContext->setVertexAttribute(2, 3, ComponentDataType::kFloat, sizeof(Vector3), polygonNormals);
+            renderingContext->enableVarying(0);
+            renderingContext->enableVarying(1);
+            renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
+            renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
+
+            renderingContext->setFrontFaceMode(FrontFaceMode::kClockwise);
+            renderingContext->setCullFaceMode(CullFaceMode::kNone);
+
+            renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
+
+            renderingContext->disableVarying(0);
+            renderingContext->disableVarying(1);
+            renderingContext->disableVertexAttribute(0);
+            renderingContext->disableVertexAttribute(1);
+            renderingContext->disableVertexAttribute(2);
+            renderingContext->setFrontFaceMode(FrontFaceMode::kDefault);
+            renderingContext->setCullFaceMode(CullFaceMode::kDefault);
+        }
+
         // モデル（１メッシュ）を描画
         {
-
-
             uniformBlock.modelMatrix = MatrixUtility::CreateRotationX(90.0f * 3.14f / 180.0f);
 
             Texture2D texture = {};

@@ -24,7 +24,6 @@ namespace SoftwareRasterizer
         p->depth = std::lerp(a->depth, b->depth, t);
         p->invW = std::lerp(a->invW, b->invW, t);
 
-        p->clipCoordDividedByW = Vector4::Lerp(a->clipCoordDividedByW, b->clipCoordDividedByW, t);// test code.
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (varyingIndexState->enabledVaryingIndexBits & (1u << i))
@@ -51,7 +50,6 @@ namespace SoftwareRasterizer
         p->depth = (a->depth * r1) + (b->depth * r2) + (c->depth * r3);
         p->invW = (a->invW * r1) + (b->invW * r2) + (c->invW * r3);
 
-        p->clipCoordDividedByW = (a->clipCoordDividedByW * r1) + (b->clipCoordDividedByW * r2) + (c->clipCoordDividedByW * r3);
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (varyingIndexState->enabledVaryingIndexBits & (1u << i))

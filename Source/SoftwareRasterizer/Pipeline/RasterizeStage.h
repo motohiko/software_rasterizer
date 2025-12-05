@@ -42,16 +42,13 @@ namespace SoftwareRasterizer
 
     private:
 
-        void transformToNdcVertex(const VertexDataB* vertex, VertexDataC* ndcVertex)
-        {
-            ndcVertex->ndcCoord = vertex->clipCoord.getXYZ() / vertex->clipCoord.w;
-        }
+        void applyPerspectiveDivide(const VertexDataB* vertex, VertexDataC* ndcVertex);
 
-        Vector2 transformWindowCoord(const VertexDataC* ndcVertex) const;
+        Vector2 transformNdcToWindowCoord(const VertexDataC* ndcVertex) const;
 
         float mapDepthRange(float z) const;
 
-        void transformRasterVertex(const VertexDataB* clippedPrimitiveVertices, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const;
+        void applyViewportTransform(const VertexDataB* clippedPrimitiveVertices, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const;
 
         float edgeFunction(const Vector2& a, const Vector2& b, const Vector2& c)
         {

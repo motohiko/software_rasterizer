@@ -38,8 +38,32 @@ namespace SoftwareRasterizer
         _rasterizer.setSsanlineNum(_windowSize->windowHeight);
     }
 
+    void RasterizeStage::applyPerspectiveDivide(const VertexDataB* vertex, VertexDataC* ndcVertex)
+    {
+#ifndef NDEBUG
+        if (false)
+        {
+            float lazyW = std::abs(vertex->clipCoord.w) + 0.00001f;
+            assert(-lazyW <= vertex->clipCoord.x && vertex->clipCoord.x <= lazyW);
+            assert(-lazyW <= vertex->clipCoord.y && vertex->clipCoord.y <= lazyW);
+            assert(-lazyW <= vertex->clipCoord.z && vertex->clipCoord.z <= lazyW);
+        }
+#endif
+        assert(vertex->clipCoord.w != 0.0f);
+
+        ndcVertex->ndcCoord = vertex->clipCoord.getXYZ() / vertex->clipCoord.w;
+        ndcVertex->w = 1.0f;
+        for (int i = 0; i < kMaxVaryings; i++)
+        {
+            if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
+            {
+                ndcVertex->varyingsDividedByW[i] = vertex->varyings[i] / vertex->clipCoord.w;
+            }
+        }
+    }
+
     // 正規化デバイス座標からウィンドウ座標へ変換
-    Vector2 RasterizeStage::transformWindowCoord(const VertexDataC* ndcVertex) const
+    Vector2 RasterizeStage::transformNdcToWindowCoord(const VertexDataC* ndcVertex) const
     {
         // 
         // 参考 https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glViewport.xml
@@ -91,47 +115,23 @@ namespace SoftwareRasterizer
         return std::lerp(_depthRange->depthRangeNearVal, _depthRange->depthRangeFarVal, t);
     }
 
-    void RasterizeStage::transformRasterVertex(const VertexDataB* clippedPrimitiveVertex, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const
+    // ビューポート変換
+    void RasterizeStage::applyViewportTransform(const VertexDataB* clippedPrimitiveVertex, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const
     {
-        //
-        // ビューポート変換
-        //
-
-#ifndef NDEBUG
-        if (false)
-        {
-            float lazyW = std::abs(clippedPrimitiveVertex->clipCoord.w) + 0.00001f;
-            assert(-lazyW <= clippedPrimitiveVertex->clipCoord.x && clippedPrimitiveVertex->clipCoord.x <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertex->clipCoord.y && clippedPrimitiveVertex->clipCoord.y <= lazyW);
-            assert(-lazyW <= clippedPrimitiveVertex->clipCoord.z && clippedPrimitiveVertex->clipCoord.z <= lazyW);
-        }
-#endif
-
-        float w = clippedPrimitiveVertex->clipCoord.w;
-        assert(w != 0.0f);
-        const bool noperspective = false;
-        if (noperspective)
-        {
-            w = 1.0f;
-        }
-
         // 正規化デバイス座標からウィンドウ座標へ変換
-        rasterizationPoint->wndCoord = transformWindowCoord(ndcVertex);
+        rasterizationPoint->wndCoord = transformNdcToWindowCoord(ndcVertex);
 
         // 正規化デバイス座標の z を深度範囲にマップ
         rasterizationPoint->depth = mapDepthRange(ndcVertex->ndcCoord.z);
 
-        //  1/W を保存（パースペクティブコレクト対応）
-        rasterizationPoint->invW = 1.0f / w;
+        //  1/W を保存（パースペクティブコレクト）
+        rasterizationPoint->invW = 1.0f / clippedPrimitiveVertex->clipCoord.w;
 
-        rasterizationPoint->clipCoordDividedByW = clippedPrimitiveVertex->clipCoord / w;// test code.
-
-        //  補間変数を W で除算しておく（パースペクティブコレクト対応）
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
-                rasterizationPoint->varyingsDividedByW[i] = clippedPrimitiveVertex->varyings[i] / w;
+                rasterizationPoint->varyingsDividedByW[i] = ndcVertex->varyingsDividedByW[i];
             }
         }
     }
@@ -142,7 +142,7 @@ namespace SoftwareRasterizer
         VertexDataC ndcVertices[3];
         for (int i = 0; i < rasterPrimitive.vertexNum; i++)
         {
-            RasterizeStage::transformToNdcVertex(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]));
+            applyPerspectiveDivide(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]));
         }
 
         // フェイスカリング
@@ -195,7 +195,7 @@ namespace SoftwareRasterizer
         int rasterVertexNum = rasterPrimitive.vertexNum;
         for (int i = 0; i < rasterVertexNum; i++)
         {
-            transformRasterVertex(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]), &rasterVertices[i]);
+            applyViewportTransform(&(rasterPrimitive.vertices[i]), &(ndcVertices[i]), &rasterVertices[i]);
         }
 
         // 形状ごとの処理
@@ -400,10 +400,6 @@ namespace SoftwareRasterizer
                 fragment->varyings[i] = p.varyingsDividedByW[i] * w;
             }
         }
-
-        Vector4 clipCoord = p.clipCoordDividedByW * w;// test code.
-        Vector4 ndcCoord = clipCoord / clipCoord.w;        
-        fragment->depth = mapDepthRange(ndcCoord.z);
     }
 
     void RasterizeStage::getTriangleFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, FragmentData* fragment)
@@ -452,10 +448,6 @@ namespace SoftwareRasterizer
                 fragment->varyings[i] = p.varyingsDividedByW[i] * w;
             }
         }
-
-        Vector4 clipCoord = p.clipCoordDividedByW * w;// test code.
-        Vector4 ndcCoord = clipCoord / clipCoord.w;
-        fragment->depth = mapDepthRange(ndcCoord.z);
     }
 
 }

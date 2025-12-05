@@ -25,7 +25,7 @@ namespace Test
             float fovY = 60.0f * (3.14159265359f / 180.0f);
 
             float nearZ = 0.3f;
-            float farZ = 1000.0f;
+            float farZ = 10.0f;
 
             float focusPositionX = 0.0f;// 注視点
             float focusPositionY = 0.5f;
