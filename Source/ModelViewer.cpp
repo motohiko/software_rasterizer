@@ -79,7 +79,6 @@ namespace Test
 
         output->position = projectionMatrix * ((viewMatrix * modelMatrix) * Vector4(position.getXYZ(), 1.0f));
         output->varyings[0] = color;
-        output->varyingNum = 1;
     }
 
     void LinePixelShaderMain(const FragmentShaderInput* input, FragmentShaderOutput* output)
@@ -103,7 +102,6 @@ namespace Test
         output->position = projectionMatrix * ((viewMatrix * modelMatrix) * Vector4(position.getXYZ(), 1.0f));
         output->varyings[0] = uv;
         output->varyings[1] = modelMatrix * normal;
-        output->varyingNum = 2;
     }
 
     void MeshPixelShaderMain(const FragmentShaderInput* input, FragmentShaderOutput* output)

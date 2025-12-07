@@ -171,6 +171,12 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Interpolator.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\VertexFetchUnit.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\VertexCache.h">
+      <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\MeshData.cpp">
@@ -244,6 +250,12 @@
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\VertexFetchUnit.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\VertexCache.cpp">
+      <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

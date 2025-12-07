@@ -8,13 +8,13 @@ namespace SoftwareRasterizer
     {
         const void* uniformBlock;
         const Vector4* attributes;
+        int vertexId;       // gl_VertexID
     };
 
     struct VertexShaderOutput
     {
         Vector4 position;   // gl_Position
         Vector4* varyings;
-        int varyingNum;
     };
 
     typedef void (*VertexShaderFuncPtr)(const VertexShaderInput* input, VertexShaderOutput* output);

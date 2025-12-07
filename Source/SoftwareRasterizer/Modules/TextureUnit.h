@@ -21,7 +21,7 @@ namespace SoftwareRasterizer
 
     };
 
-    class TextureUnit
+    class TextureMappingUnit
     {
 
     public:

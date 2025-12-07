@@ -38,26 +38,21 @@ namespace SoftwareRasterizer
         _rasterizer.setSsanlineNum(_windowSize->windowHeight);
     }
 
-    void RasterizeStage::applyPerspectiveDivide(const VertexDataB* vertex, VertexDataC* ndcVertex)
+    // 透視除算(W除算)
+    void RasterizeStage::applyPerspectiveDivide(const VertexDataB* clipVertex, VertexDataC* ndcVertex)
     {
-#ifndef NDEBUG
-        if (false)
-        {
-            float lazyW = std::abs(vertex->clipCoord.w) + 0.00001f;
-            assert(-lazyW <= vertex->clipCoord.x && vertex->clipCoord.x <= lazyW);
-            assert(-lazyW <= vertex->clipCoord.y && vertex->clipCoord.y <= lazyW);
-            assert(-lazyW <= vertex->clipCoord.z && vertex->clipCoord.z <= lazyW);
-        }
-#endif
         assert(vertex->clipCoord.w != 0.0f);
 
-        ndcVertex->ndcCoord = vertex->clipCoord.getXYZ() / vertex->clipCoord.w;
-        ndcVertex->w = 1.0f;
+        Vector4 ndcCoord = clipVertex->clipCoord / clipVertex->clipCoord.w;
+        ndcVertex->ndcCoord = ndcCoord.getXYZ();
+        ndcVertex->w = ndcCoord.w;//=1.0f
+
+        // 補間変数もパースペクティブコレクトでW除算する必要があるので済ませておく
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
-                ndcVertex->varyingsDividedByW[i] = vertex->varyings[i] / vertex->clipCoord.w;
+                ndcVertex->varyingsDividedByW[i] = clipVertex->varyings[i] / clipVertex->clipCoord.w;
             }
         }
     }
@@ -78,7 +73,6 @@ namespace SoftwareRasterizer
         //       |
         //       +--- +x
         //  (0,0)
-
 
         //                   (x+width, y+height)
         //       +----------+
@@ -116,29 +110,26 @@ namespace SoftwareRasterizer
     }
 
     // ビューポート変換
-    void RasterizeStage::applyViewportTransform(const VertexDataB* clippedPrimitiveVertex, const VertexDataC* ndcVertex, VertexDataD* rasterizationPoint) const
+    void RasterizeStage::applyViewportTransform(const VertexDataB* clipVertex, const VertexDataC* ndcVertex, VertexDataD* wndVertex) const
     {
-        // 正規化デバイス座標からウィンドウ座標へ変換
-        rasterizationPoint->wndCoord = transformNdcToWindowCoord(ndcVertex);
+        wndVertex->wndCoord = transformNdcToWindowCoord(ndcVertex);
+        wndVertex->depth = mapDepthRange(ndcVertex->ndcCoord.z);
 
-        // 正規化デバイス座標の z を深度範囲にマップ
-        rasterizationPoint->depth = mapDepthRange(ndcVertex->ndcCoord.z);
+        // 補間対象にパースペクティブコレクト用の 1/W を加えておく
+        wndVertex->invW = 1.0f / clipVertex->clipCoord.w;
 
-        //  1/W を保存（パースペクティブコレクト）
-        rasterizationPoint->invW = 1.0f / clippedPrimitiveVertex->clipCoord.w;
-
+        // 補間変数もパースペクティブコレクト用にW除算しておく
         for (int i = 0; i < kMaxVaryings; i++)
         {
             if (_varyingIndexState->enabledVaryingIndexBits & (1u << i))
             {
-                rasterizationPoint->varyingsDividedByW[i] = ndcVertex->varyingsDividedByW[i];
+                wndVertex->varyingsDividedByW[i] = clipVertex->varyings[i] / clipVertex->clipCoord.w;
             }
         }
     }
 
     void RasterizeStage::rasterizePrimitive(RasterPrimitive& rasterPrimitive)
     {
-        // 各頂点を正規化デバイス座標へ変換（W除算）
         VertexDataC ndcVertices[3];
         for (int i = 0; i < rasterPrimitive.vertexNum; i++)
         {
@@ -309,7 +300,6 @@ namespace SoftwareRasterizer
 
         _rasterizer.end();
     }
-
 
     bool CheckSegmentsIntersect(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d)
     {

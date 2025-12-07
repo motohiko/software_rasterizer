@@ -1,5 +1,7 @@
 ﻿#include "InputAssemblyStage.h"
-#include "..\Modules\NormalizedConverter.h"
+#include "..\RenderingContext.h"
+#include "..\Modules\VertexFetchUnit.h"
+#include "..\Modules\VertexCache.h"
 
 namespace SoftwareRasterizer
 {
@@ -9,7 +11,10 @@ namespace SoftwareRasterizer
 
     InputAssemblyStage::InputAssemblyStage()
     {
-        _cache.reserve(0xffff);
+    }
+
+    InputAssemblyStage::~InputAssemblyStage()
+    {
     }
 
     void InputAssemblyStage::prepareReadPrimitive()
@@ -31,6 +36,41 @@ namespace SoftwareRasterizer
         }
 
         _readVertexCount = 0;
+    }
+
+    void InputAssemblyStage::executeVertexLoop()
+    {
+        Primitive primitive;
+        while (readPrimitive(&primitive))
+        {
+            int vertexNum = primitive.vertexNum;
+            uint16_t* vertexIndices = primitive.vertexIndices;
+
+            VertexDataB* clipVertices[3];
+
+            for (int i = 0; i < vertexNum; i++)
+            {
+                // gen vertex id.
+                int vertexIndex = vertexIndices[i];
+
+                // cache lookup
+                VertexCacheEntry* entry = VertexCache::LookupVertexCache(vertexIndex);
+                bool miss = (nullptr == entry);
+                if (miss)
+                {
+                    entry = VertexCache::WriteVertexCache(vertexIndex);
+
+                    VertexDataA* vertex = &(entry->vertexDataA);
+                    VertexFetchUnit::FetchVertex(_inputLayout, _vertexBuffers, vertexIndex, vertex);
+
+                    _renderingContext->outputVertex(entry);
+                }
+
+                clipVertices[i] = &(entry->vertexDataB);
+            }
+
+            _renderingContext->outputPrimitive(primitive.primitiveType, clipVertices, primitive.vertexNum);
+        }
     }
 
     bool InputAssemblyStage::readPrimitive(InputAssemblyStage::Primitive* primitive)
@@ -55,91 +95,6 @@ namespace SoftwareRasterizer
         primitive->vertexNum = _primitiveVertexNum;
 
         return true;
-    }
-
-    void InputAssemblyStage::readAttributeVertex(uint16_t vertexIndex, VertexDataA* vertex) const
-    {
-        for (int i = 0; i < kMaxVertexAttributes; i++)
-        {
-            if (_inputLayout->enabledVertexAttributeIndexBits & (1u << i))
-            {
-                const InputElement* inputElement = &(_inputLayout->elements[i]);
-                const VertexBuffer* vertexBuffer = &(_vertexBuffers->vertexBuffers[i]);
-
-                Vector4 attribute = Vector4::kZero;
-
-                // 指定個数のコンポーネントを読み取る
-                uintptr_t ptr = ((uintptr_t)vertexBuffer->addr) + (inputElement->stride * vertexIndex);
-                switch (inputElement->type)
-                {
-                case ComponentDataType::kFloat:
-                    switch (inputElement->size)
-                    {
-                    case 4:
-                        attribute.w = ((const float*)ptr)[3];
-                        [[fallthrough]];
-                    case 3:
-                        attribute.z = ((const float*)ptr)[2];
-                        [[fallthrough]];
-                    case 2:
-                        attribute.y = ((const float*)ptr)[1];
-                        [[fallthrough]];
-                    case 1:
-                        attribute.x = ((const float*)ptr)[0];
-                        [[fallthrough]];
-                    default:
-                        break;
-                    }
-                    break;
-                case ComponentDataType::kUnsignedByte:
-                    if (inputElement->normalized)
-                    {
-                        switch (inputElement->size)
-                        {
-                        case 4:
-                            attribute.w = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[3]);
-                            [[fallthrough]];
-                        case 3:
-                            attribute.z = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[2]);
-                            [[fallthrough]];
-                        case 2:
-                            attribute.y = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[1]);
-                            [[fallthrough]];
-                        case 1:
-                            attribute.x = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[0]);
-                            [[fallthrough]];
-                        default:
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        switch (inputElement->size)
-                        {
-                        case 4:
-                            attribute.w = ((const uint8_t*)ptr)[3];
-                            [[fallthrough]];
-                        case 3:
-                            attribute.z = ((const uint8_t*)ptr)[2];
-                            [[fallthrough]];
-                        case 2:
-                            attribute.y = ((const uint8_t*)ptr)[1];
-                            [[fallthrough]];
-                        case 1:
-                            attribute.x = ((const uint8_t*)ptr)[0];
-                            [[fallthrough]];
-                        default:
-                            break;
-                        }
-                    }
-                    break;
-                default:
-                    break;
-                }
-
-                vertex->attributes[i] = attribute;
-            }
-        }
     }
 
 }

@@ -46,7 +46,7 @@ namespace SoftwareRasterizer
         _primitiveType = primitiveType;
     }
 
-    void ClipStage::clipPrimitive(const VertexDataB* vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const
+    void ClipStage::clipPrimitive(VertexDataB** vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const
 	{
         switch (_primitiveType)
         {
@@ -67,7 +67,7 @@ namespace SoftwareRasterizer
         _varyingIndexState = varyingIndexState;
     }
 
-    void ClipStage::clipPrimitiveLine(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
+    void ClipStage::clipPrimitiveLine(VertexDataB** primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
     {
         if (primitiveVertexCount != 2)
         {
@@ -78,7 +78,7 @@ namespace SoftwareRasterizer
 
         for (int i = 0; i < 2; i++)
         {
-            clippedPrimitiveVertices[i] = primitiveVertices[i];
+            clippedPrimitiveVertices[i] = *primitiveVertices[i];
         }
 
         for (int i = 0; i < kClippingPlaneNum; i++)
@@ -130,7 +130,7 @@ namespace SoftwareRasterizer
 #endif
     }
 
-    void ClipStage::clipPrimitiveTriangle(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
+    void ClipStage::clipPrimitiveTriangle(VertexDataB** primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const
     {
         // Sutherland-Hodgman algorithm
         // Ivan Sutherland, Gary W. Hodgman: Reentrant Polygon Clipping. Communications of the ACM, vol. 17, pp. 32-42, 1974
@@ -181,7 +181,7 @@ namespace SoftwareRasterizer
         // List outputList = subjectPolygon;
         for (int i = 0; i < 3; i++)
         {
-            outputList[outputListCount] = primitiveVertices[i];
+            outputList[outputListCount] = *primitiveVertices[i];
             outputListCount++;
         }
 

@@ -10,9 +10,9 @@ namespace SoftwareRasterizer
         switch(filter)
         {
             case FilterType::kPoint:
-                return TextureUnit::SampleNearestPoint(sampler, texcoord);
+                return TextureMappingUnit::SampleNearestPoint(sampler, texcoord);
             case FilterType::kBilinear:
-                return TextureUnit::SampleBilinear(sampler, texcoord);
+                return TextureMappingUnit::SampleBilinear(sampler, texcoord);
             default:
                 return Vector4::kZero;
         }

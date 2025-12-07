@@ -5,7 +5,7 @@
 
 namespace SoftwareRasterizer
 {
-    Vector4 TextureUnit::SamplePoint(const Sampler2D* sampler, const IntVector2& texelCoord)
+    Vector4 TextureMappingUnit::SamplePoint(const Sampler2D* sampler, const IntVector2& texelCoord)
     {
         int width = sampler->texture->width;
         int height = sampler->texture->height;
@@ -20,7 +20,7 @@ namespace SoftwareRasterizer
         return TextureOperations::FetchTexelColor(sampler->texture, tmp);
     }
 
-    Vector4 TextureUnit::SampleNearestPoint(const Sampler2D* sampler, const Vector2& texcoord)
+    Vector4 TextureMappingUnit::SampleNearestPoint(const Sampler2D* sampler, const Vector2& texcoord)
     {
         int width = sampler->texture->width;
         int height = sampler->texture->height;
@@ -36,7 +36,12 @@ namespace SoftwareRasterizer
         return color;
     }
 
-    Vector4 TextureUnit::SampleBilinear(const Sampler2D* sampler, const Vector2& texcoord)
+    static Vector4 LerpColor(const Vector4& a, const Vector4& b, float t)
+    {
+        return a + ((b - a) * t);
+    }
+
+    Vector4 TextureMappingUnit::SampleBilinear(const Sampler2D* sampler, const Vector2& texcoord)
     {
         int width = sampler->texture->width;
         int height = sampler->texture->height;
@@ -86,11 +91,11 @@ namespace SoftwareRasterizer
         Vector4 q11 = SamplePoint(sampler, IntVector2(xi + 1, yi + 1));
 
         // 水平方向に補間
-        Vector4 r0 = Vector4::Lerp(q00, q01, xf);
-        Vector4 r1 = Vector4::Lerp(q10, q11, xf);
+        Vector4 r0 = LerpColor(q00, q01, xf);
+        Vector4 r1 = LerpColor(q10, q11, xf);
 
         // 垂直方向に補間
-        Vector4 color = Vector4::Lerp(r0, r1, yf);
+        Vector4 color = LerpColor(r0, r1, yf);
 
         return color;
     }

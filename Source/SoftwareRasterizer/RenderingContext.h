@@ -5,6 +5,7 @@
 #include "Pipeline\RasterizeStage.h"
 #include "Pipeline\FragmentShaderStage.h"
 #include "Pipeline\OutputMergerStage.h"
+#include "Modules\VertexCache.h"
 #include "State\WindowSize.h"
 #include "State\RenderTarget.h"
 #include "State\ClearParam.h"
@@ -72,7 +73,9 @@ namespace SoftwareRasterizer
 
     private:
 
-        void outputPrimitive(PrimitiveType primitiveType, const VertexDataB* vertices, int vertexNum);
+        void outputVertex(VertexCacheEntry* entry);
+        void outputPrimitive(PrimitiveType primitiveType, VertexDataB** vertices, int vertexNum);
+
         void outputQuad();
 
     private:

@@ -15,12 +15,12 @@ namespace SoftwareRasterizer
         void setPrimitiveType(PrimitiveType primitiveType);
         void setVaryingEnabledBits(const VaryingIndexState* varyingIndexState);
 
-        void clipPrimitive(const VertexDataB* vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const;
+        void clipPrimitive(VertexDataB** vertices, int vertexNum, VertexDataB* clippedVertices, int* clippedVertiexNum) const;
 
 	private:
 
-        void clipPrimitiveLine(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
-        void clipPrimitiveTriangle(const VertexDataB* primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
+        void clipPrimitiveLine(VertexDataB** primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
+        void clipPrimitiveTriangle(VertexDataB** primitiveVertices, int primitiveVertexCount, VertexDataB* clippedPrimitiveVertices, int* clippedPrimitiveVertiexCount) const;
 
 	private:
 

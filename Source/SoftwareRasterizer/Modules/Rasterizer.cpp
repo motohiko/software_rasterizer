@@ -34,8 +34,8 @@ namespace SoftwareRasterizer
         }
 
         // セルの上下
-        float y0 = y;
-        float y1 = y + 1.0f;
+        float y0 = (float)y;
+        float y1 = (float)y + 1.0f;
 
         // y0とy1の範囲で線分をクリップ
         if (p1.y < y0)

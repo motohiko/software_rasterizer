@@ -180,6 +180,7 @@ namespace SoftwareRasterizer
         _inputAssemblyStage.input(&_vertexBuffers);
         _inputAssemblyStage.input(&_indexBuffer);
         _inputAssemblyStage.input(primitiveTopologyType);
+        _inputAssemblyStage.output(this);
 
         // Set VS I/O.
         _vertexShaderStage.input(&_constantBuffer);
@@ -205,32 +206,24 @@ namespace SoftwareRasterizer
         _outputMergerStage.input(&_depthRange);
         _outputMergerStage.output(&_renderTarget);
 
-
-        // kick IA.
-
+        // prepare...
+        VertexCache::InitializeCache();
         _inputAssemblyStage.prepareReadPrimitive();
         _rasterizeStage.prepareRasterize();
 
-        InputAssemblyStage::Primitive primitive;
-        while (_inputAssemblyStage.readPrimitive(&primitive))
-        {
-            VertexDataB shadedVertices[3];
-
-            for (int i = 0; i < primitive.vertexNum; i++)
-            {
-                uint16_t vertexIndex = primitive.vertexIndices[i];
-
-                VertexDataA attributeVertex;
-                _inputAssemblyStage.readAttributeVertex(vertexIndex, &attributeVertex);
-
-                _vertexShaderStage.executeShader(&attributeVertex, &(shadedVertices[i]));
-            }
-
-            outputPrimitive(primitive.primitiveType, shadedVertices, primitive.vertexNum);
-        }
+        // Kick.
+        _inputAssemblyStage.executeVertexLoop();
     }
 
-    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, const VertexDataB* vertices, int vertexNum)
+    void RenderingContext::outputVertex(VertexCacheEntry* entry)
+    {
+        const VertexDataA* a = &(entry->vertexDataA);
+        VertexDataB* b = &(entry->vertexDataB);
+
+        _vertexShaderStage.executeShader(a, b);
+    }
+
+    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, VertexDataB** vertices, int vertexNum)
     {
         // プリミティブをクリップ
         VertexDataB clippedVertices[kClippingPointMaxNum];

@@ -58,12 +58,6 @@ namespace Lib
             return z;
         }
 
-        static Vector2 Lerp(const Vector2& a, const Vector2& b, float t)
-        {
-            // a + ((b - a) * t);
-            return Add(a, ScaleByScalar(Subtract(b, a), t));
-        }
-
         // 加減算
         Vector2 operator+(const Vector2& rhs) const { return Add(*this, rhs); }
         Vector2 operator-(const Vector2& rhs) const { return Subtract(*this, rhs); }
@@ -149,12 +143,6 @@ namespace Lib
             );
         }
 
-        static Vector3 Lerp(const Vector3& a, const Vector3& b, float t)
-        {
-            // a + ((b - a) * t);
-            return Add(a, ScaleByScalar(Subtract(b, a), t));
-        }
-
         // 加減算
         Vector3 operator+(const Vector3& rhs) const { return Add(*this, rhs); }
         Vector3 operator-(const Vector3& rhs) const { return Subtract(*this, rhs); }
@@ -226,12 +214,6 @@ namespace Lib
         static float ComputeInnerProduct(const Vector4& lhs, const Vector4& rhs)
         {
             return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
-        }
-
-        static Vector4 Lerp(const Vector4& a, const Vector4& b, float t)
-        {
-            // a + ((b - a) * t);
-            return Add(a, ScaleByScalar(Subtract(b, a), t));
         }
 
         // 加減算

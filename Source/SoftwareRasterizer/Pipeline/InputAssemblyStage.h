@@ -26,16 +26,20 @@ namespace SoftwareRasterizer
         static void validateState(const InputLayout* state);
 
         InputAssemblyStage();
+        ~InputAssemblyStage();
 
         void input(const InputLayout* inputLayout) { _inputLayout = inputLayout;  }
         void input(const VertexBuffers* vertexBuffers) { _vertexBuffers = vertexBuffers; }
         void input(const IndexBuffer* indexBuffer) { _indexBuffer = indexBuffer; }
         void input(PrimitiveTopologyType primitiveTopologyType) { _primitiveTopologyType = primitiveTopologyType; }
-        
-        void prepareReadPrimitive();
-        bool readPrimitive(Primitive* primitive);
 
-        void readAttributeVertex(uint16_t vertexIndex, VertexDataA* vertex) const;
+        void output(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
+
+        void prepareReadPrimitive();
+
+        void executeVertexLoop();
+
+        bool readPrimitive(Primitive* primitive);
 
     private:
 
@@ -46,7 +50,7 @@ namespace SoftwareRasterizer
         PrimitiveTopologyType _primitiveTopologyType = PrimitiveTopologyType::kNone;
 
         // output
-        // TODO:
+        class RenderingContext* _renderingContext = nullptr;
 
     private:
 
@@ -55,7 +59,6 @@ namespace SoftwareRasterizer
 
         int _readVertexCount = 0;
 
-        std::vector<VertexDataA> _cache;
 
     };
 }

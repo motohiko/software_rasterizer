@@ -18,12 +18,12 @@ namespace SoftwareRasterizer
         VertexShaderInput vertexShaderInput;
         vertexShaderInput.uniformBlock = _constantBuffer->uniformBlock;
         vertexShaderInput.attributes = inputVertex->attributes;
+        vertexShaderInput.vertexId = inputVertex->vertexIndex;
 
         VertexShaderOutput vertexShaderOutput;
         vertexShaderOutput.varyings = outputVertex->varyings;
 
         _vertexShaderProgram->vertexShaderMain(&vertexShaderInput, &vertexShaderOutput);
-        assert(vertexShaderOutput.varyingNum < kMaxVaryings);
 
         outputVertex->clipCoord = vertexShaderOutput.position;
     }
