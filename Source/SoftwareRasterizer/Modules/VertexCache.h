@@ -9,9 +9,11 @@ namespace SoftwareRasterizer
         VertexCacheEntry* prev;
         VertexCacheEntry* next;
 
-        int vertexIndex;
-        VertexDataA vertexDataA;// Pre
-        VertexDataB vertexDataB;// Bufferd Vertex
+        bool enabled;
+        int vertexId;
+
+        VertexDataA vertexDataA;// Pre T/L
+        VertexDataB vertexDataB;// Post T/L
     };
 
     class VertexCache
@@ -21,8 +23,8 @@ namespace SoftwareRasterizer
 
         static void InitializeCache();
 
-        static VertexCacheEntry* LookupVertexCache(int vertexIndex);
-        static VertexCacheEntry* WriteVertexCache(int vertexIndex);
+        static VertexCacheEntry* LookupVertexCache(int vertexId);
+        static VertexCacheEntry* GetVertexCache(int vertexId);
 
     };
 }

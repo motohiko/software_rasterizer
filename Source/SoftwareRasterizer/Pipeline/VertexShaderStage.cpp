@@ -18,7 +18,7 @@ namespace SoftwareRasterizer
         VertexShaderInput vertexShaderInput;
         vertexShaderInput.uniformBlock = _constantBuffer->uniformBlock;
         vertexShaderInput.attributes = inputVertex->attributes;
-        vertexShaderInput.vertexId = inputVertex->vertexIndex;
+        vertexShaderInput.vertexId = inputVertex->vertexId;
 
         VertexShaderOutput vertexShaderOutput;
         vertexShaderOutput.varyings = outputVertex->varyings;

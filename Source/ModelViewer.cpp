@@ -122,7 +122,7 @@ namespace Test
 
         renderingContext->clearRenderTarget();
 
-        // 射影行列とビュー行列とを作成
+        // 射影行列とビュー行列を作成
         {
             int screenWidth = renderingContext->getViewportWidth();
             int screenHeight = renderingContext->getViewportHeight();

@@ -217,14 +217,22 @@ namespace SoftwareRasterizer
 
     void RenderingContext::outputVertex(VertexCacheEntry* entry)
     {
-        const VertexDataA* a = &(entry->vertexDataA);
-        VertexDataB* b = &(entry->vertexDataB);
+        const VertexDataA* vertexPreTL = &(entry->vertexDataA);
+        VertexDataB* vertexPostTL = &(entry->vertexDataB);
 
-        _vertexShaderStage.executeShader(a, b);
+        _vertexShaderStage.executeShader(vertexPreTL, vertexPostTL);
     }
 
-    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, VertexDataB** vertices, int vertexNum)
+    void RenderingContext::outputPrimitive(PrimitiveType primitiveType, VertexCacheEntry** entries, int vertexNum)
     {
+        VertexDataB* vertices[3];
+
+        for (int i = 0; i < vertexNum; i++)
+        {
+            VertexCacheEntry* entry = entries[i];
+            vertices[i] = &(entry->vertexDataB);
+        }
+
         // プリミティブをクリップ
         VertexDataB clippedVertices[kClippingPointMaxNum];
         int clippedVertiexNum = 0;
@@ -244,7 +252,7 @@ namespace SoftwareRasterizer
         AssembledPrimitive dividedPrimitive;
         while (primitiveAssembly.readPrimitive(&dividedPrimitive))
         {
-            // （分割された）各プリミティブをラスタライズ
+            // 分割された各プリミティブをラスタライズ
 
             RasterPrimitive rasterPrimitive;
             rasterPrimitive.primitiveType = dividedPrimitive.primitiveType;

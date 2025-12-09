@@ -74,7 +74,8 @@ namespace SoftwareRasterizer
     private:
 
         void outputVertex(VertexCacheEntry* entry);
-        void outputPrimitive(PrimitiveType primitiveType, VertexDataB** vertices, int vertexNum);
+
+        void outputPrimitive(PrimitiveType primitiveType, VertexCacheEntry** entries, int vertexNum);
 
         void outputQuad();
 

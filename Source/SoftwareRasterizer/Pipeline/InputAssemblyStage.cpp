@@ -44,32 +44,34 @@ namespace SoftwareRasterizer
         while (readPrimitive(&primitive))
         {
             int vertexNum = primitive.vertexNum;
-            uint16_t* vertexIndices = primitive.vertexIndices;
+            const uint16_t* vertexIndices = primitive.vertexIndices;
 
-            VertexDataB* clipVertices[3];
-
+            VertexCacheEntry* entries[3];
             for (int i = 0; i < vertexNum; i++)
             {
-                // gen vertex id.
                 int vertexIndex = vertexIndices[i];
 
+                // gen vertex id.
+                int vertexId = vertexIndex;
+
                 // cache lookup
-                VertexCacheEntry* entry = VertexCache::LookupVertexCache(vertexIndex);
+                VertexCacheEntry* entry = VertexCache::LookupVertexCache(vertexId);
                 bool miss = (nullptr == entry);
                 if (miss)
                 {
-                    entry = VertexCache::WriteVertexCache(vertexIndex);
+                    entry = VertexCache::GetVertexCache(vertexId);
 
-                    VertexDataA* vertex = &(entry->vertexDataA);
+                    VertexDataA* vertex = &(entry->vertexDataA);// Pre T/L
+                    vertex->vertexId = vertexId;
                     VertexFetchUnit::FetchVertex(_inputLayout, _vertexBuffers, vertexIndex, vertex);
 
                     _renderingContext->outputVertex(entry);
                 }
 
-                clipVertices[i] = &(entry->vertexDataB);
+                entries[i] = entry;
             }
 
-            _renderingContext->outputPrimitive(primitive.primitiveType, clipVertices, primitive.vertexNum);
+            _renderingContext->outputPrimitive(primitive.primitiveType, entries, primitive.vertexNum);
         }
     }
 

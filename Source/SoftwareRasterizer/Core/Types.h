@@ -47,7 +47,7 @@ namespace SoftwareRasterizer
 
     struct VertexDataA// TODO: renmae
     {
-        int vertexIndex;// gl_VertexID
+        int vertexId;// gl_VertexID
         Vector4 attributes[kMaxVertexAttributes];
     };
 

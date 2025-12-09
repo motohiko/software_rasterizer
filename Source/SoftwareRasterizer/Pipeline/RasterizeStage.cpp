@@ -41,7 +41,7 @@ namespace SoftwareRasterizer
     // 透視除算(W除算)
     void RasterizeStage::applyPerspectiveDivide(const VertexDataB* clipVertex, VertexDataC* ndcVertex)
     {
-        assert(vertex->clipCoord.w != 0.0f);
+        assert(clipVertex->clipCoord.w != 0.0f);
 
         Vector4 ndcCoord = clipVertex->clipCoord / clipVertex->clipCoord.w;
         ndcVertex->ndcCoord = ndcCoord.getXYZ();

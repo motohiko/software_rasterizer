@@ -89,7 +89,6 @@ namespace SoftwareRasterizer
                     break;
                 }
 
-                vertex->vertexIndex = vertexIndex;
                 vertex->attributes[i] = attribute;
             }
         }
