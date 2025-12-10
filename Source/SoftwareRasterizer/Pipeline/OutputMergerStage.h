@@ -19,7 +19,7 @@ namespace SoftwareRasterizer
 
         void output(RenderTarget* renderTarget) { _renderTarget = renderTarget; }
 
-        void execute(const IntVector2& texelCoord, const Vector4& color, float depth);
+        void execute(const IntVector2& texelCoord, const PixelData* pixel);
 
     private:
 

@@ -16,8 +16,9 @@ namespace SoftwareRasterizer
     {
         const Texture2D* texture;
 
-        FilterType minFilter;// GL_TEXTURE_MIN_FILTER
-        FilterType magFilter;// GL_TEXTURE_MAG_FILTER
+        FilterType filter;// TODO: 
+        //FilterType minFilter;// GL_TEXTURE_MIN_FILTER
+        //FilterType magFilter;// GL_TEXTURE_MAG_FILTER
 
     };
 
@@ -28,7 +29,7 @@ namespace SoftwareRasterizer
 
         static Vector4 SamplePoint(const Sampler2D* sampler, const IntVector2& texelCoord);
         static Vector4 SampleNearestPoint(const Sampler2D* sampler, const Vector2& texcoord);
-        static Vector4 SampleBilinear(const Sampler2D* sampler, const Vector2& texcoord);
+        static Vector4 SampleBilinearInterpolation(const Sampler2D* sampler, const Vector2& texcoord);
 
     };
 

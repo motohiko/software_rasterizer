@@ -254,8 +254,7 @@ namespace Test
 
             Sampler2D sampler = {};
             sampler.texture = &texture;
-            sampler.minFilter = FilterType::kPoint;
-            sampler.magFilter = FilterType::kPoint;
+            sampler.filter = FilterType::kPoint;
 
             uniformBlock.meshTexture = &sampler;
 
@@ -297,8 +296,7 @@ namespace Test
 
             Sampler2D sampler = {};
             sampler.texture = &texture;
-            sampler.minFilter = FilterType::kBilinear;
-            sampler.magFilter = FilterType::kBilinear;
+            sampler.filter = FilterType::kBilinear;
 
             uniformBlock.meshTexture = &sampler;
 

@@ -6,19 +6,19 @@
 namespace SoftwareRasterizer
 {
 
-    bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
+    static bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
     {
         return std::abs(b.y - a.y) <= epsilon;
     }
 
-    float XatY(const Vector2& a, const Vector2& b, float y)
+    static float XatY(const Vector2& a, const Vector2& b, float y)
     {
         float slope = (b.y - a.y) / (b.x - a.x);
         float x = a.x + (y - a.y) / slope;
         return x;
     }
 
-    void ScanLine(const Vector2* a, const Vector2* b, int y, int* xMin, int* xMax)
+    static void ScanLine(const Vector2* a, const Vector2* b, int y, int* xMin, int* xMax)
     {
         Vector2 p0;
         Vector2 p1;

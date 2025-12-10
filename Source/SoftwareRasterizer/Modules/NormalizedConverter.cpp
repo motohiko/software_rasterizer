@@ -3,18 +3,18 @@
 
 namespace SoftwareRasterizer
 {
-    static const float kByteRange = (float)0xff;
+    static const float kU8Range = (float)0xff;
     static const float kU24Range = (float)0xffffff;
 
-    float NormalizedConverter::NormalizeByte(uint8_t val)
+    float NormalizedConverter::NormalizeU8(uint8_t val)
     {
-        return ((float)val) / kByteRange;
+        return ((float)val) / kU8Range;
     }
 
-    uint8_t NormalizedConverter::DenormalizeByte(float val)
+    uint8_t NormalizedConverter::DenormalizeU8(float val)
     {
         float val01 = std::clamp(val, 0.0f, 1.0f);// saturate
-        return (uint8_t)(kByteRange * val01);
+        return (uint8_t)(kU8Range * val01);
     }
 
     float NormalizedConverter::NormalizeU24(uint32_t val)

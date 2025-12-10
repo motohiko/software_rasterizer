@@ -5,14 +5,14 @@ namespace SoftwareRasterizer
     Vector4 SamplerUtility::SampleTexture2d(const Sampler2D* sampler, const Vector2& texcoord)
     {
 
-        FilterType filter = sampler->minFilter;
+        FilterType filter = sampler->filter;
 
         switch(filter)
         {
             case FilterType::kPoint:
                 return TextureMappingUnit::SampleNearestPoint(sampler, texcoord);
             case FilterType::kBilinear:
-                return TextureMappingUnit::SampleBilinear(sampler, texcoord);
+                return TextureMappingUnit::SampleBilinearInterpolation(sampler, texcoord);
             default:
                 return Vector4::kZero;
         }

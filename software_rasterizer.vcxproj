@@ -144,7 +144,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureUnit.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureMappingUnit.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\VertexCache.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\VertexFetchUnit.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.h" />
@@ -187,7 +187,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureUnit.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureMappingUnit.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\VertexCache.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\VertexFetchUnit.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\FragmentShaderStage.cpp" />

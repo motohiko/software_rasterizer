@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Modules\TextureUnit.h"
+#include "Modules\TextureMappingUnit.h"
 #include "State\Texture2D.h"
 #include "Core\Types.h"
 

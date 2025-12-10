@@ -45,10 +45,10 @@ namespace SoftwareRasterizer
         size_t byteCount = 4;// TODO: rename
 
         ColorB8G8R8A8 texel;
-        texel.b = NormalizedConverter::DenormalizeByte(color.z);
-        texel.g = NormalizedConverter::DenormalizeByte(color.y);
-        texel.r = NormalizedConverter::DenormalizeByte(color.x);
-        texel.a = NormalizedConverter::DenormalizeByte(color.w);
+        texel.b = NormalizedConverter::DenormalizeU8(color.z);
+        texel.g = NormalizedConverter::DenormalizeU8(color.y);
+        texel.r = NormalizedConverter::DenormalizeU8(color.x);
+        texel.a = NormalizedConverter::DenormalizeU8(color.w);
 
         // １行目
         {
@@ -116,7 +116,7 @@ namespace SoftwareRasterizer
         size_t width = texture->width;
         size_t height = texture->height;
         size_t widthBytes = texture->widthBytes;
-        size_t byteCount = 4;// TODO: rename
+        size_t texelBytes = 4;
 
         if (texelCoord.x < 0 || width <= texelCoord.x ||
             texelCoord.y < 0 || height <= texelCoord.y)
@@ -124,16 +124,16 @@ namespace SoftwareRasterizer
             return Vector4::kZero;
         }
 
-        size_t offset = (widthBytes * texelCoord.y) + (byteCount * texelCoord.x);
+        size_t offset = (widthBytes * texelCoord.y) + (texelBytes * texelCoord.x);
         uintptr_t src = addr + offset;
 
         ColorR8G8B8A8 texel = *(const ColorR8G8B8A8*)src;
 
         Vector4 color(
-            NormalizedConverter::NormalizeByte(texel.r),
-            NormalizedConverter::NormalizeByte(texel.g),
-            NormalizedConverter::NormalizeByte(texel.b),
-            NormalizedConverter::NormalizeByte(texel.a)
+            NormalizedConverter::NormalizeU8(texel.r),
+            NormalizedConverter::NormalizeU8(texel.g),
+            NormalizedConverter::NormalizeU8(texel.b),
+            NormalizedConverter::NormalizeU8(texel.a)
         );
 
         return color;
@@ -145,7 +145,7 @@ namespace SoftwareRasterizer
         size_t width = texture->width;
         size_t height = texture->height;
         size_t widthBytes = texture->widthBytes;
-        size_t byteCount = 4;// TODO: rename
+        size_t texelBytes = 4;
 
         if (texelCoord.x < 0 || width <= texelCoord.x ||
             texelCoord.y < 0 || height <= texelCoord.y)
@@ -153,7 +153,7 @@ namespace SoftwareRasterizer
             return 0.0f;
         }
 
-        size_t offset = (widthBytes * texelCoord.y) + (byteCount * texelCoord.x);
+        size_t offset = (widthBytes * texelCoord.y) + (texelBytes * texelCoord.x);
         uintptr_t src = addr + offset;
 
         DepthStencilD24S8 texel = *(const DepthStencilD24S8*)src;
@@ -171,7 +171,7 @@ namespace SoftwareRasterizer
         size_t width = texture->width;
         size_t height = texture->height;
         size_t widthBytes = texture->widthBytes;
-        size_t byteCount = 4;// TODO: rename
+        size_t texelBytes = 4;
 
         if (texelCoord.x < 0 || width <= texelCoord.x ||
             texelCoord.y < 0 || height <= texelCoord.y)
@@ -179,14 +179,14 @@ namespace SoftwareRasterizer
             return;
         }
 
-        size_t offset = (widthBytes * texelCoord.y) + (byteCount * texelCoord.x);
+        size_t offset = (widthBytes * texelCoord.y) + (texelBytes * texelCoord.x);
         uintptr_t dst = addr + offset;
 
         ColorB8G8R8A8 texel;
-        texel.b = NormalizedConverter::DenormalizeByte(color.z);
-        texel.g = NormalizedConverter::DenormalizeByte(color.y);
-        texel.r = NormalizedConverter::DenormalizeByte(color.x);
-        texel.a = NormalizedConverter::DenormalizeByte(color.w);
+        texel.b = NormalizedConverter::DenormalizeU8(color.z);
+        texel.g = NormalizedConverter::DenormalizeU8(color.y);
+        texel.r = NormalizedConverter::DenormalizeU8(color.x);
+        texel.a = NormalizedConverter::DenormalizeU8(color.w);
 
         *(ColorB8G8R8A8*)dst = texel;
     }
@@ -208,10 +208,8 @@ namespace SoftwareRasterizer
         size_t offset = (widthBytes * texelCoord.y) + (sizeof(float) * texelCoord.x);
         uintptr_t dst = addr + offset;
 
-        uint32_t d24 = NormalizedConverter::DenormalizeU24(depth);
-
         DepthStencilD24S8 texel;
-        texel.depth = d24;
+        texel.depth = NormalizedConverter::DenormalizeU24(depth);
         texel.stencil = 0;
 
         *(DepthStencilD24S8*)dst = texel;

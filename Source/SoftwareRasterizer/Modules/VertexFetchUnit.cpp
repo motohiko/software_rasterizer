@@ -49,16 +49,16 @@ namespace SoftwareRasterizer
                         switch (inputElement->size)
                         {
                         case 4:
-                            attribute.w = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[3]);
+                            attribute.w = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[3]);
                             [[fallthrough]];
                         case 3:
-                            attribute.z = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[2]);
+                            attribute.z = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[2]);
                             [[fallthrough]];
                         case 2:
-                            attribute.y = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[1]);
+                            attribute.y = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[1]);
                             [[fallthrough]];
                         case 1:
-                            attribute.x = NormalizedConverter::NormalizeByte(((const uint8_t*)ptr)[0]);
+                            attribute.x = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[0]);
                             [[fallthrough]];
                         default:
                             break;

@@ -141,7 +141,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureOperations.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureUnit.h">
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\TextureMappingUnit.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Core\Types.h">
@@ -224,7 +224,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureOperations.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureUnit.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\TextureMappingUnit.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp">

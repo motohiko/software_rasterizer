@@ -41,11 +41,11 @@ namespace SoftwareRasterizer
     {
     }
 
-    void OutputMergerStage::execute(const IntVector2& texelCoord, const Vector4& color, float depth)
+    void OutputMergerStage::execute(const IntVector2& texelCoord, const PixelData* pixel)
     {
         // x, y はウィンドウ座標
 
-        float normarizedDpeth = normalizeDepth(depth);
+        float normarizedDpeth = normalizeDepth(pixel->depth);
 
         if (_depthState->depthTestEnabled)
         {
@@ -58,7 +58,7 @@ namespace SoftwareRasterizer
             }
         }
 
-        storeTexelColor(texelCoord, color);
+        storeTexelColor(texelCoord, pixel->color);
         storeTexelDepth(texelCoord, normarizedDpeth);
     }
 
