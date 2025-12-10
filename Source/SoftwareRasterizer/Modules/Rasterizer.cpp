@@ -6,10 +6,10 @@
 namespace SoftwareRasterizer
 {
 
-    static bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
-    {
-        return std::abs(b.y - a.y) <= epsilon;
-    }
+    //static bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
+    //{
+    //    return std::abs(b.y - a.y) <= epsilon;
+    //}
 
     static float XatY(const Vector2& a, const Vector2& b, float y)
     {
@@ -60,8 +60,8 @@ namespace SoftwareRasterizer
             }
         }
 
-        *xMin = (int)std::min(p0.x, p1.x);
-        *xMax = (int)std::max(p0.x, p1.x);
+        *xMin = (int)std::floor(std::min(p0.x, p1.x));
+        *xMax = (int)std::floor(std::max(p0.x, p1.x));
     }
 
     Rasterizer::Rasterizer()
@@ -124,8 +124,8 @@ namespace SoftwareRasterizer
 
         int i = 0;
 
-        seg.minY = (int)std::min(seg.p0->y, seg.p1->y);
-        seg.maxY = (int)std::max(seg.p0->y, seg.p1->y);
+        seg.minY = (int)std::floor(std::min(seg.p0->y, seg.p1->y));
+        seg.maxY = (int)std::floor(std::max(seg.p0->y, seg.p1->y));
 
         seg.minY = std::clamp(seg.minY, _clipRectMinY, _clipRectMaxY);
         seg.maxY = std::clamp(seg.maxY, _clipRectMinY, _clipRectMaxY);
@@ -149,10 +149,10 @@ namespace SoftwareRasterizer
 
     void Rasterizer::addBoundingBox(const Vector2* p0, const Vector2* p1)
     {
-        int minX = (int)std::min(p0->x, p1->x);
-        int maxX = (int)std::max(p0->x, p1->x);
-        int minY = (int)std::min(p0->y, p1->y);
-        int maxY = (int)std::max(p0->y, p1->y);
+        int minX = (int)std::floor(std::min(p0->x, p1->x));
+        int maxX = (int)std::floor(std::max(p0->x, p1->x));
+        int minY = (int)std::floor(std::min(p0->y, p1->y));
+        int maxY = (int)std::floor(std::max(p0->y, p1->y));
 
         minX = std::clamp(minX, _clipRectMinX, _clipRectMaxX);
         maxX = std::clamp(maxX, _clipRectMinX, _clipRectMaxX);
@@ -171,10 +171,10 @@ namespace SoftwareRasterizer
 
     void Rasterizer::addBoundingBox(const Vector2* p0, const Vector2* p1, const Vector2* p2)
     {
-        int minX = (int)std::min(p0->x, std::min(p1->x, p2->x));
-        int maxX = (int)std::max(p0->x, std::max(p1->x, p2->x));
-        int minY = (int)std::min(p0->y, std::min(p1->y, p2->y));
-        int maxY = (int)std::max(p0->y, std::max(p1->y, p2->y));
+        int minX = (int)std::floor(std::min(p0->x, std::min(p1->x, p2->x)));
+        int maxX = (int)std::floor(std::max(p0->x, std::max(p1->x, p2->x)));
+        int minY = (int)std::floor(std::min(p0->y, std::min(p1->y, p2->y)));
+        int maxY = (int)std::floor(std::max(p0->y, std::max(p1->y, p2->y)));
   
         minX = std::clamp(minX, _clipRectMinX, _clipRectMaxX);
         maxX = std::clamp(maxX, _clipRectMinX, _clipRectMaxX);
