@@ -40,14 +40,24 @@ namespace SoftwareRasterizer
 
     void InputAssemblyStage::executeVertexLoop()
     {
-        Primitive primitive;
-        while (readPrimitive(&primitive))
+        for (;;)
         {
-            int vertexNum = primitive.vertexNum;
-            const uint16_t* vertexIndices = primitive.vertexIndices;
+            int remainingVertexCount = _indexBuffer->indexNum - _readVertexCount;
+            if (remainingVertexCount < _primitiveVertexNum)
+            {
+                return;
+            }
+
+            uint16_t vertexIndices[3];
+            for (int i = 0; i < _primitiveVertexNum; i++)
+            {
+                uint16_t vertexIndex = _indexBuffer->indices[_readVertexCount];
+                _readVertexCount++;
+                vertexIndices[i] = vertexIndex;
+            }
 
             VertexCacheEntry* entries[3];
-            for (int i = 0; i < vertexNum; i++)
+            for (int i = 0; i < _primitiveVertexNum; i++)
             {
                 int vertexIndex = vertexIndices[i];
 
@@ -71,32 +81,8 @@ namespace SoftwareRasterizer
                 entries[i] = entry;
             }
 
-            _renderingContext->outputPrimitive(primitive.primitiveType, entries, primitive.vertexNum);
+            _renderingContext->outputPrimitive(_primitiveType, entries, _primitiveVertexNum);
         }
-    }
-
-    bool InputAssemblyStage::readPrimitive(InputAssemblyStage::Primitive* primitive)
-    {
-        int remainingVertexCount = _indexBuffer->indexNum - _readVertexCount;
-        if (remainingVertexCount < _primitiveVertexNum)
-        {
-            primitive->primitiveType = PrimitiveType::kNone;
-            primitive->vertexNum = 0;
-            return false;
-        }
-
-        for (int i = 0; i < _primitiveVertexNum; i++)
-        {
-            uint16_t vertexIndex = _indexBuffer->indices[_readVertexCount];
-            _readVertexCount++;
-
-            primitive->vertexIndices[i] = vertexIndex;
-        }
-
-        primitive->primitiveType = _primitiveType;
-        primitive->vertexNum = _primitiveVertexNum;
-
-        return true;
     }
 
 }

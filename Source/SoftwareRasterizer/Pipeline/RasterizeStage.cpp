@@ -139,18 +139,18 @@ namespace SoftwareRasterizer
         // フェイスカリング
         if (PrimitiveType::kTriangle == rasterPrimitive.primitiveType)
         {
-            Vector2 p0 = ndcVertices[0].ndcCoord.getXY();
-            Vector2 p1 = ndcVertices[1].ndcCoord.getXY();
-            Vector2 p2 = ndcVertices[2].ndcCoord.getXY();
+            Vector3 p0(ndcVertices[0].ndcCoord.getXY(), 0.0f);
+            Vector3 p1(ndcVertices[1].ndcCoord.getXY(), 0.0f);
+            Vector3 p2(ndcVertices[2].ndcCoord.getXY(), 0.0f);
 
             float n;
             switch (_rasterizerState->frontFaceMode)
             {
             case FrontFaceMode::kCounterClockwise:
-                n = (p1 - p0).cross(p2 - p0);
+                n = ((p1 - p0).cross(p2 - p0)).z;
                 break;
             case FrontFaceMode::kClockwise:
-                n = (p2 - p0).cross(p1 - p0);
+                n = ((p2 - p0).cross(p1 - p0)).z;
                 break;
             default:
                 n = 0.0f;
@@ -304,11 +304,11 @@ namespace SoftwareRasterizer
     bool CheckSegmentsIntersect(const Vector2& a, const Vector2& b, const Vector2& c, const Vector2& d)
     {
         // 線分ABを延長した直線と線分CDが交差するか？
-        Vector2 ab = (b - a);
-        Vector2 ac = (c - a);
-        Vector2 ad = (d - a);
-        float cSideVal = ab.cross(ac);
-        float dSideVal = ab.cross(ad);
+        Vector3 ab(b - a, 0.0f);
+        Vector3 ac(c - a, 0.0f);
+        Vector3 ad(d - a, 0.0f);
+        float cSideVal = (ab.cross(ac)).z;
+        float dSideVal = (ab.cross(ad)).z;
         if (FLT_EPSILON < cSideVal && FLT_EPSILON < dSideVal)
         {
             return false;
@@ -319,11 +319,11 @@ namespace SoftwareRasterizer
         }
 
         // 線分CDを延長した直線と線分ABが交差するか？
-        Vector2 cd = (d - c);
-        Vector2 ca = (a - c);
-        Vector2 cb = (b - c);
-        float aSideVal = cd.cross(ca);
-        float bSideVal = cd.cross(cb);
+        Vector3 cd(d - c, 0.0f);
+        Vector3 ca(a - c, 0.0f);
+        Vector3 cb(b - c, 0.0f);
+        float aSideVal = (cd.cross(ca)).z;
+        float bSideVal = (cd.cross(cb)).z;
         if (FLT_EPSILON < aSideVal && FLT_EPSILON < bSideVal)
         {
             return false;

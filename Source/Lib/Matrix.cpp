@@ -606,10 +606,10 @@ namespace Lib
     // ベクトル変換
     Vector4 Matrix4x4::ApplyMatrixToColumnVector(const Matrix4x4& lhs, const Vector4& rhs)
     {
-        // | x'|   | m00 m01 m02 m03 | | x |
-        // | y'| = | m10 m11 m12 m13 | | y |
-        // | z'|   | m20 m21 m22 m23 | | z |
-        // | w'|   | m30 m31 m32 m33 | | w |
+        // |x'|   |m00 m01 m02 m03| |x|
+        // |y'| = |m10 m11 m12 m13| |y|
+        // |z'|   |m20 m21 m22 m23| |z|
+        // |w'|   |m30 m31 m32 m33| |w|
 
         Matrix4x1 tmp(
             rhs.x,

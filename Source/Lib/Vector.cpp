@@ -10,6 +10,13 @@ namespace Lib
         return std::sqrt(getNormSquared());
     }
 
+    Vector2 Vector2::Normalize(const Vector2& v)
+    {
+        float norm = v.getNorm();
+        return (0.0f == norm) ? kZero : (v / norm);
+    }
+
+
     const Vector3 Vector3::kZero(0.0f, 0.0f, 0.0f);
 
     float Vector3::getComponent(int index) const
@@ -26,6 +33,12 @@ namespace Lib
     float Vector3::getNorm() const
     {
         return std::sqrt(getNormSquared());
+    }
+
+    Vector3 Vector3::Normalize(const Vector3& v)
+    {
+        float norm = v.getNorm();
+        return (0.0f == norm) ? kZero : (v / norm);
     }
 
     const Vector4 Vector4::kZero(0.0f, 0.0f, 0.0f, 0.0f);

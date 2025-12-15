@@ -14,15 +14,6 @@ namespace SoftwareRasterizer
 
     public:
 
-        struct Primitive
-        {
-            PrimitiveType primitiveType;
-            uint16_t vertexIndices[3];
-            int vertexNum;
-        };
-
-    public:
-
         static void validateState(const InputLayout* state);
 
         InputAssemblyStage();
@@ -38,8 +29,6 @@ namespace SoftwareRasterizer
         void prepareReadPrimitive();
 
         void executeVertexLoop();
-
-        bool readPrimitive(Primitive* primitive);
 
     private:
 
@@ -58,7 +47,6 @@ namespace SoftwareRasterizer
         int _primitiveVertexNum = 0;
 
         int _readVertexCount = 0;
-
 
     };
 }

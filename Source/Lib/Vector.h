@@ -19,11 +19,7 @@ namespace Lib
 
         float getNorm() const;
 
-        static Vector2 Normalize(const Vector2& v)
-        {
-            float norm = v.getNorm();
-            return (0.0f == norm) ? kZero : (v / norm);
-        }
+        static Vector2 Normalize(const Vector2& v);
 
         static Vector2 Add(const Vector2& lhs, const Vector2& rhs)
         {
@@ -51,13 +47,6 @@ namespace Lib
             return (lhs.x * rhs.x) + (lhs.y * rhs.y);
         }
 
-        // 疑似外積
-        static float ComputeOuterProduct(const Vector2& lhs, const Vector2& rhs)
-        {
-            float z = (lhs.x * rhs.y) - (lhs.y * rhs.x);
-            return z;
-        }
-
         // 加減算
         Vector2 operator+(const Vector2& rhs) const { return Add(*this, rhs); }
         Vector2 operator-(const Vector2& rhs) const { return Subtract(*this, rhs); }
@@ -72,9 +61,6 @@ namespace Lib
         // 内積
         float dot(const Vector2& rhs) const { return ComputeInnerProduct(*this, rhs); }
 
-        // 疑似外積
-        float cross(const Vector2& rhs) const { return ComputeOuterProduct(*this, rhs); }
-
     };
 
     struct Vector3
@@ -87,6 +73,7 @@ namespace Lib
 
         Vector3() = default;
         Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+        Vector3(const Vector2& v2, float z) : x(v2.x), y(v2.y), z(z) {}
 
         Vector2 getXY() const
         {
@@ -102,11 +89,7 @@ namespace Lib
 
         float getNorm() const;
 
-        static Vector3 Normalize(const Vector3& v)
-        {
-            float norm = v.getNorm();
-            return (0.0f == norm) ? kZero : (v / norm);
-        }
+        static Vector3 Normalize(const Vector3& v);
 
         static Vector3 Add(const Vector3& lhs, const Vector3& rhs)
         {

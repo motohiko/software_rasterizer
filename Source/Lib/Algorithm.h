@@ -14,6 +14,10 @@ namespace Lib
         return (val - a) / (b - a);
     }
 
+    // 以下、未使用
+
+#if 0
+
     struct BoundingBox2d
     {
         float minX;
@@ -114,10 +118,6 @@ namespace Lib
 
     };
 
-
-    // 以下、未使用
-
-
     // ビット 1 の個数
     static inline uint32_t popcnt(uint32_t bit)
     {
@@ -139,4 +139,6 @@ namespace Lib
     {
         return bit & (~bit + 1);
     }
+
+#endif
 }

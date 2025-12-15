@@ -55,9 +55,9 @@ namespace SoftwareRasterizer
             // TODO：完全なエッジ関数
             // 参考 Juan Pineda 1988 A Parallel Algorithm for Polygon Rasterization. 
 
-            Vector2 ab = b - a;
-            Vector2 ac = c - a;
-            return ab.cross(ac);
+            Vector3 ab(b - a, 0.0f);
+            Vector3 ac(c - a, 0.0f);
+            return (ab.cross(ac)).z;
         }
 
         void rasterizeLine(const VertexDataD* p0, const VertexDataD* p1);
