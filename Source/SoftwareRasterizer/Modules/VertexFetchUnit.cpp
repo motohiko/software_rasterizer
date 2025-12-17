@@ -1,5 +1,5 @@
 ﻿#include "VertexFetchUnit.h"
-#include "NormalizedConverter.h"
+#include "DataConversionRule.h"
 
 namespace SoftwareRasterizer
 {
@@ -49,16 +49,16 @@ namespace SoftwareRasterizer
                         switch (inputElement->size)
                         {
                         case 4:
-                            attribute.w = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[3]);
+                            attribute.w = DataConversionRule::ConvertUnorm8ToFloat32(((const uint8_t*)ptr)[3]);
                             [[fallthrough]];
                         case 3:
-                            attribute.z = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[2]);
+                            attribute.z = DataConversionRule::ConvertUnorm8ToFloat32(((const uint8_t*)ptr)[2]);
                             [[fallthrough]];
                         case 2:
-                            attribute.y = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[1]);
+                            attribute.y = DataConversionRule::ConvertUnorm8ToFloat32(((const uint8_t*)ptr)[1]);
                             [[fallthrough]];
                         case 1:
-                            attribute.x = NormalizedConverter::NormalizeU8(((const uint8_t*)ptr)[0]);
+                            attribute.x = DataConversionRule::ConvertUnorm8ToFloat32(((const uint8_t*)ptr)[0]);
                             [[fallthrough]];
                         default:
                             break;

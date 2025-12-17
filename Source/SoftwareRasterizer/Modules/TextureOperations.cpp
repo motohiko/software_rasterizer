@@ -1,5 +1,5 @@
 ﻿#include "TextureOperations.h" 
-#include "NormalizedConverter.h"
+#include "DataConversionRule.h"
 #include <cstdint>
 #include <cstring>//memcpy
 #include <cassert>//assert
@@ -45,10 +45,10 @@ namespace SoftwareRasterizer
         size_t byteCount = 4;// TODO: rename
 
         ColorB8G8R8A8 texel;
-        texel.b = NormalizedConverter::DenormalizeU8(color.z);
-        texel.g = NormalizedConverter::DenormalizeU8(color.y);
-        texel.r = NormalizedConverter::DenormalizeU8(color.x);
-        texel.a = NormalizedConverter::DenormalizeU8(color.w);
+        texel.b = DataConversionRule::ConvertFloat32ToUnorm8(color.z);
+        texel.g = DataConversionRule::ConvertFloat32ToUnorm8(color.y);
+        texel.r = DataConversionRule::ConvertFloat32ToUnorm8(color.x);
+        texel.a = DataConversionRule::ConvertFloat32ToUnorm8(color.w);
 
         // １行目
         {
@@ -81,7 +81,7 @@ namespace SoftwareRasterizer
         size_t widthBytes = texture->widthBytes;// TODO: rename
         size_t byteCount = 4;// TODO: rename
 
-        uint32_t d24 = NormalizedConverter::DenormalizeU24(depth);
+        uint32_t d24 = DataConversionRule::ConvertFloat32ToUnorm24(depth);
 
         DepthStencilD24S8 texel;
         texel.depth = d24;
@@ -130,10 +130,10 @@ namespace SoftwareRasterizer
         ColorR8G8B8A8 texel = *(const ColorR8G8B8A8*)src;
 
         Vector4 color(
-            NormalizedConverter::NormalizeU8(texel.r),
-            NormalizedConverter::NormalizeU8(texel.g),
-            NormalizedConverter::NormalizeU8(texel.b),
-            NormalizedConverter::NormalizeU8(texel.a)
+            DataConversionRule::ConvertUnorm8ToFloat32(texel.r),
+            DataConversionRule::ConvertUnorm8ToFloat32(texel.g),
+            DataConversionRule::ConvertUnorm8ToFloat32(texel.b),
+            DataConversionRule::ConvertUnorm8ToFloat32(texel.a)
         );
 
         return color;
@@ -157,7 +157,7 @@ namespace SoftwareRasterizer
         uintptr_t src = addr + offset;
 
         DepthStencilD24S8 texel = *(const DepthStencilD24S8*)src;
-        float depth = NormalizedConverter::NormalizeU24(texel.depth);
+        float depth = DataConversionRule::ConvertUnorm24ToFloat32(texel.depth);
         return depth;
 
     }
@@ -183,10 +183,10 @@ namespace SoftwareRasterizer
         uintptr_t dst = addr + offset;
 
         ColorB8G8R8A8 texel;
-        texel.b = NormalizedConverter::DenormalizeU8(color.z);
-        texel.g = NormalizedConverter::DenormalizeU8(color.y);
-        texel.r = NormalizedConverter::DenormalizeU8(color.x);
-        texel.a = NormalizedConverter::DenormalizeU8(color.w);
+        texel.b = DataConversionRule::ConvertFloat32ToUnorm8(color.z);
+        texel.g = DataConversionRule::ConvertFloat32ToUnorm8(color.y);
+        texel.r = DataConversionRule::ConvertFloat32ToUnorm8(color.x);
+        texel.a = DataConversionRule::ConvertFloat32ToUnorm8(color.w);
 
         *(ColorB8G8R8A8*)dst = texel;
     }
@@ -209,7 +209,7 @@ namespace SoftwareRasterizer
         uintptr_t dst = addr + offset;
 
         DepthStencilD24S8 texel;
-        texel.depth = NormalizedConverter::DenormalizeU24(depth);
+        texel.depth = DataConversionRule::ConvertFloat32ToUnorm24(depth);
         texel.stencil = 0;
 
         *(DepthStencilD24S8*)dst = texel;

@@ -153,7 +153,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.h">
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\DataConversionRule.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\State\ClearParam.h">
@@ -236,7 +236,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\NormalizedConverter.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\DataConversionRule.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp">

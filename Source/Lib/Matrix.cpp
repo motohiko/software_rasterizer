@@ -3,6 +3,13 @@
 
 namespace Lib
 {
+    //
+    // 1x1行列
+    //
+
+    const Matrix1x1 Matrix1x1::kIdentity(
+        1.0f
+    );
 
     Matrix1x1::Matrix1x1(
         float m00
@@ -11,15 +18,20 @@ namespace Lib
     {
     };
 
-    const Matrix1x1 Matrix1x1::kIdentity(
-        1.0f
-    );
-
     // 行列式
     float Matrix1x1::getDeterminant() const
     {
         return m00;
     }
+
+    //
+    // 2x2行列
+    //
+
+    const Matrix2x2 Matrix2x2::kIdentity(
+        1.0f, 0.0f,
+        0.0f, 1.0f
+    );
 
     Matrix2x2::Matrix2x2(
         float m00, float m01,
@@ -29,11 +41,6 @@ namespace Lib
         m10(m10), m11(m11)
     {
     }
-
-    const Matrix2x2 Matrix2x2::kIdentity(
-        1.0f, 0.0f,
-        0.0f, 1.0f
-    );
 
     // 小行列
     Matrix1x1 Matrix2x2::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
@@ -98,6 +105,16 @@ namespace Lib
         return computeCofactorExpansionByFirstRow();
     }
 
+    //
+    // 3x3行列
+    //
+
+    const Matrix3x3 Matrix3x3::kIdentity(
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    );
+
     Matrix3x3::Matrix3x3(
         float m00, float m01, float m02,
         float m10, float m11, float m12,
@@ -108,12 +125,6 @@ namespace Lib
         m20(m20), m21(m21), m22(m22)
     {
     }
-
-    const Matrix3x3 Matrix3x3::kIdentity(
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f
-    );
 
     // 小行列
     Matrix2x2 Matrix3x3::getMatrixWithoutRowColumn(int rowIndex, int columnIndex) const
@@ -218,6 +229,10 @@ namespace Lib
         return computeCofactorExpansionByFirstRow();
     }
 
+    //
+    // 4x1行列
+    //
+
     Matrix4x1::Matrix4x1(
         float m00,
         float m10,
@@ -242,6 +257,10 @@ namespace Lib
         }
     }
 
+    //
+    // 1x4行列
+    //
+
     Matrix1x4::Matrix1x4(
         float m00, float m01, float m02, float m03
     ) :
@@ -260,6 +279,17 @@ namespace Lib
         }
     }
 
+    //
+    // 4x4行列
+    //
+
+    const Matrix4x4 Matrix4x4::kIdentity(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+
     Matrix4x4::Matrix4x4(
         float m00, float m01, float m02, float m03,
         float m10, float m11, float m12, float m13,
@@ -272,13 +302,6 @@ namespace Lib
         m30(m30), m31(m31), m32(m32), m33(m33)
     {
     }
-
-    const Matrix4x4 Matrix4x4::kIdentity(
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    );
 
     Vector4 Matrix4x4::getRow(int rowIndex) const
     {

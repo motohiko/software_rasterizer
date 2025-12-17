@@ -3,6 +3,10 @@
 
 namespace Lib
 {
+    //
+    // Vector2
+    //
+
     const Vector2 Vector2::kZero(0.0f, 0.0f);
 
     float Vector2::getNorm() const
@@ -16,6 +20,9 @@ namespace Lib
         return (0.0f == norm) ? kZero : (v / norm);
     }
 
+    //
+    // Vector3
+    //
 
     const Vector3 Vector3::kZero(0.0f, 0.0f, 0.0f);
 
@@ -40,6 +47,10 @@ namespace Lib
         float norm = v.getNorm();
         return (0.0f == norm) ? kZero : (v / norm);
     }
+
+    //
+    // Vector4
+    //
 
     const Vector4 Vector4::kZero(0.0f, 0.0f, 0.0f, 0.0f);
 
