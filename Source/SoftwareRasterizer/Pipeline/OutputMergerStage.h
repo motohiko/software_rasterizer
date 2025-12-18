@@ -26,10 +26,10 @@ namespace SoftwareRasterizer
         float normalizeDepth(float depth) const;
         bool depthTest(float depth, float storedDepth) const;
 
-        void storeTexelColor(const IntVector2& texelCoord, const Vector4& color);
+        void storePixelColor(const IntVector2& texelCoord, const Vector4& color);
 
-        float fetchTexelDepth(const IntVector2& texelCoord) const;
-        void storeTexelDepth(const IntVector2& texelCoord, float depth);
+        float fetchPixelDepth(const IntVector2& texelCoord) const;
+        void storePixelDepth(const IntVector2& texelCoord, float depth);
 
     private:
 

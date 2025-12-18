@@ -11,7 +11,7 @@ namespace SoftwareRasterizer
     using Lib::Vector4;
     using Lib::Matrix4x4;
 
-    enum class ComparisonFuncType// TODO: renmae
+    enum class ComparisonFunc
     {
         kNone,
         kNever,         // GL_NEVER

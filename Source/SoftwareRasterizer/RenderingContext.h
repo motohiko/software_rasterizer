@@ -67,7 +67,7 @@ namespace SoftwareRasterizer
 
         void setFragmentShaderProgram(FragmentShaderFuncPtr fragmentShaderMain);// glUseProgram
 
-        void setDepthFunc(ComparisonFuncType depthFunc);// glDepthFunc
+        void setDepthFunc(ComparisonFunc depthFunc);// glDepthFunc
 
         void drawIndexed(PrimitiveTopologyType primitiveTopologyType);
 

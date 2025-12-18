@@ -43,13 +43,11 @@ namespace SoftwareRasterizer
 
     void OutputMergerStage::execute(const IntVector2& texelCoord, const PixelData* pixel)
     {
-        // x, y はウィンドウ座標
-
         float normarizedDpeth = normalizeDepth(pixel->depth);
 
         if (_depthState->depthTestEnabled)
         {
-            float storedDepth = fetchTexelDepth(texelCoord);
+            float storedDepth = fetchPixelDepth(texelCoord);
 
             bool passed = depthTest(normarizedDpeth, storedDepth);
             if (!passed)
@@ -58,8 +56,8 @@ namespace SoftwareRasterizer
             }
         }
 
-        storeTexelColor(texelCoord, pixel->color);
-        storeTexelDepth(texelCoord, normarizedDpeth);
+        storePixelColor(texelCoord, pixel->color);
+        storePixelDepth(texelCoord, normarizedDpeth);
     }
 
     float OutputMergerStage::normalizeDepth(float depth) const
@@ -76,17 +74,17 @@ namespace SoftwareRasterizer
         return Comparator::Evaluate(depth, _depthState->depthFunc, storedDepth);
     }
 
-    void OutputMergerStage::storeTexelColor(const IntVector2& texelCoord, const Vector4& color)
+    void OutputMergerStage::storePixelColor(const IntVector2& texelCoord, const Vector4& color)
     {
         TextureOperations::StoreTexelColor(&(_renderTarget->colorBuffer), texelCoord, color);
     }
 
-    float OutputMergerStage::fetchTexelDepth(const IntVector2& texelCoord) const
+    float OutputMergerStage::fetchPixelDepth(const IntVector2& texelCoord) const
     {
         return TextureOperations::FetchTexelDepth(&(_renderTarget->depthBuffer), texelCoord);
     }
 
-    void OutputMergerStage::storeTexelDepth(const IntVector2& texelCoord, float depth)
+    void OutputMergerStage::storePixelDepth(const IntVector2& texelCoord, float depth)
     {
         TextureOperations::StoreTexelDepth(&(_renderTarget->depthBuffer), texelCoord, depth);
     }

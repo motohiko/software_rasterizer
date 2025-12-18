@@ -168,7 +168,7 @@ namespace SoftwareRasterizer
         _fragmentShaderProgram.fragmentShaderMain = fragmentShaderMain;
     }
 
-    void RenderingContext::setDepthFunc(ComparisonFuncType depthFunc)
+    void RenderingContext::setDepthFunc(ComparisonFunc depthFunc)
     {
         _depthState.depthFunc = depthFunc;
     }

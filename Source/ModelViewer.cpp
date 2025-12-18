@@ -127,16 +127,16 @@ namespace Test
             int screenWidth = renderingContext->getViewportWidth();
             int screenHeight = renderingContext->getViewportHeight();
             float aspect = (float)screenWidth / (float)screenHeight;
-            uniformBlock.projectionMatrix = MatrixUtility::CreatePerspective(_camera.fovY, aspect, _camera.nearZ, _camera.farZ);
+            uniformBlock.projectionMatrix = ProjectionMatrix::CreatePerspective(_camera.fovY, aspect, _camera.nearZ, _camera.farZ);
 
-            Matrix4x4 rotationX = MatrixUtility::CreateRotationX(_camera.angleX);
-            Matrix4x4 rotationY = MatrixUtility::CreateRotationY(_camera.angleY);
+            Matrix4x4 rotationX = TransformMatrix::CreateRotationX(_camera.angleX);
+            Matrix4x4 rotationY = TransformMatrix::CreateRotationY(_camera.angleY);
             Vector4 offset(0.0f, 0.0f, _camera.zoom, 1.0f);
             offset = (rotationY * rotationX) * offset;
             Vector3 eye = Vector3(_camera.focusPositionX, _camera.focusPositionY, _camera.focusPositionZ) + Vector3(offset.x, offset.y, offset.z);
             Vector3 center(_camera.focusPositionX, _camera.focusPositionY, _camera.focusPositionZ);
             Vector3 up(0.0f, 1.0f, 0.0f);
-            uniformBlock.viewMatrix = MatrixUtility::CreateLookAt(eye, center, up);
+            uniformBlock.viewMatrix = ViewMatrix::CreateLookAt(eye, center, up);
         }
 
         // グリッドを描画
@@ -192,7 +192,7 @@ namespace Test
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
 
-            renderingContext->setDepthFunc(ComparisonFuncType::kLessEqual);
+            renderingContext->setDepthFunc(ComparisonFunc::kLessEqual);
             renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
             renderingContext->setVertexAttribute(0, 3, ComponentDataType::kFloat, sizeof(Vector3), yAxisPositions);
@@ -206,7 +206,7 @@ namespace Test
             renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
-            renderingContext->setDepthFunc(ComparisonFuncType::kDefault);
+            renderingContext->setDepthFunc(ComparisonFunc::kDefault);
 
         }
 
@@ -286,7 +286,7 @@ namespace Test
 
         // モデル（１メッシュ）を描画
         {
-            uniformBlock.modelMatrix = MatrixUtility::CreateRotationX(90.0f * 3.14f / 180.0f);
+            uniformBlock.modelMatrix = TransformMatrix::CreateRotationX(90.0f * 3.14f / 180.0f);
 
             Texture2D texture = {};
             texture.addr = kTexture;

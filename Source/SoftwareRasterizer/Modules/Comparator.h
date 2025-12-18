@@ -9,7 +9,7 @@ namespace SoftwareRasterizer
 
 	public:
 
-		static bool Evaluate(float lhs, ComparisonFuncType op, float rhs);
+		static bool Evaluate(float lhs, ComparisonFunc op, float rhs);
 
 	};
 

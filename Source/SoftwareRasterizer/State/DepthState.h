@@ -8,7 +8,7 @@ namespace SoftwareRasterizer
 	{
 		bool depthTestEnabled = true;   // GL_DEPTH_TEST
 
-		ComparisonFuncType depthFunc = ComparisonFuncType::kDefault;
+		ComparisonFunc depthFunc = ComparisonFunc::kDefault;
 
 		//TODO: DepthWriteMask 
 	};

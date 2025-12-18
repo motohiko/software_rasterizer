@@ -2,25 +2,25 @@
 
 namespace SoftwareRasterizer
 {
-    bool Comparator::Evaluate(float lhs, ComparisonFuncType op, float rhs)
+    bool Comparator::Evaluate(float lhs, ComparisonFunc op, float rhs)
     {
         switch (op)
         {
-        case ComparisonFuncType::kNever:
+        case ComparisonFunc::kNever:
             return false;
-        case ComparisonFuncType::kLess:
+        case ComparisonFunc::kLess:
             return (lhs < rhs);
-        case ComparisonFuncType::kEqual:
+        case ComparisonFunc::kEqual:
             return (lhs == rhs);
-        case ComparisonFuncType::kLessEqual:
+        case ComparisonFunc::kLessEqual:
             return (lhs <= rhs);
-        case ComparisonFuncType::kGreater:
+        case ComparisonFunc::kGreater:
             return (lhs > rhs);
-        case ComparisonFuncType::kNotEqual:
+        case ComparisonFunc::kNotEqual:
             return (lhs != rhs);
-        case ComparisonFuncType::kGreaterEqual:
+        case ComparisonFunc::kGreaterEqual:
             return (lhs >= rhs);
-        case ComparisonFuncType::kAlways:
+        case ComparisonFunc::kAlways:
             return true;
         default:
             return false;

@@ -40,27 +40,44 @@
 
 namespace SoftwareRasterizer
 {
-	class MatrixUtility
+	class TransformMatrix
 	{
 
 	public:
 
-		static Matrix4x4 CreateBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origon);
+		static Matrix4x4 CreateBasis(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
+		static Matrix4x4 CreateBasisAndOrigin(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis, const Vector3& origin);
 
-		// Transform Matrix
+		static Matrix4x4 CreateTranslate(float x, float y, float z);//glTranslate
+
 		static Matrix4x4 CreateRotationX(float rad);
 		static Matrix4x4 CreateRotationY(float rad);
 		static Matrix4x4 CreateRotationZ(float rad);
-		static Matrix4x4 CreateScale(float x, float y, float z);
-		static Matrix4x4 CreateShear(float xy, float xz, float yx, float yz, float zx, float zy);
-		static Matrix4x4 CreateTranslate(float x, float y, float z);
 
-		// View Matrix
-		static Matrix4x4 CreateLookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
-		
-		// Projection Matrix
-		static Matrix4x4 CreateFrustum(float left, float right, float bottom, float top, float nearVal, float farVal);
-		static Matrix4x4 CreatePerspective(float fovy, float aspect, float zNear, float zFar);
+		static Matrix4x4 CreateScale(float x, float y, float z);//glScale
+
+		static Matrix4x4 CreateShear(float xy, float xz, float yx, float yz, float zx, float zy);
 
 	};
+
+	class ViewMatrix
+	{
+
+	public:
+
+		static Matrix4x4 CreateLookAt(const Vector3& eye, const Vector3& center, const Vector3& up);//gluLookAt
+
+	};
+
+	class ProjectionMatrix
+	{
+
+	public:
+
+		static Matrix4x4 CreateFrustum(float left, float right, float bottom, float top, float nearVal, float farVal);//glFrustum
+
+		static Matrix4x4 CreatePerspective(float fovy, float aspect, float zNear, float zFar);//gluPerspective
+
+	};
+
 }

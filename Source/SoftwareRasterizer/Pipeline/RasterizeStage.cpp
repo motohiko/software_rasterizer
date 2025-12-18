@@ -196,8 +196,8 @@ namespace SoftwareRasterizer
             rasterizeLine(&rasterVertices[0], &rasterVertices[1]);
             break;
         case 3:
-            bool wireframe = false;
-            if (!wireframe)
+            constexpr bool wireframe = false;
+            if constexpr  (!wireframe)
             {
                 rasterizeTriangle(&rasterVertices[0], &rasterVertices[1], &rasterVertices[2]);
             }
@@ -216,8 +216,8 @@ namespace SoftwareRasterizer
     {
         _rasterizer.begin();
 
-        bool opt = true;
-        if (opt)
+        constexpr bool opt = true;
+        if constexpr (opt)
         {
             _rasterizer.addEgde(&(p0->wndCoord), &(p1->wndCoord));
         }
@@ -257,9 +257,12 @@ namespace SoftwareRasterizer
 
     void RasterizeStage::rasterizeTriangle(const VertexDataD* p0, const VertexDataD* p1, const VertexDataD* p2)
     {
+        _sarea_abc = edgeFunction(p0->wndCoord, p1->wndCoord, p2->wndCoord);
+
         _rasterizer.begin();
-        bool opt = true;
-        if (opt)
+
+        constexpr bool opt = true;
+        if constexpr (opt)
         {
             _rasterizer.addEgde(&(p0->wndCoord), &(p1->wndCoord));
             _rasterizer.addEgde(&(p1->wndCoord), &(p2->wndCoord));
@@ -269,8 +272,6 @@ namespace SoftwareRasterizer
         {
             _rasterizer.addBoundingBox(&(p0->wndCoord), &(p1->wndCoord), &(p2->wndCoord));
         }
-
-        _sarea_abc = edgeFunction(p0->wndCoord, p1->wndCoord, p2->wndCoord);
 
         const Raster& _raster = *_rasterizer.getRaster();
         for (int y = _raster.minY; y <= _raster.maxY; y += 2)
