@@ -1,5 +1,5 @@
 ﻿#include "TextureOperations.h" 
-#include "DataConversionRule.h"
+#include "DataConversion.h"
 #include <cstdint>
 #include <cstring>//memcpy
 #include <cassert>//assert

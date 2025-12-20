@@ -7,6 +7,24 @@
 
 namespace Test
 {
+    const uint16_t* kDefaultIndices = []
+        {
+            static uint16_t indices[0xffff + 1];// 0,1,2,3,..,65535
+            for (uint32_t i = 0; i <= 0xffff; i++)
+            {
+                indices[i] = (uint16_t)i;
+            }
+            return indices;
+        } ();
+
+    struct UniformBlock
+    {
+        Matrix4x4 projectionMatrix;
+        Matrix4x4 viewMatrix;
+        Matrix4x4 modelMatrix;
+        const Sampler2D* meshTexture;
+    };
+
     void ModelViewer::onLButtonDrag(int xDelta, int yDelta)
     {
         _camera.angleX += yDelta * 0.01f;
@@ -48,25 +66,6 @@ namespace Test
     {
         renderScene(renderingContext);
     }
-
-    const uint16_t* kDefaultIndices = []
-        {
-            static uint16_t indices[0xffff + 1];// 0,1,2,3,..,65535
-            for (uint32_t i = 0; i <= 0xffff; i++)
-            {
-                indices[i] = (uint16_t)i;
-            }
-            return indices;
-        } ();
-
-
-    struct UniformBlock
-    {
-        Matrix4x4 projectionMatrix;
-        Matrix4x4 viewMatrix;
-        Matrix4x4 modelMatrix;
-        const Sampler2D* meshTexture;
-    };
 
     void LineVertexShaderMain(const VertexShaderInput* input, VertexShaderOutput* output)
     {

@@ -1,5 +1,5 @@
 ﻿#include "VertexFetchUnit.h"
-#include "DataConversionRule.h"
+#include "DataConversion.h"
 
 namespace SoftwareRasterizer
 {

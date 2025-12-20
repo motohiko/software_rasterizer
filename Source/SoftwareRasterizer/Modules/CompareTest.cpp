@@ -1,8 +1,8 @@
-﻿#include "Comparator.h"
+﻿#include "CompareTest.h"
 
 namespace SoftwareRasterizer
 {
-    bool Comparator::Evaluate(float lhs, ComparisonFunc op, float rhs)
+    bool CompareTest::Perform(ComparisonFunc op, float lhs, float rhs)
     {
         switch (op)
         {
@@ -26,5 +26,4 @@ namespace SoftwareRasterizer
             return false;
         }
     }
-
 }

@@ -32,6 +32,12 @@ namespace SoftwareRasterizer
         _clipRectMaxX = std::min(windowMaxX, viewportMaxX);
         _clipRectMaxY = std::min(windowMaxY, viewportMaxY);
 
+        // text code.
+        _clipRectMinX = 0;
+        _clipRectMinY = 0;
+        _clipRectMaxX = windowMaxX;
+        _clipRectMaxY = windowMaxY;
+
         _rasterizer.setClipRect(_clipRectMinX, _clipRectMinY, _clipRectMaxX, _clipRectMaxY);
 
         int scanlineNum = _windowSize->windowHeight;

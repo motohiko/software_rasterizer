@@ -31,7 +31,7 @@
 
 #include "OutputMergerStage.h"
 #include "..\Modules\TextureOperations.h" 
-#include "..\Modules\Comparator.h" 
+#include "..\Modules\CompareTest.h" 
 #include "..\..\Lib\Algorithm.h"
 #include <algorithm>// clamp
 
@@ -71,7 +71,7 @@ namespace SoftwareRasterizer
 
     bool OutputMergerStage::depthTest(float depth, float storedDepth) const
     {
-        return Comparator::Evaluate(depth, _depthState->depthFunc, storedDepth);
+        return CompareTest::Perform(_depthState->depthFunc, depth, storedDepth);
     }
 
     void OutputMergerStage::storePixelColor(const IntVector2& texelCoord, const Vector4& color)

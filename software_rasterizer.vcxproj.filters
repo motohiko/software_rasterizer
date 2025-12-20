@@ -153,13 +153,13 @@
     <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\DataConversionRule.h">
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\DataConversion.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\State\ClearParam.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\Comparator.h">
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\CompareTest.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h">
@@ -236,10 +236,10 @@
     <ClCompile Include="Source\SoftwareRasterizer\Pipeline\RasterizeStage.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Pipeline</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\DataConversionRule.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\DataConversion.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\Comparator.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\CompareTest.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp">

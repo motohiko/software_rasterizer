@@ -5,12 +5,6 @@
 
 namespace SoftwareRasterizer
 {
-
-    //static bool IsAlmostHorizontal(const Vector2& a, const Vector2& b, float epsilon = 1e-9)
-    //{
-    //    return std::abs(b.y - a.y) <= epsilon;
-    //}
-
     static float XatY(const Vector2& a, const Vector2& b, float y)
     {
         float slope = (b.y - a.y) / (b.x - a.x);

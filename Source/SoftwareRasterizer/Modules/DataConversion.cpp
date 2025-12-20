@@ -1,4 +1,4 @@
-﻿#include "DataConversionRule.h"
+﻿#include "DataConversion.h"
 #include <algorithm>// clamp
 
 namespace SoftwareRasterizer

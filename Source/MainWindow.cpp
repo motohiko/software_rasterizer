@@ -1,15 +1,4 @@
 ﻿#include "MainWindow.h" 
-#include <tchar.h>
-
-void PrintDebugLog(const TCHAR* format, ...)
-{
-    TCHAR buffer[512];
-    va_list args;
-    va_start(args, format);
-    _vstprintf_s(buffer, sizeof(buffer) / sizeof(TCHAR), format, args);
-    va_end(args);
-    OutputDebugStringW(buffer);
-}
 
 MainWindow::MainWindow()
 {
@@ -279,6 +268,7 @@ void MainWindow::createFrameBuffer()
     _renderingContext.setRenderTargetColorBuffer(dibSection.dsBm.bmBits, clientWidth, clientHeight, (int)dibSection.dsBm.bmWidthBytes);
     _renderingContext.setRenderTargetDepthBuffer(_depthBuffer, clientWidth, clientHeight, depthByteCount * dibSection.dsBm.bmWidth);
     _renderingContext.setViewport(0, 0, clientWidth, clientHeight);
+    _renderingContext.setViewport(50, 50, clientWidth - 100, clientHeight - 100);
 }
 
 void MainWindow::deleteFrameBuffer()
@@ -300,4 +290,3 @@ void MainWindow::deleteFrameBuffer()
         _depthBuffer = nullptr;
     }
 }
-

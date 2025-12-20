@@ -4,12 +4,12 @@
 
 namespace SoftwareRasterizer
 {
-	class Comparator
+	class CompareTest
 	{
 
 	public:
 
-		static bool Evaluate(float lhs, ComparisonFunc op, float rhs);
+		static bool Perform(ComparisonFunc op, float lhs, float rhs);
 
 	};
 
