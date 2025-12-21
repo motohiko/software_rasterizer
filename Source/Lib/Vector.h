@@ -36,6 +36,11 @@ namespace Lib
             return Vector2(lhs.x * rhs, lhs.y * rhs);
         }
 
+        static Vector2 DivideByScalar(const Vector2& lhs, float rhs)
+        {
+            return Vector2(lhs.x / rhs, lhs.y / rhs);
+        }
+
         // 要素ごとの積（アダマール積）
         static Vector2 ComputeElementwiseProduct(const Vector2& lhs, const Vector2& rhs)
         {
@@ -47,20 +52,22 @@ namespace Lib
             return (lhs.x * rhs.x) + (lhs.y * rhs.y);
         }
 
-        // 加減算
-        Vector2 operator+(const Vector2& rhs) const { return Add(*this, rhs); }
-        Vector2 operator-(const Vector2& rhs) const { return Subtract(*this, rhs); }
-
-        // スカラー倍
-        Vector2 operator*(float rhs) const { return ScaleByScalar(*this, rhs); }
-        Vector2 operator/(float rhs) const { return ScaleByScalar(*this, 1.0f / rhs); }
-
-        // 要素ごとの積（アダマール積）
-        Vector2 operator*(const Vector2& rhs) const { return ComputeElementwiseProduct(*this, rhs); }
-
         // 内積
         float dot(const Vector2& rhs) const { return ComputeInnerProduct(*this, rhs); }
 
+        // 加減算
+        friend Vector2 operator+(const Vector2& lhs, const Vector2& rhs) { return Add(lhs, rhs); }
+        friend Vector2 operator-(const Vector2& lhs, const Vector2& rhs) { return Subtract(lhs, rhs); }
+
+        // スカラー積
+        friend Vector2 operator*(float lhs, const Vector2& rhs) { return ScaleByScalar(rhs, lhs); }
+        friend Vector2 operator*(const Vector2& lhs, float rhs) { return ScaleByScalar(lhs, rhs); }
+
+        // スカラー商
+        friend Vector2 operator/(const Vector2& lhs, float rhs) { return DivideByScalar(lhs, rhs); }
+
+        // 要素ごとの積（アダマール積）
+        friend Vector2 operator*(const Vector2& lhs, const Vector2& rhs) { return ComputeElementwiseProduct(lhs, rhs); }
     };
 
     struct Vector3
@@ -106,6 +113,11 @@ namespace Lib
             return Vector3(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
         }
 
+        static Vector3 DivideByScalar(const Vector3& lhs, float rhs)
+        {
+            return Vector3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs);
+        }
+
         // 要素ごとの積（アダマール積）
         static Vector3 ComputeElementwiseProduct(const Vector3& lhs, const Vector3& rhs)
         {
@@ -126,25 +138,31 @@ namespace Lib
             );
         }
 
-        // 加減算
-        Vector3 operator+(const Vector3& rhs) const { return Add(*this, rhs); }
-        Vector3 operator-(const Vector3& rhs) const { return Subtract(*this, rhs); }
-
-        // スカラー倍
-        Vector3 operator*(float rhs) const { return ScaleByScalar(*this, rhs); }
-        Vector3 operator/(float rhs) const { return ScaleByScalar(*this, 1.0f / rhs); }
-        Vector3& operator*=(float rhs) { *this = ScaleByScalar(*this, rhs); return *this; }
-        Vector3& operator/=(float rhs) { *this = ScaleByScalar(*this, 1.0f / rhs); return *this; }
-
-        // 要素ごとの積（アダマール積）
-        Vector3 operator*(const Vector3& rhs) const { return ComputeElementwiseProduct(*this, rhs); }
-
         // 内積
         float dot(const Vector3& rhs) const { return ComputeInnerProduct(*this, rhs); }
 
         // 外積
         Vector3 cross(const Vector3& rhs) const { return ComputeOuterProduct(*this, rhs); }
 
+        // スカラー積
+        Vector3& operator*=(float rhs) { *this = ScaleByScalar(*this, rhs); return *this; }
+
+        // スカラー商
+        Vector3& operator/=(float rhs) { *this = DivideByScalar(*this, rhs); return *this; }
+
+        // 加減算
+        friend Vector3 operator+(const Vector3& lhs, const Vector3& rhs) { return Add(lhs, rhs); }
+        friend Vector3 operator-(const Vector3& lhs, const Vector3& rhs) { return Subtract(lhs, rhs); }
+
+        // スカラー積
+        friend Vector3 operator*(float lhs, const Vector3& rhs) { return ScaleByScalar(rhs, lhs); }
+        friend Vector3 operator*(const Vector3& lhs, float rhs) { return ScaleByScalar(lhs, rhs); }
+
+        // スカラー商
+        friend Vector3 operator/(const Vector3& lhs, float rhs) { return DivideByScalar(lhs, rhs); }
+
+        // 要素ごとの積（アダマール積）
+        friend Vector3 operator*(const Vector3& lhs, const Vector3& rhs) { return ComputeElementwiseProduct(lhs, rhs); }
     };
 
     struct Vector4
@@ -188,6 +206,11 @@ namespace Lib
             return Vector4(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs);
         }
 
+        static Vector4 DivideByScalar(const Vector4& lhs, float rhs)
+        {
+            return Vector4(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs, lhs.w / rhs);
+        }
+
         // 要素ごとの積（アダマール積）
         static Vector4 ComputeElementwiseProduct(const Vector4& lhs, const Vector4& rhs)
         {
@@ -199,21 +222,27 @@ namespace Lib
             return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z) + (lhs.w * rhs.w);
         }
 
-        // 加減算
-        Vector4 operator+(const Vector4& rhs) const { return Add(*this, rhs); }
-        Vector4 operator-(const Vector4& rhs) const { return Subtract(*this, rhs); }
-
-        // スカラー倍
-        Vector4 operator*(float rhs) const { return ScaleByScalar(*this, rhs); }
-        Vector4 operator/(float rhs) const { return ScaleByScalar(*this, 1.0f / rhs); }
-        Vector4& operator*=(float rhs) { *this = ScaleByScalar(*this, rhs); return *this; }
-        Vector4& operator/=(float rhs) { *this = ScaleByScalar(*this, 1.0f / rhs); return *this; }
-
-        // 要素ごとの積（アダマール積）
-        Vector4 operator*(const Vector4& rhs) const { return ComputeElementwiseProduct(*this, rhs); }
-
         // 内積
         float dot(const Vector4& rhs) const { return ComputeInnerProduct(*this, rhs); }
 
+        // スカラー積
+        Vector4& operator*=(float rhs) { *this = ScaleByScalar(*this, rhs); return *this; }
+
+        // スカラー商
+        Vector4& operator/=(float rhs) { *this = DivideByScalar(*this, rhs); return *this; }
+
+        // 加減算
+        friend Vector4 operator+(const Vector4& lhs, const Vector4& rhs) { return Add(lhs, rhs); }
+        friend Vector4 operator-(const Vector4& lhs, const Vector4& rhs) { return Subtract(lhs, rhs); }
+
+        // スカラー積
+        friend Vector4 operator*(float lhs, const Vector4& rhs) { return ScaleByScalar(rhs, lhs); }
+        friend Vector4 operator*(const Vector4& lhs, float rhs) { return ScaleByScalar(lhs, rhs); }
+
+        // スカラー商
+        friend Vector4 operator/(const Vector4& lhs, float rhs) { return DivideByScalar(lhs, rhs); }
+
+        // 要素ごとの積（アダマール積）
+        friend Vector4 operator*(const Vector4& lhs, const Vector4& rhs) { return ComputeElementwiseProduct(lhs, rhs); }
     };
 }

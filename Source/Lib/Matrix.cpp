@@ -574,6 +574,17 @@ namespace Lib
         );
     }
 
+    Matrix4x4 Matrix4x4::DivideByScalar(const Matrix4x4& lhs, float rhs)
+    {
+        return Matrix4x4(
+            lhs.m00 / rhs, lhs.m01 / rhs, lhs.m02 / rhs, lhs.m03 / rhs,
+            lhs.m10 / rhs, lhs.m11 / rhs, lhs.m12 / rhs, lhs.m13 / rhs,
+            lhs.m20 / rhs, lhs.m21 / rhs, lhs.m22 / rhs, lhs.m23 / rhs,
+            lhs.m30 / rhs, lhs.m31 / rhs, lhs.m32 / rhs, lhs.m33 / rhs
+        );
+    }
+
+
     // 行列積
     Matrix4x4 Matrix4x4::ComputeMatrixProduct(const Matrix4x4& lhs, const Matrix4x4& rhs)
     {

@@ -282,9 +282,10 @@ namespace Lib
 
         Matrix4x4 getInverseMatrix() const;
 
-        // スカラー倍
+        // スカラー積
         static Matrix4x4 ScaleByScalar(const Matrix4x4& lhs, float rhs);
-
+        static Matrix4x4 DivideByScalar(const Matrix4x4& lhs, float rhs);
+        
         // 行列積
         static Matrix4x4 ComputeMatrixProduct(const Matrix4x4& lhs, const Matrix4x4& rhs);
         static Matrix4x1 ComputeMatrixProduct(const Matrix4x4& lhs, const Matrix4x1& rhs);
@@ -296,16 +297,19 @@ namespace Lib
 
     public:
 
-        // スカラー倍
-        Matrix4x4 operator*(float rhs) const { return ScaleByScalar(*this, rhs); }
-        Matrix4x4 operator/(float rhs) const { return ScaleByScalar(*this, 1.0f / rhs); }
+        // スカラー積
+        friend Matrix4x4 operator*(float lhs, const Matrix4x4& rhs) { return ScaleByScalar(rhs, lhs); }
+        friend Matrix4x4 operator*(const Matrix4x4& lhs, float rhs) { return ScaleByScalar(lhs, rhs); }
+
+        // スカラー商
+        friend Matrix4x4 operator/(const Matrix4x4& lhs, float rhs) { return DivideByScalar(lhs, rhs); }
 
         // 行列積
-        Matrix4x4 operator*(const Matrix4x4& rhs) const { return ComputeMatrixProduct(*this, rhs); }
-        Matrix4x1 operator*(const Matrix4x1& rhs) const { return ComputeMatrixProduct(*this, rhs); }
+        friend Matrix4x4 operator*(const Matrix4x4& lhs, const Matrix4x4& rhs) { return ComputeMatrixProduct(lhs, rhs); }
 
         // ベクトル変換
-        Vector4 operator*(const Vector4& rhs) const { return ApplyMatrixToColumnVector(*this, rhs); }
+        friend Vector4 operator*(const Vector4& lhs, const Matrix4x4& rhs) { return ApplyMatrixToRowVector(lhs, rhs); }
+        friend Vector4 operator*(const Matrix4x4& lhs, const Vector4& rhs) { return ApplyMatrixToColumnVector(lhs, rhs); }
 
     };
 }
