@@ -94,9 +94,9 @@ namespace SoftwareRasterizer
         Vector4 varyings[kMaxVaryings];
     };
 
-    struct QuadFragmentData
+    struct SubspanData
     {
-        FragmentData q00;
+        FragmentData q00;// q = Quad
         FragmentData q01;
         FragmentData q10;
         FragmentData q11;
@@ -110,7 +110,7 @@ namespace SoftwareRasterizer
 
     struct QuadPixelData
     {
-        PixelData q00;
+        PixelData q00;// q = Quad
         PixelData q01;
         PixelData q10;
         PixelData q11;

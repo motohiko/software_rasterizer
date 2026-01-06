@@ -1,9 +1,9 @@
-﻿#include "Interpolator.h"
+﻿#include "InterpolationUnit.h"
 #include <cmath>// lerp
 
 namespace SoftwareRasterizer
 {
-    void Interpolator::InterpolateLinear(VertexDataB* p, const VertexDataB* a, const VertexDataB* b, float t, const VaryingIndexState* varyingIndexState)
+    void InterpolationUnit::InterpolateLinear(VertexDataB* p, const VertexDataB* a, const VertexDataB* b, float t, const VaryingIndexState* varyingIndexState)
     {
         p->clipCoord = Vector4(
             std::lerp(a->clipCoord.x, b->clipCoord.x, t),
@@ -27,7 +27,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    void Interpolator::InterpolateLinear(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, float t, const VaryingIndexState* varyingIndexState)
+    void InterpolationUnit::InterpolateLinear(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, float t, const VaryingIndexState* varyingIndexState)
     {
         p->wndCoord = Vector2(
             std::lerp(a->wndCoord.x, b->wndCoord.x, t),
@@ -51,7 +51,7 @@ namespace SoftwareRasterizer
         }
     }
 
-    void Interpolator::InterpolateBarycentric(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, const BarycentricCoord* baryCoord, const VaryingIndexState* varyingIndexState)
+    void InterpolationUnit::InterpolateBarycentric(VertexDataD* p, const VertexDataD* a, const VertexDataD* b, const VertexDataD* c, const BarycentricCoord* baryCoord, const VaryingIndexState* varyingIndexState)
     {
         float r1 = baryCoord->r1;
         float r2 = baryCoord->r2;

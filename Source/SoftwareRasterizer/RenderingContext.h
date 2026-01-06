@@ -113,7 +113,7 @@ namespace SoftwareRasterizer
         friend class OutputMergerStage;
 
         // パイプライン間で受け渡しされるデータ
-        QuadFragmentData _quadFragment = {};
+        SubspanData _quadFragment = {};
         QuadPixelData _quadPixel = {};
 
     };

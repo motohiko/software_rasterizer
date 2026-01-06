@@ -1,6 +1,6 @@
 ﻿#include "RasterizeStage.h"
 #include "..\RenderingContext.h"
-#include "..\Modules\Interpolator.h"
+#include "..\Modules\InterpolationUnit.h"
 #include <cassert>
 #include <cmath>// lerp floor ceil abs 
 #include <algorithm>// min max clamp
@@ -343,6 +343,35 @@ namespace SoftwareRasterizer
         return true;
     }
 
+
+    // intel gpu
+    // slope = y / x
+    bool DiamondSamplingRules(const Vector2 sample, float slope, const Vector2& point)
+    {
+        bool x_major = (-1.0f <= slope) && (slope <= 1.0f);
+
+        float delta_x = point.x - sample.x;
+        float delta_y = point.y - sample.y;
+
+        float distance = std::abs(delta_x) + std::abs(delta_y);
+        bool interior = (distance < 0.5f);
+
+        bool bottom_corner = (delta_x == 0.0f) && (delta_y == 0.5f);
+        bool left_corner = (delta_x == -0.5f) && (delta_y == 0.0f);
+        bool right_corner = (delta_x == 0.5f) && (delta_y == 0.0f);
+
+        bool bottom_left_edge = (distance == 0.5f) && (delta_x < 0.0f) && (delta_y > 0.0f);
+        bool bottom_right_edge = (distance == 0.5f) && (delta_x > 0.0f) && (delta_y > 0.0f);
+
+        bool inisde = interior ||
+            bottom_corner ||
+            (!x_major && right_corner) ||
+            bottom_left_edge ||
+            bottom_right_edge;
+
+        return inisde;
+    }
+
     void RasterizeStage::getLineFragment(int x, int y, const VertexDataD* a, const VertexDataD* b, FragmentData* fragment)
     {
         fragment->pixelCoord = IntVector2(x, y);
@@ -381,7 +410,7 @@ namespace SoftwareRasterizer
         t = std::clamp(t, 0.0f, 1.0f);
 
         VertexDataD p;
-        Interpolator::InterpolateLinear(&p, a, b, t, _varyingIndexState);
+        InterpolationUnit::InterpolateLinear(&p, a, b, t, _varyingIndexState);
 
         assert(0.0f != p.invW);
         float w = 1.0f / p.invW;
@@ -429,7 +458,7 @@ namespace SoftwareRasterizer
         }
 
         VertexDataD p;
-        Interpolator::InterpolateBarycentric(&p, a, b, c, &baryCoord, _varyingIndexState);
+        InterpolationUnit::InterpolateBarycentric(&p, a, b, c, &baryCoord, _varyingIndexState);
 
         assert(0.0f != p.invW);
         float w = 1.0f / p.invW;

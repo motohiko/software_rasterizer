@@ -85,11 +85,6 @@ namespace SoftwareRasterizer
     Matrix4x4 TransformMatrix::CreateShear(float xy, float xz, float yx, float yz, float zx, float zy)
     {
         // xy : x が y に依存してずれる量
-        // xz : x が z に依存してずれる量
-        // yx : y が x に依存してずれる量
-        // yz : y が z に依存してずれる量
-        // zx : z が x に依存してずれる量
-        // zy : z が y に依存してずれる量
 
         return Matrix4x4(
             1.0f, xy,   xz,   0.0f,
@@ -168,33 +163,9 @@ namespace SoftwareRasterizer
 
     Matrix4x4 ProjectionMatrix::CreateFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
     {
-        // note.
-        // 
-        // 次を満たす変換行列 m を返す
-        //
-        // mv = v'
-        //
-        // v.x = [ left,     right ]
-        // v.y = [ bottom,   top   ]
-        // v.z = [-nearVal, -farVal]  ※カメラ空間は右手系（奥が -z） 
-        // v.w = 1
-        //
-        // のとき
-        //
-        // v'.x = [-nearVal, nearVal]
-        // v'.y = [-nearVal, nearVal]
-        // v'.z = [-nearVal, farVal ]  ※クリップ空間は左手手系（奥が +z） 
-        // v'.w = -v.z
-        // 
-        // また
-        // 
-        // v.xyz = (0, 0, 0)
-        //
-        // のとき
-        //
-        // v'.xyz = (0, 0, 0)　※視点(原点)は固定
-        //
-
+        //static bool referenceImplementation = false;
+        //referenceImplementation = !referenceImplementation;
+        //if (referenceImplementation)
         constexpr bool referenceImplementation = false;
         if constexpr (referenceImplementation)
         {
@@ -214,27 +185,80 @@ namespace SoftwareRasterizer
         }
         else
         {
-            // ニアクリップ面が左右非対称なら、視点（原点）は固定してニアクリップ面を中央に移動
-            // x' = 1 * x + 0 * y + shxz * z + 0 * w
-            // y' = 1 * x + 0 * y + shyz * z + 0 * w
-            float shxz = (right + left) / (right - left);// Shear XZ
-            float shyz = (top + bottom) / (top - bottom);
+            // 視錐台の幅・高さ・奥行（符号無し）を求めておく
+            float nearWidth = right - left;
+            float nearHeight = top - bottom;
 
-            // ニアクリップ面の上下左右 を [-near, near] にマップ
-            // x' = sx * x + 0  * y + shxz * z + 0 * w
-            // y' = 0  * x + sy * y + shyz * z + 0 * w
-            float sx = (2.0f / (right - left)) * nearVal;// Scale X
-            float sy = (2.0f / (top - bottom)) * nearVal;
+            // 左右対称になるようにニアクリップ面をずらす（Shear）
+            float shxz = (right + left) / nearWidth;
+            float shyz = (top + bottom) / nearHeight;
 
-            // 視体積の奥行範囲 [-nearVal, -farVal] を [-nearVal, farVal] にマップ
-            // z' = 0 * x + 0 * y + sz * z + tz * w
+
+            // ニアクリップ面の上下左右 を [-near, near] に写像
+            float sx = (nearVal + nearVal) / nearWidth;
+            float sy = (nearVal + nearVal) / nearHeight;
+
+
+            // 視体積の奥行範囲 を [-nearVal, farVal] に写像
+
+            // zの写像式
+            //  Zndc = (C * z + D) / -z    (1)
+
+            // 条件
+            //  z = -n のとき Zndc = -1    (2)
+            //  z = -f のとき Zndc =  1    (3)   
+
+            // まず C を求める
+
+            // (1)、(2)より
+            //  -1 = (C * -n + D) / n
+            // 両辺に n を掛ける
+            //  -n = C * -n + D    (4)
+
+            // (1)、(3)より
+            //  1 = (C * -f + D) / f
+            // 両辺に f を掛ける
+            //  f = C * -f + D    (5)
+
+            // (4)から(5)を引いて D を消去
+            //  -n - f = C * -n - C * -f
+            //  -n - f = C * (-n + f)
+            // 両辺を(-n + f)で割る
+            //  (-n - f) / (-n + f) = C
+
+            // よって C は
+            //  C = -(f + n) / (f - n)    (6)
+
+            // 次に D を求める
+
+            // (4)を D= の式にする
+            //  D = -n - C * -n
+            //  D = (1 - C) * -n    (7)
+
+            // (7)に(6)を代入
+            //  D = (1 - (-(f + n) / (f - n))) * -n
+            //  D = (1 + ((f + n) / (f - n))) * -n
+
+            // 1 を (f - n) / (f - n) に置き換える
+            //  D = (((f - n) / (f - n)) + ((f + n) / (f - n))) * -n
+            //  D = ((f - n + f + n) / (f - n)) * -n
+            //  D = ((f + f) / (f - n)) * -n
+            //  D = ((f + f) * -n) / (f - n)
+
+            // よって D は
+            //  D = -(2 * f * n) / (f - n) 
+
             float sz = -(farVal + nearVal) / (farVal - nearVal);
-            float tz = -(2.0f * farVal * nearVal) / (farVal - nearVal);// Translate Z
+            float tz = -(2.0f * farVal * nearVal) / (farVal - nearVal);
 
             // 変換後のベクトルの w' には変換前のベクトルの -z を入れる 
-            // w' = 0 * x + 0 * y + pdt * z + 0 * w
             float pdt = -1.0f;// perspective divide term.
 
+            // 次の変換行列を返す
+            // x' = sx * x + 0  * y + shxz * z + 0  * w
+            // y' = 0  * x + sy * y + shyz * z + 0  * w
+            // z' = 0  * x + 0  * y + sz   * z + tz * w
+            // w' = 0  * x + 0  * y + pdt  * z + 0  * w
             return Matrix4x4(
                 sx,   0.0f, shxz, 0.0f,
                 0.0f, sy,   shyz, 0.0f,

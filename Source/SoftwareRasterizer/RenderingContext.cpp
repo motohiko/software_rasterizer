@@ -206,19 +206,17 @@ namespace SoftwareRasterizer
         _outputMergerStage.input(&_depthRange);
         _outputMergerStage.output(&_renderTarget);
 
-        // prepare...
         VertexCache::InitializeCache();
         _inputAssemblyStage.prepareReadPrimitive();
         _rasterizeStage.prepareRasterize();
 
-        // Kick.
         _inputAssemblyStage.executeVertexLoop();
     }
 
     void RenderingContext::outputVertex(VertexCacheEntry* entry)
     {
-        const VertexDataA* vertexPreTL = &(entry->vertexDataA);
-        VertexDataB* vertexPostTL = &(entry->vertexDataB);
+        const VertexDataA* vertexPreTL = &(entry->vertexPreTL);
+        VertexDataB* vertexPostTL = &(entry->vertexPostTL);
 
         _vertexShaderStage.executeShader(vertexPreTL, vertexPostTL);
     }
@@ -230,7 +228,7 @@ namespace SoftwareRasterizer
         for (int i = 0; i < vertexNum; i++)
         {
             VertexCacheEntry* entry = entries[i];
-            vertices[i] = &(entry->vertexDataB);
+            vertices[i] = &(entry->vertexPostTL);
         }
 
         // プリミティブをクリップ

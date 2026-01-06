@@ -12,8 +12,8 @@ namespace SoftwareRasterizer
         bool enabled;
         int vertexId;
 
-        VertexDataA vertexDataA;// Pre T/L
-        VertexDataB vertexDataB;// Post T/L
+        VertexDataA vertexPreTL;
+        VertexDataB vertexPostTL;
     };
 
     class VertexCache

@@ -7,16 +7,6 @@
 
 namespace Test
 {
-    const uint16_t* kDefaultIndices = []
-        {
-            static uint16_t indices[0xffff + 1];// 0,1,2,3,..,65535
-            for (uint32_t i = 0; i <= 0xffff; i++)
-            {
-                indices[i] = (uint16_t)i;
-            }
-            return indices;
-        } ();
-
     struct UniformBlock
     {
         Matrix4x4 projectionMatrix;
@@ -142,8 +132,14 @@ namespace Test
         {
             const int gridSize = 9;
             float harfGridSize = gridSize / 2.0f;
+            uint16_t gridIndices[2 * 2 * gridSize];
             Vector3 gridPositions[2 * 2 * gridSize];
             Vector4 gridColors[2 * 2 * gridSize];
+
+            for (int i = 0; i < (2 * 2 * gridSize); i++)
+            {
+                gridIndices[i] = i;
+            }
             for (int i = 0; i < gridSize; i++)
             {
                 float a = 1.0f * (i - (gridSize / 2));
@@ -161,20 +157,21 @@ namespace Test
             renderingContext->setVertexAttribute(0, 3, ComponentDataType::kFloat, sizeof(Vector3), gridPositions);
             renderingContext->enableVertexAttribute(1);
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), gridColors);
-            renderingContext->setIndexBuffer(kDefaultIndices, 2 * 2 * gridSize);
+            renderingContext->setIndexBuffer(gridIndices, 2 * 2 * gridSize);
             renderingContext->enableVarying(0);
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
 
             renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
-            renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
+            renderingContext->disableVarying(0);
         }
 
         // 座標軸を描画
         {
+            const uint16_t axisIndices[2] = { 0, 1 };
             const Vector3 xAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 1.0f,  0.0f,  0.0f } };
             const Vector4 xAxisColors[2] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } };
             const Vector3 yAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  1.0f,  0.0f } };
@@ -182,16 +179,16 @@ namespace Test
             const Vector3 zAxisPositions[2] = { { 0.0f, 0.0f, 0.0f }, { 0.0f,  0.0f,  1.0f } };
             const Vector4 zAxisColors[2] = { { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
+            renderingContext->setIndexBuffer(axisIndices, 2);
             renderingContext->enableVertexAttribute(0);
             renderingContext->setVertexAttribute(0, 3, ComponentDataType::kFloat, sizeof(Vector3), xAxisPositions);
             renderingContext->enableVertexAttribute(1);
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), xAxisColors);
-            renderingContext->setIndexBuffer(kDefaultIndices, 2);
             renderingContext->enableVarying(0);
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);
-
             renderingContext->setDepthFunc(ComparisonFunc::kLessEqual);
+
             renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
             renderingContext->setVertexAttribute(0, 3, ComponentDataType::kFloat, sizeof(Vector3), yAxisPositions);
@@ -202,20 +199,20 @@ namespace Test
             renderingContext->setVertexAttribute(1, 4, ComponentDataType::kFloat, sizeof(Vector4), zAxisColors);
             renderingContext->drawIndexed(PrimitiveTopologyType::kLineList);
 
-            renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
+            renderingContext->disableVarying(0);
             renderingContext->setDepthFunc(ComparisonFunc::kDefault);
-
         }
 
         // 色付き三角形を描画（頂点色は赤緑青の順、反時計周り）
         if (false)
         {
+            const uint16_t polygonIndices[3] = { 0, 1, 2 };
             const Vector3 polygonPositions[3] = { { -1.0f, 0.0f, 0.0f }, { -1.0f, 2.0f,  0.0f }, { -3.0f,  0.0f,  0.0f } };
             const Vector4 polygonColors[3] = { { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
-            renderingContext->setIndexBuffer(kDefaultIndices, 3);
+            renderingContext->setIndexBuffer(polygonIndices, 3);
             renderingContext->enableVertexAttribute(0);
             renderingContext->setVertexAttribute(0, 3, ComponentDataType::kFloat, sizeof(Vector3), polygonPositions);
             renderingContext->enableVertexAttribute(1);
@@ -223,15 +220,14 @@ namespace Test
             renderingContext->setVertexShaderProgram(LineVertexShaderMain);// 流用
             renderingContext->enableVarying(0);
             renderingContext->setFragmentShaderProgram(LinePixelShaderMain);// 流用
-
             renderingContext->setFrontFaceMode(FrontFaceMode::kCounterClockwise);
             renderingContext->setCullFaceMode(CullFaceMode::kBack);
 
             renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
-            renderingContext->disableVarying(0);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
+            renderingContext->disableVarying(0);
             renderingContext->setFrontFaceMode(FrontFaceMode::kDefault);
             renderingContext->setCullFaceMode(CullFaceMode::kDefault);
         }
@@ -253,7 +249,7 @@ namespace Test
 
             Sampler2D sampler = {};
             sampler.texture = &texture;
-            sampler.filter = FilterType::kPoint;
+            sampler.filter = FilterType::kBilinear;
 
             uniformBlock.meshTexture = &sampler;
 
@@ -268,19 +264,19 @@ namespace Test
             renderingContext->enableVarying(1);
             renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
             renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
-
             renderingContext->setFrontFaceMode(FrontFaceMode::kClockwise);
-            renderingContext->setCullFaceMode(CullFaceMode::kNone);
 
             renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
-            renderingContext->disableVarying(0);
-            renderingContext->disableVarying(1);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
             renderingContext->disableVertexAttribute(2);
+            renderingContext->disableVarying(0);
+            renderingContext->disableVarying(1);
             renderingContext->setFrontFaceMode(FrontFaceMode::kDefault);
             renderingContext->setCullFaceMode(CullFaceMode::kDefault);
+
+            uniformBlock.meshTexture = nullptr;
         }
 
         // モデル（１メッシュ）を描画
@@ -311,18 +307,13 @@ namespace Test
             renderingContext->setVertexShaderProgram(MeshVertexShaderMain);
             renderingContext->setFragmentShaderProgram(MeshPixelShaderMain);
 
-            renderingContext->setFrontFaceMode(FrontFaceMode::kCounterClockwise);
-            renderingContext->setCullFaceMode(CullFaceMode::kBack);
-
             renderingContext->drawIndexed(PrimitiveTopologyType::kTriangleList);
 
-            renderingContext->disableVarying(0);
-            renderingContext->disableVarying(1);
             renderingContext->disableVertexAttribute(0);
             renderingContext->disableVertexAttribute(1);
             renderingContext->disableVertexAttribute(2);
-            renderingContext->setFrontFaceMode(FrontFaceMode::kDefault);
-            renderingContext->setCullFaceMode(CullFaceMode::kDefault);
+            renderingContext->disableVarying(0);
+            renderingContext->disableVarying(1);
 
             uniformBlock.modelMatrix = Matrix4x4::kIdentity;
             uniformBlock.meshTexture = nullptr;

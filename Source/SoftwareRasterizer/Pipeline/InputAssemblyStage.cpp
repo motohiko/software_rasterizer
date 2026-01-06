@@ -71,7 +71,7 @@ namespace SoftwareRasterizer
                 {
                     entry = VertexCache::GetVertexCache(vertexId);
 
-                    VertexDataA* vertex = &(entry->vertexDataA);// Pre T/L
+                    VertexDataA* vertex = &(entry->vertexPreTL);
                     vertex->vertexId = vertexId;
                     VertexFetchUnit::FetchVertex(_inputLayout, _vertexBuffers, vertexIndex, vertex);
 

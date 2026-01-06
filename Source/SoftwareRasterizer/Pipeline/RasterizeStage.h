@@ -33,7 +33,7 @@ namespace SoftwareRasterizer
         void input(const Viewport* viewport) { _viewport = viewport; }
         void input(const DepthRange* depthRange) { _depthRange = depthRange; }
    
-        void output(QuadFragmentData* quadFragment) { _quadFragment = quadFragment; }
+        void output(SubspanData* quadFragment) { _quadFragment = quadFragment; }
         void output(class RenderingContext* renderingContext) { _renderingContext = renderingContext; }
 
         void prepareRasterize();
@@ -76,7 +76,7 @@ namespace SoftwareRasterizer
         const DepthRange* _depthRange = nullptr;
 
         // output
-        QuadFragmentData* _quadFragment;
+        SubspanData* _quadFragment;
         class RenderingContext* _renderingContext = nullptr;
 
     private:

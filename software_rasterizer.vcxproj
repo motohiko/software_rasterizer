@@ -139,7 +139,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\MatrixUtility.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\ClipStage.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\CompareTest.h" />
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\Interpolator.h" />
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\InterpolationUnit.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\DataConversion.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.h" />
     <ClInclude Include="Source\SoftwareRasterizer\Modules\Rasterizer.h" />
@@ -182,7 +182,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\MatrixUtility.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\ClipStage.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\CompareTest.cpp" />
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\Interpolator.cpp" />
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\InterpolationUnit.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\DataConversion.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\PrimitiveAssembly.cpp" />
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp" />

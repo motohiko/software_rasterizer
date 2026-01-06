@@ -18,7 +18,7 @@ namespace SoftwareRasterizer
 
         void input(const ConstantBuffer* constantBuffer) { _constantBuffer = constantBuffer; }
         void input(const FragmentShaderProgram* fragmentShaderProgram) { _fragmentShaderProgram = fragmentShaderProgram; }
-        void input(const QuadFragmentData* quadFragment) { _quadFragment = quadFragment; }
+        void input(const SubspanData* quadFragment) { _quadFragment = quadFragment; }
 
         void output(QuadPixelData* quadPixelData) { _quadPixelData = quadPixelData; }
 
@@ -33,7 +33,7 @@ namespace SoftwareRasterizer
         // input
         const ConstantBuffer* _constantBuffer;
         const FragmentShaderProgram* _fragmentShaderProgram;
-        const QuadFragmentData* _quadFragment;
+        const SubspanData* _quadFragment;
 
         // output
         QuadPixelData* _quadPixelData;

@@ -17,7 +17,7 @@ namespace SoftwareRasterizer
         float r3;
     };
 
-	class Interpolator
+	class InterpolationUnit
 	{
 
 	public:

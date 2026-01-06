@@ -168,7 +168,7 @@
     <ClInclude Include="Source\SoftwareRasterizer\State\VaryingIndexState.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\State</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SoftwareRasterizer\Modules\Interpolator.h">
+    <ClInclude Include="Source\SoftwareRasterizer\Modules\InterpolationUnit.h">
       <Filter>ヘッダー ファイル\SoftwareRasterizer\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Source\SoftwareRasterizer\Modules\VertexFetchUnit.h">
@@ -245,7 +245,7 @@
     <ClCompile Include="Source\SoftwareRasterizer\Modules\Rasterizer.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SoftwareRasterizer\Modules\Interpolator.cpp">
+    <ClCompile Include="Source\SoftwareRasterizer\Modules\InterpolationUnit.cpp">
       <Filter>ソース ファイル\SoftwareRasterizer\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Source\SoftwareRasterizer\RenderingContext.cpp">
