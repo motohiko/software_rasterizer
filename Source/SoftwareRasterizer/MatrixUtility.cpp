@@ -163,9 +163,6 @@ namespace SoftwareRasterizer
 
     Matrix4x4 ProjectionMatrix::CreateFrustum(float left, float right, float bottom, float top, float nearVal, float farVal)
     {
-        //static bool referenceImplementation = false;
-        //referenceImplementation = !referenceImplementation;
-        //if (referenceImplementation)
         constexpr bool referenceImplementation = false;
         if constexpr (referenceImplementation)
         {
@@ -185,86 +182,38 @@ namespace SoftwareRasterizer
         }
         else
         {
-            // 視錐台の幅・高さ・奥行（符号無し）を求めておく
+            // 視錐台を整える
+
+            Matrix4x4 shear(
+                1.0f, 0.0f, (right + left) / (2.0f * nearVal), 0.0f,
+                0.0f, 1.0f, (top + bottom) / (2.0f * nearVal), 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+            );
+
             float nearWidth = right - left;
             float nearHeight = top - bottom;
 
-            // 左右対称になるようにニアクリップ面をずらす（Shear）
-            float shxz = (right + left) / nearWidth;
-            float shyz = (top + bottom) / nearHeight;
+            // w' = -z
 
-
-            // ニアクリップ面の上下左右 を [-near, near] に写像
-            float sx = (nearVal + nearVal) / nearWidth;
-            float sy = (nearVal + nearVal) / nearHeight;
-
-
-            // 視体積の奥行範囲 を [-nearVal, farVal] に写像
-
-            // zの写像式
-            //  Zndc = (C * z + D) / -z    (1)
+            // 写像式
+            //  Xndc = (? * x + A * z) / -z
+            //  Yndc = (? * y + B * z) / -z
+            //  Zndc = (C * z + D * w) / -z
 
             // 条件
-            //  z = -n のとき Zndc = -1    (2)
-            //  z = -f のとき Zndc =  1    (3)   
+            //  z = -n のとき Zndc = -1
+            //  z = -f のとき Zndc =  1   
+            
 
-            // まず C を求める
-
-            // (1)、(2)より
-            //  -1 = (C * -n + D) / n
-            // 両辺に n を掛ける
-            //  -n = C * -n + D    (4)
-
-            // (1)、(3)より
-            //  1 = (C * -f + D) / f
-            // 両辺に f を掛ける
-            //  f = C * -f + D    (5)
-
-            // (4)から(5)を引いて D を消去
-            //  -n - f = C * -n - C * -f
-            //  -n - f = C * (-n + f)
-            // 両辺を(-n + f)で割る
-            //  (-n - f) / (-n + f) = C
-
-            // よって C は
-            //  C = -(f + n) / (f - n)    (6)
-
-            // 次に D を求める
-
-            // (4)を D= の式にする
-            //  D = -n - C * -n
-            //  D = (1 - C) * -n    (7)
-
-            // (7)に(6)を代入
-            //  D = (1 - (-(f + n) / (f - n))) * -n
-            //  D = (1 + ((f + n) / (f - n))) * -n
-
-            // 1 を (f - n) / (f - n) に置き換える
-            //  D = (((f - n) / (f - n)) + ((f + n) / (f - n))) * -n
-            //  D = ((f - n + f + n) / (f - n)) * -n
-            //  D = ((f + f) / (f - n)) * -n
-            //  D = ((f + f) * -n) / (f - n)
-
-            // よって D は
-            //  D = -(2 * f * n) / (f - n) 
-
-            float sz = -(farVal + nearVal) / (farVal - nearVal);
-            float tz = -(2.0f * farVal * nearVal) / (farVal - nearVal);
-
-            // 変換後のベクトルの w' には変換前のベクトルの -z を入れる 
-            float pdt = -1.0f;// perspective divide term.
-
-            // 次の変換行列を返す
-            // x' = sx * x + 0  * y + shxz * z + 0  * w
-            // y' = 0  * x + sy * y + shyz * z + 0  * w
-            // z' = 0  * x + 0  * y + sz   * z + tz * w
-            // w' = 0  * x + 0  * y + pdt  * z + 0  * w
-            return Matrix4x4(
-                sx,   0.0f, shxz, 0.0f,
-                0.0f, sy,   shyz, 0.0f,
-                0.0f, 0.0f, sz,   tz,
-                0.0f, 0.0f, pdt,  0.0f
+            Matrix4x4 perp(
+                (2.0f * nearVal) / (right - left), 0.0f, 0.0f, 0.0f,
+                0.0f, (2.0f * nearVal) / (top - bottom), 0.0f, 0.0f,
+                0.0f, 0.0f, -(farVal + nearVal) / (farVal - nearVal), -(2.0f * farVal *  nearVal) / (farVal - nearVal),
+                0.0f, 0.0f, -1.0f, 0.0f
             );
+
+            return perp * shear;
         }
     }
 
@@ -286,7 +235,7 @@ namespace SoftwareRasterizer
         }
         else
         {
-            float halfHeight = zNear * std:: tan(fovy / 2.0f);
+            float halfHeight = zNear * std::tan(fovy / 2.0f);
             float halfWidth = halfHeight * aspect;
             return CreateFrustum(-halfWidth, halfWidth, -halfHeight, halfHeight, zNear, zFar);
         }
